@@ -1,0 +1,7 @@
+package com.anveshak.DTOs;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record ResendVerificationTokenRequest(
+                @NotBlank String email) {
+}

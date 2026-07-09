@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: anveshak_postgres
+    environment:
+      POSTGRES_DB: anveshak_db
+      POSTGRES_USER: sagar
+      POSTGRES_PASSWORD: denji0086
+    ports:
+      - "5436:5432"
+    volumes:
+      - type: bind
+        source: D:/spring_projects/anveshak/docker-data/postgres
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sagar -d anveshak_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  embedding:
+    build: 
+      context: ../embeddingService
+      dockerfile: Dockerfile
+    container_name: recommendation_embedding
+    ports:
+      - "8001:8001"
+    volumes:
+      - type: bind
+        source: D:/spring_projects/anveshak/docker-data/huggingface
+        target: /root/.cache/huggingface
+    environment:
+      MODEL_NAME: all-MiniLM-L6-v2
+    depends_on:
+      - postgres
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" ]
+      start_period: 300s
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  

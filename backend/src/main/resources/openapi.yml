@@ -1,0 +1,1351 @@
+openapi: 3.1.0
+info:
+  title: Anveshak API
+  version: 1.0.0
+  description: API documentation for the Anveshak research paper management application.
+
+servers:
+  - url: /
+
+tags:
+  - name: Health Check
+    description: Application health endpoint.
+  - name: Authentication
+    description: User registration, login, token refresh, verification, and password recovery.
+  - name: User Management
+    description: Profile, identity, and session management for the authenticated user.
+  - name: Research Paper Management
+    description: Research paper upload, retrieval, search, comparison, and PDF access.
+  - name: Collection Management
+    description: Research paper collection lifecycle and collection membership.
+  - name: Citation Management
+    description: Citation management for research papers.
+  - name: Paper Chat
+    description: Chat session and message management related to research papers.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Health Check]
+      operationId: healthCheck
+      summary: Check application health
+      security: []
+      responses:
+        '200':
+          description: Application is running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      operationId: registerUser
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMessageResponse'
+        '400':
+          description: Invalid registration request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      operationId: loginUser
+      summary: Login with email and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid credentials or request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/google:
+    post:
+      tags: [Authentication]
+      operationId: googleLogin
+      summary: Login with Google
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+      responses:
+        '200':
+          description: Google login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      operationId: refreshTokens
+      summary: Refresh access and refresh tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Tokens refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid refresh token request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      operationId: logout
+      summary: Revoke a refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '204':
+          description: Token revoked
+        '400':
+          description: Invalid logout request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout-all:
+    post:
+      tags: [Authentication]
+      operationId: logoutAll
+      summary: Revoke all user sessions
+      responses:
+        '204':
+          description: All sessions revoked
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/verify-email:
+    get:
+      tags: [Authentication]
+      operationId: verifyEmailQueryToken
+      summary: Verify email using a query token
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMessageResponse'
+        '400':
+          description: Invalid verification token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/verify-email/{token}:
+    get:
+      tags: [Authentication]
+      operationId: verifyEmailPathToken
+      summary: Verify email using a path token
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMessageResponse'
+        '400':
+          description: Invalid verification token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/resend-verification:
+    post:
+      tags: [Authentication]
+      operationId: resendVerification
+      summary: Resend verification email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationTokenRequest'
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMessageResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/forgot-password:
+    post:
+      tags: [Authentication]
+      operationId: forgotPassword
+      summary: Request a password reset email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMessageResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/reset-password:
+    post:
+      tags: [Authentication]
+      operationId: resetPassword
+      summary: Reset a password using a reset token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMessageResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me:
+    get:
+      tags: [User Management]
+      operationId: getCurrentUser
+      summary: Get the current user's profile
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags: [User Management]
+      operationId: updateCurrentUser
+      summary: Update the current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me/password:
+    patch:
+      tags: [User Management]
+      operationId: changePassword
+      summary: Change the current user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '204':
+          description: Password changed
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me/identities:
+    get:
+      tags: [User Management]
+      operationId: listIdentities
+      summary: List linked identities for the current user
+      responses:
+        '200':
+          description: Linked identities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserIdentityResponse'
+
+  /users/me/link/google:
+    post:
+      tags: [User Management]
+      operationId: linkGoogleIdentity
+      summary: Link a Google identity to the current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+      responses:
+        '201':
+          description: Google identity linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIdentityResponse'
+    delete:
+      tags: [User Management]
+      operationId: unlinkGoogleIdentity
+      summary: Unlink the current user's Google identity
+      responses:
+        '204':
+          description: Google identity unlinked
+
+  /users/me/sessions:
+    get:
+      tags: [User Management]
+      operationId: listSessions
+      summary: List active refresh-token sessions for the current user
+      responses:
+        '200':
+          description: Active sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSessionResponse'
+
+  /users/me/sessions/{sessionId}:
+    delete:
+      tags: [User Management]
+      operationId: revokeSession
+      summary: Revoke a specific session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Session revoked
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /papers:
+    post:
+      tags: [Research Paper Management]
+      operationId: createPaper
+      summary: Create a research paper with a PDF upload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [paper, pdfFile]
+              properties:
+                paper:
+                  $ref: '#/components/schemas/NewPaperRequest'
+                pdfFile:
+                  type: string
+                  format: binary
+            encoding:
+              paper:
+                contentType: application/json
+      responses:
+        '201':
+          description: Paper created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchPaperResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags: [Research Paper Management]
+      operationId: listPapers
+      summary: List research papers for the current user
+      responses:
+        '200':
+          description: Papers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResearchPaperResponse'
+
+  /papers/{paperId}:
+    get:
+      tags: [Research Paper Management]
+      operationId: getPaper
+      summary: Get a research paper by ID
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Paper details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchPaperResponse'
+    patch:
+      tags: [Research Paper Management]
+      operationId: updatePaper
+      summary: Update a research paper and optionally replace its PDF
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [paper]
+              properties:
+                paper:
+                  $ref: '#/components/schemas/UpdatePaperRequest'
+                pdfFile:
+                  type: string
+                  format: binary
+            encoding:
+              paper:
+                contentType: application/json
+      responses:
+        '200':
+          description: Paper updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchPaperResponse'
+    delete:
+      tags: [Research Paper Management]
+      operationId: deletePaper
+      summary: Delete a research paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Paper deleted
+
+  /papers/{paperId}/pdf:
+    get:
+      tags: [Research Paper Management]
+      operationId: downloadPaperPdf
+      summary: Download the paper PDF
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /papers/search:
+    get:
+      tags: [Research Paper Management]
+      operationId: searchPapers
+      summary: Search papers by query
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching papers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResearchPaperResponse'
+
+  /papers/compare:
+    post:
+      tags: [Research Paper Management]
+      operationId: comparePapers
+      summary: Compare papers by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaperComparisonRequest'
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaperComparisonResponse'
+
+  /collections:
+    post:
+      tags: [Collection Management]
+      operationId: createCollection
+      summary: Create a collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCollectionRequest'
+      responses:
+        '201':
+          description: Collection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCollectionResponse'
+    get:
+      tags: [Collection Management]
+      operationId: listCollections
+      summary: List collections
+      responses:
+        '200':
+          description: Collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResearchCollectionResponse'
+
+  /collections/{collectionId}:
+    get:
+      tags: [Collection Management]
+      operationId: getCollection
+      summary: Get a collection by ID
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Collection details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCollectionResponse'
+    patch:
+      tags: [Collection Management]
+      operationId: updateCollection
+      summary: Update a collection
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCollectionRequest'
+      responses:
+        '200':
+          description: Collection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCollectionResponse'
+    delete:
+      tags: [Collection Management]
+      operationId: deleteCollection
+      summary: Delete a collection
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Collection deleted
+
+  /collections/{collectionId}/papers/{paperId}:
+    post:
+      tags: [Collection Management]
+      operationId: addPaperToCollection
+      summary: Add a paper to a collection
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Collection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCollectionResponse'
+    delete:
+      tags: [Collection Management]
+      operationId: removePaperFromCollection
+      summary: Remove a paper from a collection
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Collection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCollectionResponse'
+
+  /collections/{collectionId}/papers:
+    get:
+      tags: [Collection Management]
+      operationId: listCollectionPapers
+      summary: List papers in a collection
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Papers in the collection
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResearchPaperResponse'
+
+  /papers/{paperId}/citations:
+    post:
+      tags: [Citation Management]
+      operationId: createCitation
+      summary: Create a citation
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCitationRequest'
+      responses:
+        '201':
+          description: Citation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CitationResponse'
+    get:
+      tags: [Citation Management]
+      operationId: listCitations
+      summary: List citations for a paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Citations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CitationResponse'
+
+  /papers/{paperId}/citations/{citationId}:
+    delete:
+      tags: [Citation Management]
+      operationId: deleteCitation
+      summary: Delete a citation
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: citationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Citation deleted
+
+  /chat-sessions:
+    post:
+      tags: [Paper Chat]
+      operationId: createChatSession
+      summary: Create a chat session for a paper
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewChatSessionRequest'
+      responses:
+        '201':
+          description: Chat session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSessionResponse'
+    get:
+      tags: [Paper Chat]
+      operationId: listChatSessions
+      summary: List chat sessions for the current user
+      responses:
+        '200':
+          description: Chat sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatSessionResponse'
+
+  /chat-sessions/{sessionId}:
+    delete:
+      tags: [Paper Chat]
+      operationId: deleteChatSession
+      summary: Delete a chat session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Chat session deleted
+
+  /chat-sessions/{sessionId}/messages:
+    get:
+      tags: [Paper Chat]
+      operationId: listChatMessages
+      summary: List messages in a chat session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Chat messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMessageResponse'
+    post:
+      tags: [Paper Chat]
+      operationId: sendChatMessage
+      summary: Send a message to a chat session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageRequest'
+      responses:
+        '200':
+          description: Assistant response message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          example: UP
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+
+    AuthMessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [accessToken, refreshToken]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    RegisterRequest:
+      type: object
+      required: [firstName, lastName, username, email, password]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    GoogleLoginRequest:
+      type: object
+      properties:
+        token_id:
+          type: string
+          description: Google ID token.
+
+    RefreshTokenRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+        id:
+          type: string
+          nullable: true
+          description: Optional refresh-token identifier.
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    ResetPasswordRequest:
+      type: object
+      required: [token, newPassword]
+      properties:
+        token:
+          type: string
+        newPassword:
+          type: string
+
+    ResendVerificationTokenRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    UserProfileResponse:
+      type: object
+      required: [id, firstName, lastName, username, email, emailVerified, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        emailVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+
+    UserIdentityResponse:
+      type: object
+      required: [id, provider, providerUserId, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+        providerUserId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UserSessionResponse:
+      type: object
+      required: [id, deviceName, createdAt, expiresAt, revoked]
+      properties:
+        id:
+          type: string
+          format: uuid
+        deviceName:
+          type: string
+        ipAddress:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        revoked:
+          type: boolean
+
+    NewCollectionRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+
+    UpdateCollectionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+
+    ResearchCollectionResponse:
+      type: object
+      required: [id, name, createdAt, papers]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        papers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResearchPaperResponse'
+
+    NewPaperRequest:
+      type: object
+      required: [title, abstractText, authors, publicationYear, keywords]
+      properties:
+        title:
+          type: string
+        abstractText:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        publicationYear:
+          type: integer
+        keywords:
+          type: array
+          items:
+            type: string
+
+    UpdatePaperRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        abstractText:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        publicationYear:
+          type: integer
+        keywords:
+          type: array
+          items:
+            type: string
+
+    ResearchPaperResponse:
+      type: object
+      required: [id, title, abstractText, authors, keywords, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        abstractText:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        publicationYear:
+          type: integer
+          nullable: true
+        pdfUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NewCitationRequest:
+      type: object
+      required: [citedPaperId]
+      properties:
+        citedPaperId:
+          type: string
+          format: uuid
+
+    CitationResponse:
+      type: object
+      required: [id, citingPaperId, citingPaperTitle, citedPaperId, citedPaperTitle, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        citingPaperId:
+          type: string
+          format: uuid
+        citingPaperTitle:
+          type: string
+        citedPaperId:
+          type: string
+          format: uuid
+        citedPaperTitle:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    NewChatSessionRequest:
+      type: object
+      required: [paperId]
+      properties:
+        paperId:
+          type: string
+
+    ChatSessionResponse:
+      type: object
+      required: [sessionId]
+      properties:
+        sessionId:
+          type: string
+
+    ChatMessageRequest:
+      type: object
+      required: [message, sessionId, role]
+      properties:
+        message:
+          type: string
+        sessionId:
+          type: string
+        role:
+          type: string
+          description: Message role provided by the caller.
+
+    ChatMessageResponse:
+      type: object
+      required: [message, sessionId]
+      properties:
+        message:
+          type: string
+        sessionId:
+          type: string
+
+    PaperComparisonRequest:
+      type: object
+      required: [paperIdStrings]
+      properties:
+        paperIdStrings:
+          type: array
+          items:
+            type: string
+
+    PaperComparisonResponse:
+      type: object
+      required: [papers]
+      properties:
+        papers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaperComparison'
+
+    PaperComparison:
+      type: object
+      required: [title, objective, methodology, dataset, results, strengths, weaknesses, futureWork]
+      properties:
+        title:
+          type: string
+        objective:
+          type: string
+        methodology:
+          type: string
+        dataset:
+          type: string
+        results:
+          type: string
+        strengths:
+          type: string
+        weaknesses:
+          type: string
+        futureWork:
+          type: string
+
+
+
+
