@@ -55,8 +55,8 @@ public class User {
 
     @NotNull
     @ColumnDefault("false")
-    @Column(name = "is_verified")
-    private Boolean isVerified;
+    @Column(name = "email_verified")
+    private Boolean isEmailVerified;
 
     @NotNull
     @ColumnDefault("now()")
@@ -65,7 +65,7 @@ public class User {
 
     @NotNull
     @ColumnDefault("now()")
-    @Column(name = "update_at", nullable = false)
+    @Column(name = "updated_at ", nullable = false)
     private Instant updatedAt;
 
     public User(RegisterRequest registerRequest) {
@@ -73,7 +73,7 @@ public class User {
         lastName = registerRequest.lastName();
         email = registerRequest.email();
         username = registerRequest.username();
-        isVerified = false;
+        isEmailVerified = false;
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
@@ -83,7 +83,7 @@ public class User {
         this.lastName = lastName;
         this.username = username;
         this.email = email;
-        this.isVerified = isVerified;
+        this.isEmailVerified = isVerified;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }

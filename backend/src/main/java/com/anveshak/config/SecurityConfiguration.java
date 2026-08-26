@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +23,11 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @Bean
@@ -48,17 +54,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/health",
-                                "/auth/register",
-                                "/auth/login",
-                                "/auth/google",
-                                "/auth/refresh",
-                                "/auth/logout",
-                                "/auth/logout-all",
-                                "/auth/verify-email",
-                                "/auth/verify-email/**",
-                                "/auth/resend-verification",
-                                "/auth/forgot-password",
-                                "/auth/reset-password")
+                                "/auth/**",
+                                "/api/auth/**",
+                                "/api/admin/harvest/arxiv")
                         .permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));

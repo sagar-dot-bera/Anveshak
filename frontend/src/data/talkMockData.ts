@@ -5,6 +5,7 @@ export interface ChatMessage {
   id: string;
   sender: 'ai' | 'user';
   text: string;
+  
   timestamp?: string;
   sourceTag?: {
     label: string; // "p. 4, section 3.2.2"

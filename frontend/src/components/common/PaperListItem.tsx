@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { FileText } from 'lucide-react';
 import type { ResearchPaperResponse } from '@/lib/types';
 
@@ -13,7 +14,10 @@ export default function PaperListItem({ paper }: PaperListItemProps) {
   });
 
   return (
-    <div className="flex items-start gap-4 py-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50/50 transition-colors rounded-lg px-2 -mx-2 cursor-pointer group">
+    <Link
+      to={`/talk-to-paper?paperId=${paper.id}`}
+      className="flex items-start gap-4 py-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50/50 transition-colors rounded-lg px-2 -mx-2 cursor-pointer group block decoration-none"
+    >
       {/* Thumbnail */}
       <div className="w-10 h-12 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 text-slate-400 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
         <FileText className="w-5 h-5" />
@@ -28,7 +32,7 @@ export default function PaperListItem({ paper }: PaperListItemProps) {
           {paper.authors?.length ? paper.authors.join(', ') : 'Unknown Authors'} &bull; {paper.publicationYear}
         </p>
         {paper.keywords && paper.keywords.length > 0 && (
-          <div className="flex gap-1.5 mt-2 flex-wrap">
+          <div className="flex gap-1.5 mt-2 flex-wrap font-normal">
             {paper.keywords.map((tag) => (
               <span
                 key={tag}
@@ -45,6 +49,6 @@ export default function PaperListItem({ paper }: PaperListItemProps) {
       <span className="font-inter text-xs text-slate-400 flex-shrink-0 mt-0.5">
         {formattedDate}
       </span>
-    </div>
+    </Link>
   );
 }

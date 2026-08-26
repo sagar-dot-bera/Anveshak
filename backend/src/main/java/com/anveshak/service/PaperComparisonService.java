@@ -13,7 +13,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class PaperComparisonService {
     private final ResearchPaperService researchPaperService;
     private final GeminiService geminiService;
@@ -37,12 +40,14 @@ public class PaperComparisonService {
 
         String prompt = geminiService.generateComparisonPrompt(summaries);
 
-        String response = geminiService.generateAnswer(prompt);
+        String response = geminiService.generateAnwerInJSON(prompt, geminiService.buildComparisonSchema());
 
         ObjectMapper objectMapper = new ObjectMapper();
         PaperComparisonResponse paperComparisonResponse = objectMapper.readValue(response,
                 PaperComparisonResponse.class);
+        log.info("Paper comparison response: {}", paperComparisonResponse);
 
         return paperComparisonResponse;
     }
+
 }

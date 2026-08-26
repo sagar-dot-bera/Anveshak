@@ -58,6 +58,7 @@ public class AuthServiceTest {
     @Test
     void shouldLoginWork() {
         User user = new User();
+        user.setId(java.util.UUID.randomUUID());
         user.setEmail("kenji@gmail.com");
 
         when(userService.fetchUserByEmail("kenji@gmail.com")).thenReturn(user);

@@ -10,32 +10,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.anveshak.DTOs.PaperChunkDTO;
-import com.anveshak.Exception.ResearchPaperNotFoundException;
+import com.anveshak.client.EmbeddingServiceClient;
 import com.anveshak.model.PaperChunk;
 import com.anveshak.model.ResearchPaper;
 import com.anveshak.repository.PaperChunkRepository;
 import com.pgvector.PGvector;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class PaperChunkService {
-    private final PaperChunkDTO paperChunkDTO;
     final private PdfService pdfService;
     final private PaperChunkRepository paperChunkRepository;
-    final private ResearchPaperService researchPaperService;
+    final private EmbeddingServiceClient embeddingService;
+    // final private ResearchPaperService researchPaperService;
 
     public PaperChunkService(PdfService pdfService, PaperChunkRepository paperChunkRepository,
-            PaperChunkDTO paperChunkDTO, ResearchPaperService researchPaperService) {
+            EmbeddingServiceClient embeddingService) {
         this.pdfService = pdfService;
         this.paperChunkRepository = paperChunkRepository;
-        this.paperChunkDTO = paperChunkDTO;
-        this.researchPaperService = researchPaperService;
+        // this.researchPaperService = researchPaperService;
+        this.embeddingService = embeddingService;
     }
 
     public List<PaperChunk> storePaperChunks(MultipartFile pdfFile, ResearchPaper researchPaper, int chunkSize)
             throws IOException {
+
         List<PaperChunkDTO> chunks = pdfService.extractChucks(pdfFile, chunkSize);
         List<PaperChunk> newPaperChunks = new ArrayList<>();
         for (PaperChunkDTO chunk : chunks) {
@@ -45,7 +47,7 @@ public class PaperChunkService {
             paperChunk.setChunkIndex(chunk.chunkIndex());
             paperChunk.setPaper(researchPaper);
             paperChunk.setCreatedAt(Instant.now());
-
+            paperChunk.setEmbeddings(embeddingService.getEmbedding(chunk.content()));
             paperChunkRepository.save(paperChunk);
             newPaperChunks.add(paperChunk);
         }
@@ -59,25 +61,30 @@ public class PaperChunkService {
                 .toList();
     }
 
-    public List<PaperChunk> semanticSearch(PGvector embedding, int limit, UUID paperId) {
+    public List<PaperChunk> semanticSearch(String embedding, int limit, UUID paperId) {
 
         if (embedding == null) {
+            log.warn("Embedding is null for semantic search");
             throw new IllegalArgumentException("Embedding cannot be null");
         }
 
         if (limit <= 0) {
+            log.warn("Limit is less than or equal to 0 for semantic search");
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
 
         if (paperId == null) {
             throw new IllegalArgumentException("Paper ID cannot be null");
         }
+        log.info("Performing semantic search for paper ID: {}, limit: {}", paperId, limit);
 
-        if (!researchPaperService.doesPaperExist(paperId)) {
-            log.warn("Paper with ID {} does not exist", paperId);
-            throw new ResearchPaperNotFoundException(paperId);
-        }
-        return paperChunkRepository.semanticSearch(embedding, limit, paperId);
+        // if (!researchPaperService.doesPaperExist(paperId)) {
+        // log.warn("Paper with ID {} does not exist", paperId);
+        // throw new ResearchPaperNotFoundException(paperId);
+        // }
+        List<PaperChunk> result = paperChunkRepository.semanticSearch(embedding, limit, paperId);
+        log.info("Semantic search returned {} chunks for paper ID {}", result.size(), paperId);
+        return result;
     }
 
 }

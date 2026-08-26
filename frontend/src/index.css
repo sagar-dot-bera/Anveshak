@@ -72,3 +72,14 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* PDF Reader Text Selection Layer Styling */
+.select-text {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+.select-text ::selection {
+  background-color: rgba(79, 70, 229, 0.45) !important;
+  color: transparent !important;
+}

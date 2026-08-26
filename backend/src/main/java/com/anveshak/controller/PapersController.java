@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.anveshak.DTOs.CollectionLookupRequest;
 import com.anveshak.DTOs.CollectionPaperRequest;
+import com.anveshak.DTOs.GlobalPaperDTO;
 import com.anveshak.DTOs.NewCollectionRequest;
 import com.anveshak.DTOs.NewPaperRequest;
 import com.anveshak.DTOs.LiteratureReviewRequest;
@@ -39,6 +40,7 @@ import com.anveshak.DTOs.UpdateCollectionRequest;
 import com.anveshak.DTOs.UpdatePaperRequest;
 import com.anveshak.model.User;
 import com.anveshak.service.CurrentUserResolver;
+import com.anveshak.service.GlobalPaperService;
 import com.anveshak.service.PaperComparisonService;
 import com.anveshak.service.PaperSummaryService;
 import com.anveshak.service.ResearchCollectionService;
@@ -55,13 +57,14 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping
 @RequiredArgsConstructor
 @Tag(name = "Research Paper Management", description = "Endpoints for managing research papers and their related functionalities")
-public class PepersController {
+public class PapersController {
 
     private final CurrentUserResolver currentUserResolver;
     private final ResearchPaperService researchPaperService;
     private final ResearchCollectionService researchCollectionService;
     private final PaperComparisonService paperComparisonService;
     private final PaperSummaryService paperSummaryService;
+    private final GlobalPaperService globalPaperService;
 
     @Operation(summary = "Generate a literature review synthesis report", description = "Generates a literature review synthesis report for the selected research papers.")
     @PostMapping("/papers/literature-review")
@@ -79,6 +82,15 @@ public class PepersController {
             @RequestPart("pdfFile") MultipartFile pdfFile) throws IOException {
         User user = currentUserResolver.resolveUser(authorizationHeader);
         return ResponseEntity.status(201).body(researchPaperService.createPaper(user, request, pdfFile));
+    }
+
+    @Operation(summary = "Import paper into library", description = "Imports a paper directly into the user's library without requiring manual PDF upload.")
+    @PostMapping("/papers/import")
+    public ResponseEntity<ResearchPaperResponse> importPaper(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody @Valid com.anveshak.DTOs.ImportPaperRequest request) {
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        return ResponseEntity.status(201).body(researchPaperService.importPaper(user, request));
     }
 
     @GetMapping("/papers")
@@ -132,12 +144,13 @@ public class PepersController {
     }
 
     @Operation(summary = "Search research papers", description = "Searches for research papers based on the provided query for the authenticated user.")
-    @GetMapping("/papers/search")
+    @GetMapping("/papers/search/local")
     public ResponseEntity<List<ResearchPaperResponse>> searchPapers(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam(required = false) String query) {
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false, defaultValue = "0.0") double threshold) {
         User user = currentUserResolver.resolveUser(authorizationHeader);
-        return ResponseEntity.ok(researchPaperService.semanticSearch(query, user));
+        return ResponseEntity.ok(researchPaperService.semanticSearch(query, user, threshold));
     }
 
     @Operation(summary = "List collections", description = "Lists all research paper collections for the authenticated user.")
@@ -149,6 +162,17 @@ public class PepersController {
         PaperComparisonResponse entity = paperComparisonService.comparePapers(request);
 
         return ResponseEntity.ok(entity);
+    }
+
+    @GetMapping("/papers/search/global")
+    public ResponseEntity<List<GlobalPaperDTO>> searchGlobalPapers(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam(required = true) String query,
+            @RequestParam(required = false, defaultValue = "10") int limit,
+            @RequestParam(required = false, defaultValue = "0.0") double threshold) {
+        currentUserResolver.resolveUser(authorizationHeader);
+
+        return ResponseEntity.ok(globalPaperService.sematicSearchOnPaper(query, limit, threshold));
     }
 
 }

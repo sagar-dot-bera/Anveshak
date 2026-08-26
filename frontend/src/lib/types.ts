@@ -131,6 +131,8 @@ export interface UpdateCollectionRequest {
 // ── Chat ────────────────────────────────────────────────────
 export interface ChatSessionResponse {
   sessionId: string;
+  paperId: string;
+  createdAt?: string;
 }
 
 export interface NewChatSessionRequest {
@@ -212,3 +214,66 @@ export interface ErrorResponse {
   msg: string;
   timestamp: string;
 }
+
+// ── Global Papers ───────────────────────────────────────────
+export interface GlobalPaperResponse {
+  paperUrl: string;
+  pdfUrl: string;
+  paperId: string;
+  created: string; // LocalDate (YYYY-MM-DD)
+  updated: string; // LocalDate (YYYY-MM-DD)
+  title: string;
+  abstractText: string;
+  categories?: string;
+  license?: string;
+  doi?: string;
+  category?: string;
+  authors: string;
+}
+
+// ── Research Roadmaps ────────────────────────────────────────
+/** Mirror of com.anveshak.DTOs.RoadmapShort */
+export interface RoadmapShort {
+  id: string;
+  title: string;
+  topic: string;
+  description: string;
+  createdAt?: string;
+}
+
+/** Mirror of com.anveshak.DTOs.GlobalPaperDTO — used inside roadmap stages */
+export interface GlobalPaperDTO {
+  paperId: string;
+  title: string;
+  abstractText: string;
+  authors: string;
+  categories?: string;
+  doi?: string;
+  created: string; // LocalDate (YYYY-MM-DD)
+  updated: string; // LocalDate (YYYY-MM-DD)
+  paperUrl?: string;
+  pdfUrl?: string;
+}
+
+/** Mirror of com.anveshak.DTOs.RoadmapStageDTO */
+export interface RoadmapStageDTO {
+  title: string;
+  description: string;
+  order: number;
+  papers: GlobalPaperDTO[];
+}
+
+/** Mirror of com.anveshak.DTOs.RoadmapDTO */
+export interface RoadmapDTO {
+  title: string;
+  description: string;
+  topic: string;
+  createdAt: string; // ISO-8601 Instant
+  stages: RoadmapStageDTO[];
+}
+
+/** Mirror of com.anveshak.DTOs.RoadmapRequest */
+export interface RoadmapRequest {
+  request: string;
+}
+

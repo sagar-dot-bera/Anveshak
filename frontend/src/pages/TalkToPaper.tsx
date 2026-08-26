@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Download,
   Send,
@@ -22,12 +24,17 @@ import {
   sendMessage,
 } from '@/api/chatApi';
 import type { ResearchPaperResponse } from '@/lib/types';
+import PdfViewer from '@/components/common/PdfViewer';
 
 export default function TalkToPaper() {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paperIdParam = searchParams.get('paperId');
   const [selectedPaper, setSelectedPaper] = useState<ResearchPaperResponse | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'pdf' | 'metadata'>('pdf');
   const [inputValue, setInputValue] = useState('');
+  const [pendingUserMessage, setPendingUserMessage] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch all papers
@@ -52,7 +59,38 @@ export default function TalkToPaper() {
   // Auto scroll to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [serverMessages]);
+  }, [serverMessages, pendingUserMessage]);
+
+  // Synchronize paperIdParam from search URL
+  useEffect(() => {
+    if (papers && paperIdParam) {
+      const matchedPaper = papers.find((p) => p.id === paperIdParam);
+      if (matchedPaper) {
+        if (!selectedPaper || selectedPaper.id !== matchedPaper.id) {
+          setSelectedPaper(matchedPaper);
+          setActiveTab('pdf'); // reset to default tab when changing paper
+          
+          // Check if an existing session already exists for this paper
+          const existingSession = chatSessions?.find((s) => s.paperId === matchedPaper.id);
+          if (existingSession) {
+            setActiveSessionId(existingSession.sessionId);
+          } else {
+            // Start a new session
+            startSessionMutation.mutate(matchedPaper.id);
+          }
+        }
+      } else {
+        // If the paperId is invalid or not in papers list, reset URL
+        setSelectedPaper(null);
+        setActiveSessionId(null);
+        setSearchParams({});
+      }
+    } else if (papers && !paperIdParam) {
+      // If paperId query parameter is empty/removed, clear selection
+      setSelectedPaper(null);
+      setActiveSessionId(null);
+    }
+  }, [papers, paperIdParam, chatSessions]);
 
   // Mutation to start/create a session
   const startSessionMutation = useMutation({
@@ -73,29 +111,27 @@ export default function TalkToPaper() {
       sendMessage(sessionId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatMessages', activeSessionId] });
-      setInputValue('');
+      setPendingUserMessage(null);
     },
     onError: (err) => {
+      setPendingUserMessage(null);
       toast.error('Failed to send message');
       console.error(err);
     },
   });
 
-  const handleSelectPaper = async (paper: ResearchPaperResponse) => {
-    setSelectedPaper(paper);
-
-    // Look for existing session for this paper
-    // Since mock listChatSessions might not return paper info explicitly or sessions only has sessionId,
-    // we can try to find if a session exists, or simply start/create a new session for maximum reliability.
-    // Let's create a session.
-    startSessionMutation.mutate(paper.id);
+  const handleSelectPaper = (paper: ResearchPaperResponse) => {
+    setSearchParams({ paperId: paper.id });
   };
 
   const handleSend = () => {
-    if (!inputValue.trim() || !activeSessionId) return;
+    const text = inputValue.trim();
+    if (!text || !activeSessionId) return;
+    setInputValue('');
+    setPendingUserMessage(text);
     sendMessageMutation.mutate({
       sessionId: activeSessionId,
-      text: inputValue.trim(),
+      text: text,
     });
   };
 
@@ -117,8 +153,7 @@ export default function TalkToPaper() {
   };
 
   const handleBackToLibrary = () => {
-    setSelectedPaper(null);
-    setActiveSessionId(null);
+    setSearchParams({});
   };
 
   // Convert server messages list (ordered by newest first) to ascending order for display
@@ -211,67 +246,97 @@ export default function TalkToPaper() {
         <div className="h-11 bg-white border-b border-slate-200 px-4 flex items-center justify-between flex-shrink-0 select-none">
           <button
             onClick={handleBackToLibrary}
-            className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-inter text-xs font-semibold transition-colors"
+            className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-inter text-xs font-semibold transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Library
           </button>
 
+          {/* Tab Controller */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/60">
+            <button
+              onClick={() => setActiveTab('pdf')}
+              className={`px-3 py-1 text-[11px] font-semibold rounded-md transition-all cursor-pointer ${
+                activeTab === 'pdf'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              PDF Document
+            </button>
+            <button
+              onClick={() => setActiveTab('metadata')}
+              className={`px-3 py-1 text-[11px] font-semibold rounded-md transition-all cursor-pointer ${
+                activeTab === 'metadata'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Abstract & Metadata
+            </button>
+          </div>
+
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-inter text-[11px] font-semibold transition-all"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-inter text-[11px] font-semibold transition-all cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             Download PDF
           </button>
         </div>
 
-        {/* Paper Info Viewer */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 flex justify-center">
-          <div className="w-full max-w-[760px] bg-white rounded-lg shadow-[0_4px_24px_-10px_rgba(0,0,0,0.1)] border border-slate-200 p-8 md:p-12 flex flex-col gap-6 text-slate-800">
-            <div className="space-y-4">
-              <span className="font-mono text-[10px] font-bold tracking-wider text-vibrant-blue bg-blue-50 border border-blue-100 rounded px-2.5 py-1">
-                PUBLISHED {selectedPaper.publicationYear}
-              </span>
-              <h2 className="text-xl md:text-2xl font-hanken font-bold text-slate-900 leading-snug">
-                {selectedPaper.title}
-              </h2>
-              <div className="flex flex-wrap gap-2 text-xs font-inter text-slate-600">
-                <span className="font-semibold text-slate-700">Authors:</span>
-                <span>{selectedPaper.authors?.join(', ')}</span>
-              </div>
-            </div>
-
-            <hr className="border-slate-100" />
-
-            <div className="space-y-2">
-              <h3 className="font-hanken font-bold text-sm text-slate-900 uppercase tracking-wider">
-                Abstract / Context
-              </h3>
-              <p className="font-inter text-sm leading-relaxed text-slate-600 text-justify">
-                {selectedPaper.abstractText || 'No abstract text extracted.'}
-              </p>
-            </div>
-
-            {selectedPaper.keywords && selectedPaper.keywords.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-hanken font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-1">
-                  <Tag className="w-4 h-4 text-slate-400" />
-                  Keywords
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedPaper.keywords.map((kw) => (
-                    <span
-                      key={kw}
-                      className="font-mono text-[10px] font-semibold text-slate-500 bg-slate-50 border border-slate-200/60 rounded px-2 py-0.5 uppercase"
-                    >
-                      {kw}
-                    </span>
-                  ))}
+        {/* Paper Content Viewer */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col h-full">
+          {activeTab === 'pdf' ? (
+            <PdfViewer paperId={selectedPaper.id} />
+          ) : (
+            <div className="flex justify-center overflow-y-auto flex-1">
+              <div className="w-full max-w-[760px] bg-white rounded-lg shadow-[0_4px_24px_-10px_rgba(0,0,0,0.1)] border border-slate-200 p-8 md:p-12 flex flex-col gap-6 text-slate-800">
+                <div className="space-y-4">
+                  <span className="font-mono text-[10px] font-bold tracking-wider text-vibrant-blue bg-blue-50 border border-blue-100 rounded px-2.5 py-1">
+                    PUBLISHED {selectedPaper.publicationYear}
+                  </span>
+                  <h2 className="text-xl md:text-2xl font-hanken font-bold text-slate-900 leading-snug">
+                    {selectedPaper.title}
+                  </h2>
+                  <div className="flex flex-wrap gap-2 text-xs font-inter text-slate-600">
+                    <span className="font-semibold text-slate-700">Authors:</span>
+                    <span>{selectedPaper.authors?.join(', ')}</span>
+                  </div>
                 </div>
+
+                <hr className="border-slate-100" />
+
+                <div className="space-y-2">
+                  <h3 className="font-hanken font-bold text-sm text-slate-900 uppercase tracking-wider">
+                    Abstract / Context
+                  </h3>
+                  <p className="font-inter text-sm leading-relaxed text-slate-600 text-justify">
+                    {selectedPaper.abstractText || 'No abstract text extracted.'}
+                  </p>
+                </div>
+
+                {selectedPaper.keywords && selectedPaper.keywords.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="font-hanken font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-1">
+                      <Tag className="w-4 h-4 text-slate-400" />
+                      Keywords
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedPaper.keywords.map((kw) => (
+                        <span
+                          key={kw}
+                          className="font-mono text-[10px] font-semibold text-slate-500 bg-slate-50 border border-slate-200/60 rounded px-2 py-0.5 uppercase"
+                        >
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -309,9 +374,33 @@ export default function TalkToPaper() {
                         </span>
                       </div>
                       <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 max-w-[95%] shadow-[0_1px_4px_-1px_rgba(0,0,0,0.03)] text-slate-800">
-                        <p className="font-inter text-sm leading-relaxed whitespace-pre-wrap">
-                          {msg.message}
-                        </p>
+                        <div className="font-inter text-sm leading-relaxed prose prose-sm prose-slate max-w-none">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 mt-3 mb-1 first:mt-0">{children}</h1>,
+                              h2: ({ children }) => <h2 className="text-sm font-bold text-slate-800 mt-2.5 mb-1 first:mt-0">{children}</h2>,
+                              h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-700 mt-2 mb-0.5 first:mt-0">{children}</h3>,
+                              p: ({ children }) => <p className="mb-2 last:mb-0 text-slate-800 leading-relaxed">{children}</p>,
+                              ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5 text-slate-700">{children}</ul>,
+                              ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5 text-slate-700">{children}</ol>,
+                              li: ({ children }) => <li className="text-sm leading-snug">{children}</li>,
+                              code: ({ inline, children }: any) =>
+                                inline ? (
+                                  <code className="bg-indigo-50 text-primary font-mono text-xs px-1 py-0.5 rounded border border-indigo-100">{children}</code>
+                                ) : (
+                                  <pre className="bg-slate-900 text-slate-100 font-mono text-xs p-3 rounded-lg overflow-x-auto my-2 border border-slate-700"><code>{children}</code></pre>
+                                ),
+                              strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+                              em: ({ children }) => <em className="italic text-slate-700">{children}</em>,
+                              blockquote: ({ children }) => <blockquote className="border-l-2 border-indigo-300 pl-3 my-2 text-slate-600 italic">{children}</blockquote>,
+                              hr: () => <hr className="border-slate-200 my-3" />,
+                              a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{children}</a>,
+                            }}
+                          >
+                            {msg.message}
+                          </ReactMarkdown>
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -335,20 +424,31 @@ export default function TalkToPaper() {
           )}
 
           {sendMessageMutation.isPending && (
-            <div className="flex flex-col items-start space-y-1.5">
-              <div className="flex items-center gap-1.5 pl-1">
-                <div className="w-4.5 h-4.5 rounded bg-deep-indigo text-white flex items-center justify-center font-bold text-[9px]">
-                  A
+            <>
+              {pendingUserMessage && (
+                <div className="flex flex-col items-end">
+                  <div className="max-w-[85%] space-y-1">
+                    <div className="bg-deep-indigo border border-indigo-600 rounded-xl px-4 py-3 text-white text-left shadow-[0_2px_8px_-2px_rgba(79,70,229,0.06)] font-inter text-sm leading-relaxed">
+                      {pendingUserMessage}
+                    </div>
+                  </div>
                 </div>
-                <span className="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase">
-                  Anveshak AI
-                </span>
+              )}
+              <div className="flex flex-col items-start space-y-1.5">
+                <div className="flex items-center gap-1.5 pl-1">
+                  <div className="w-4.5 h-4.5 rounded bg-deep-indigo text-white flex items-center justify-center font-bold text-[9px]">
+                    A
+                  </div>
+                  <span className="font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase">
+                    Anveshak AI
+                  </span>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 shadow-[0_1px_4px_-1px_rgba(0,0,0,0.03)] text-slate-500 flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                  <span className="font-inter text-xs">Analyzing paper content...</span>
+                </div>
               </div>
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 shadow-[0_1px_4px_-1px_rgba(0,0,0,0.03)] text-slate-500 flex items-center gap-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                <span className="font-inter text-xs">Analyzing paper content...</span>
-              </div>
-            </div>
+            </>
           )}
 
           <div ref={chatEndRef} />

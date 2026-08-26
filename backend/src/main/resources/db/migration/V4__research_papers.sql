@@ -1,4 +1,6 @@
-CREATE TABLE reasearch_papers (
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE research_papers (
     id UUID PRIMARY KEY,
     owner_id UUID NOT NULL,
     title VARCHAR(800) NOT NULL,

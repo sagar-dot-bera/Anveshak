@@ -1,0 +1,70 @@
+spring:
+  
+  application:
+    name: anveshak
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.orm.jdbc.bind: TRACE
+  
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
+  client-secret: ${GOOGLE_CLIENT_SECRET}
+  redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/auth/google/callback}
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
+supabase:
+  access-key: ${SUPABASE_ACCESS_KEY}
+  secret-access-key: ${SUPABASE_SECRET_ACCESS_KEY}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
+  url: ${SUPABASE_URL}
+  bucket-name: ${SUPABASE_BUCKET_NAME:anveshak}
+
+jwt:
+  secret: "${JWT_SECRET}"
+  expiration: ${JWT_EXPIRATION:3600000}
+  private-key-file: '${JWT_PRIVATE_KEY_FILE:keys/private.pem}'
+  public-key-file: '${JWT_PUBLIC_KEY_FILE:keys/public.pem}'
+
+app:
+  mail:
+    from: ${APP_MAIL_FROM}
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+
+google-gemini:
+  api-key: ${GEMINI_API_KEY}
+
+arXiv:
+  base-url: ${ARXIV_BASE_URL:https://oaipmh.arxiv.org/oai}
+  paper-base-url: ${ARXIV_PAPER_BASE_URL:https://arxiv.org/abs}
+  paper-pdf-base-url: ${ARXIV_PAPER_PDF_BASE_URL:https://arxiv.org/pdf}

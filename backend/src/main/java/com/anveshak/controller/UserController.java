@@ -125,7 +125,7 @@ public class UserController {
                 user.getLastName(),
                 user.getUsername(),
                 user.getEmail(),
-                Boolean.TRUE.equals(user.getIsVerified()),
+                Boolean.TRUE.equals(user.getIsEmailVerified()),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
     }

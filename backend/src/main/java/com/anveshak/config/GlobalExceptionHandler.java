@@ -1,5 +1,6 @@
 package com.anveshak.config;
 
+import java.io.IOException;
 import java.time.Instant;
 
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.anveshak.DTOs.ErrorResponse;
 import com.anveshak.Exception.CitationNotFoundException;
 import com.anveshak.Exception.EmailAlreadyExistsException;
+import com.anveshak.Exception.EmailNotVerifiedException;
 import com.anveshak.Exception.EmbeddingServiceException;
 import com.anveshak.Exception.GoogleIdTokenNotValidException;
 import com.anveshak.Exception.InvalidCredentialsException;
@@ -20,7 +22,10 @@ import com.anveshak.Exception.UserIdentityAlreadyExistsException;
 import com.anveshak.Exception.UserNameAlreadyExistsException;
 import com.anveshak.Exception.UserNotFoundException;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -79,7 +84,23 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String error, String message) {
+        log.error("API Exception [{} {}]: {}", status.value(), error, message);
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), error, message, Instant.now()));
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    ResponseEntity<ErrorResponse> handleEmailNotVerified(EmailNotVerifiedException ex) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "Email not verified", ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    ResponseEntity<ErrorResponse> handleIOException(IOException ex) {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", ex.getMessage());
     }
 }

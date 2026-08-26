@@ -29,49 +29,97 @@ public class PromptService {
 
     public String buildSummaryPrompt(ResearchPaper paper, List<PaperChunk> chunks) {
         StringBuilder builder = new StringBuilder();
-        builder.append("You are a helpful research assistant summarizing a single research paper. ")
-                .append("Use only the provided paper context. Do not invent facts. ")
-                .append("If a field is missing, write 'Not stated in the provided context'. ")
-                .append("Return only valid JSON. Do not wrap the response in markdown, code fences, or extra text.");
 
-        builder.append("\n\nReturn the summary in exactly this shape: ")
-                .append("{\"objective\":\"...\",\"methodology\":\"...\",\"dataset\":\"...\",\"keyFindings\":\"...\",\"limitations\":\"...\",\"futureWork\":\"...\"}");
+        builder.append("""
+                You are an expert research assistant.
 
-        builder.append("\n\nPaper: ").append(buildPaperLabel(paper));
-        builder.append("\n\nPaper context:\n").append(buildContextPrompt(chunks));
+                Your task is to extract key information from the research paper using ONLY the provided context.
 
-        return builder.toString().trim();
+                Instructions:
+                - Use only the provided context.
+                - Do not invent, infer, or assume information that is not explicitly stated.
+                - If information for any field is missing or cannot be determined, use exactly:
+                  "Not stated in the provided context"
+                - Keep each response concise, factual, and self-contained.
+                - Summarize the authors' work faithfully without adding your own interpretation.
+                - Do not quote long passages from the paper.
+                """);
+
+        builder.append("\n\nPaper Metadata:\n");
+        builder.append(buildPaperLabel(paper));
+
+        builder.append("\n\nPaper Context:\n");
+        builder.append("<context>\n");
+        builder.append(buildContextPrompt(chunks));
+        builder.append("\n</context>");
+
+        return builder.toString();
+    }
+
+    public String buildRoadmapPrompt(String topic) {
+        return """
+                # Task
+
+                Create a structured learning roadmap for the following research topic.
+
+                Topic:
+                %s
+
+                # Rules
+
+                - Create a logical progression from beginner concepts to advanced research.
+                - Each stage should build upon the previous stage.
+                - Focus on research knowledge rather than implementation tutorials.
+                - The roadmap should contain between 5 and 8 stages.
+                - Each stage must have a concise title and a brief description.
+                - The description should explain what the learner should understand before moving to the next stage.
+                - Do not recommend or mention specific research papers.
+                - Do not mention books, courses, videos, or websites.
+                - The roadmap should be generic enough that relevant papers can later be attached using semantic search.
+                """.formatted(topic);
     }
 
     public String buildComparisonPrompt(List<PaperSummary> paperSummaries) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("You are a helpful research assistant comparing multiple research papers. ")
-                .append("Use only the provided paper summaries. Do not invent details. ")
-                .append("If a criterion is missing, write 'Not stated in the provided summary'. ")
-                .append("Return only valid JSON. Do not wrap the response in markdown, code fences, or extra text.");
 
         if (paperSummaries == null || paperSummaries.isEmpty()) {
-            return "{\"papers\": []}";
+            return "No paper summaries were provided.";
         }
 
-        builder.append("\n\nProduce JSON in exactly this shape: ")
-                .append("{\"papers\":[{\"title\":\"...\",\"objective\":\"...\",\"methodology\":\"...\",\"dataset\":\"...\",\"keyFindings\":\"...\",\"limitations\":\"...\",\"futureWork\":\"...\"}]}")
-                .append("\nUse one object per paper in the same order as the provided summaries.")
-                .append("\n\nPaper summaries:");
+        StringBuilder builder = new StringBuilder();
 
-        int paperIndex = 1;
+        builder.append("""
+                You are an expert research assistant.
+
+                Your task is to compare the provided research papers using ONLY the supplied summaries.
+
+                Instructions:
+                - Use only the provided summaries.
+                - Do not invent, infer, or assume information.
+                - Preserve the same order as the provided summaries.
+                - Generate one comparison object for each paper.
+                - The response should contain a "papers" collection with one object per paper.
+                - If information for any field is missing, use exactly:
+                  "Not stated in the provided summary"
+                - If a paper title is unavailable, use exactly:
+                  "Untitled paper"
+                - Keep every field concise, factual, and self-contained.
+                - Do not repeat identical information unnecessarily.
+                """);
+
+        builder.append("\n\nPaper Summaries:\n");
+
+        int index = 1;
         for (PaperSummary summary : paperSummaries) {
-            ResearchPaper paper = summary.getPaper();
-            builder.append("\n\nPaper ")
-                    .append(paperIndex++)
-                    .append(": ")
-                    .append(buildPaperLabel(paper))
-                    .append("\n");
-            builder.append(buildSummaryContextPrompt(summary));
-        }
+            builder.append("\n----------------------------------------\n");
+            builder.append("Paper ").append(index++).append("\n");
+            builder.append("----------------------------------------\n");
 
-        builder.append("\n\nFor each paper, fill the fields from the provided context. ")
-                .append("If the title is missing, use 'Untitled paper'.");
+            builder.append(buildPaperLabel(summary.getPaper())).append("\n\n");
+
+            builder.append("<summary>\n");
+            builder.append(buildSummaryContextPrompt(summary));
+            builder.append("\n</summary>\n");
+        }
 
         return builder.toString().trim();
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Sparkles,
   TrendingUp,
@@ -9,10 +10,15 @@ import {
   FileText,
   Sliders,
   Database,
+  Globe,
+  ExternalLink,
+  Plus,
+  Check,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { searchPapers } from '@/api/papersApi';
-import type { ResearchPaperResponse } from '@/lib/types';
+import { searchPapersLocal, searchPapersGlobal, importPaperToLibrary } from '@/api/papersApi';
+import type { ResearchPaperResponse, GlobalPaperResponse } from '@/lib/types';
 import {
   mockTrendingTopics,
 } from '@/data/semanticSearchMockData';
@@ -30,18 +36,65 @@ const iconColorMap = {
 };
 
 export default function SemanticSearch() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [similarity, setSimilarity] = useState(0.75);
+  const [similarity, setSimilarity] = useState(0.20);
   const [topK, setTopK] = useState(20);
   const [dataSource, setDataSource] = useState<'Library' | 'Global'>('Library');
-  const [results, setResults] = useState<ResearchPaperResponse[] | null>(null);
+  const [results, setResults] = useState<
+    | { type: 'Library'; data: ResearchPaperResponse[] }
+    | { type: 'Global'; data: GlobalPaperResponse[] }
+    | null
+  >(null);
+  const [expandedAbstracts, setExpandedAbstracts] = useState<Record<string, boolean>>({});
+  const [importedPapers, setImportedPapers] = useState<Record<string, boolean>>({});
+  const [loadingPaperId, setLoadingPaperId] = useState<string | null>(null);
+
+  const importMutation = useMutation({
+    mutationFn: (paper: any) => importPaperToLibrary(paper),
+    onSuccess: (res, variables) => {
+      setImportedPapers((prev) => ({ ...prev, [variables.paperId || variables.title]: true }));
+      setLoadingPaperId(null);
+      queryClient.invalidateQueries({ queryKey: ['papers'] });
+      toast.success('Added to Library!', {
+        description: `"${res.title}" has been saved to your library.`,
+        action: {
+          label: 'View Library',
+          onClick: () => navigate('/dashboard'),
+        },
+      });
+    },
+    onError: (err: any) => {
+      setLoadingPaperId(null);
+      const errMsg = err.response?.data?.message || err.response?.data?.msg || err.response?.data?.error || 'Failed to import paper.';
+      toast.error('Import failed', { description: errMsg });
+    },
+  });
+
+  const toggleAbstract = (paperId: string) => {
+    setExpandedAbstracts((prev) => ({
+      ...prev,
+      [paperId]: !prev[paperId],
+    }));
+  };
 
   const searchMutation = useMutation({
-    mutationFn: (query: string) => searchPapers(query),
-    onSuccess: (data) => {
-      setResults(data);
+    mutationFn: async ({ query, source }: { query: string; source: 'Library' | 'Global' }) => {
+      if (source === 'Global') {
+        const data = await searchPapersGlobal(query, topK, similarity);
+        return { type: 'Global' as const, data };
+      } else {
+        const data = await searchPapersLocal(query, similarity);
+        return { type: 'Library' as const, data };
+      }
+    },
+    onSuccess: (res) => {
+      setResults(res);
       toast.success('Semantic Search Completed', {
-        description: `Found ${data.length} concepts in library matching query.`,
+        description: `Found ${res.data.length} concepts in ${
+          res.type === 'Global' ? 'global index' : 'library'
+        } matching query.`,
       });
     },
     onError: (err: any) => {
@@ -59,19 +112,12 @@ export default function SemanticSearch() {
       return;
     }
 
-    if (dataSource === 'Global') {
-      toast.info('Global Index Offline', {
-        description: 'Global research indexes are currently offline. Performing search across your library instead.',
-      });
-      setDataSource('Library');
-    }
-
-    searchMutation.mutate(searchQuery);
+    searchMutation.mutate({ query: searchQuery, source: dataSource });
   };
 
   const handleTopicClick = (topicTitle: string) => {
     setSearchQuery(topicTitle);
-    searchMutation.mutate(topicTitle);
+    searchMutation.mutate({ query: topicTitle, source: dataSource });
   };
 
   return (
@@ -123,8 +169,8 @@ export default function SemanticSearch() {
             <div className="flex items-center gap-3 flex-1">
               <input
                 type="range"
-                min="0.50"
-                max="0.95"
+                min="0.00"
+                max="0.80"
                 step="0.05"
                 value={similarity}
                 onChange={(e) => setSimilarity(parseFloat(e.target.value))}
@@ -210,53 +256,228 @@ export default function SemanticSearch() {
             Search Results
           </h2>
           <div className="space-y-4">
-            {results.length > 0 ? (
-              results.map((res, idx) => (
-                <div
-                  key={res.id}
-                  className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md transition-shadow flex flex-col gap-3 cursor-pointer group"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-11 bg-slate-50 border border-slate-200 rounded flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
-                        <FileText className="w-4.5 h-4.5" />
-                      </div>
-                      <div>
-                        <h3 className="font-hanken font-semibold text-slate-800 text-sm md:text-base leading-snug group-hover:text-primary transition-colors">
-                          {res.title}
-                        </h3>
-                        <p className="font-inter text-xs text-slate-400 mt-1">
-                          {res.authors?.join(', ')} &bull; Published {res.publicationYear}
-                        </p>
+            {results.data.length > 0 ? (
+              results.type === 'Library' ? (
+                (results.data as ResearchPaperResponse[]).map((res) => (
+                  <div
+                    key={res.id}
+                    className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md transition-shadow flex flex-col gap-3 cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-11 bg-slate-50 border border-slate-200 rounded flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                          <FileText className="w-4.5 h-4.5" />
+                        </div>
+                        <div>
+                          <h3 className="font-hanken font-semibold text-slate-800 text-sm md:text-base leading-snug group-hover:text-primary transition-colors">
+                            {res.title}
+                          </h3>
+                          <p className="font-inter text-xs text-slate-400 mt-1">
+                            {res.authors?.join(', ')} &bull; Published {res.publicationYear}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    <span className="font-mono text-xs font-bold text-success-green bg-emerald-50 border border-emerald-100 rounded px-2 py-0.5 flex-shrink-0">
-                      {Math.max(60, Math.round((0.96 - (idx * 0.05)) * 100))}% Match
-                    </span>
+                    <p className="font-inter text-xs leading-relaxed text-slate-500 text-justify line-clamp-3">
+                      {res.abstractText || 'No abstract text available.'}
+                    </p>
+
+                    {res.keywords && res.keywords.length > 0 && (
+                      <div className="flex gap-1.5 flex-wrap pt-1 border-t border-slate-50 mt-1">
+                        {res.keywords.map((tag) => (
+                          <span
+                            key={tag}
+                            className="font-mono text-[9px] font-semibold tracking-wider text-slate-500 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-full uppercase"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                ))
+              ) : (
+                (results.data as GlobalPaperResponse[]).map((res) => {
+                  const categoriesList = res.categories
+                    ? res.categories.split(/[\s,]+/).filter(Boolean)
+                    : [];
+                  return (
+                    <div
+                      key={res.paperId}
+                      className="relative bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md hover:border-blue-200/60 transition-all flex flex-col gap-3 group overflow-hidden before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-blue-500"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-11 bg-blue-50/50 border border-blue-100/60 rounded flex items-center justify-center text-blue-500 group-hover:bg-blue-100/40 group-hover:border-blue-200 transition-colors flex-shrink-0">
+                            <Globe className="w-4.5 h-4.5" />
+                          </div>
+                          <div>
+                            <h3 className="font-hanken font-semibold text-slate-800 text-sm md:text-base leading-snug group-hover:text-blue-600 transition-colors">
+                              {res.title}
+                            </h3>
+                            <p className="font-inter text-xs text-slate-400 mt-1">
+                              {res.authors} &bull; Published {res.created ? new Date(res.created).getFullYear() : 'N/A'}
+                            </p>
+                          </div>
+                        </div>
 
-                  <p className="font-inter text-xs leading-relaxed text-slate-500 text-justify line-clamp-3">
-                    {res.abstractText || 'No abstract text available.'}
-                  </p>
+                        <div className="flex flex-col items-end gap-1.5 flex-shrink-0 animate-fadeIn">
+                          <span className="font-mono text-[9px] font-bold text-slate-400 bg-slate-50 border border-slate-200/50 rounded px-1.5 py-0.5">
+                            arXiv:{res.paperId}
+                          </span>
+                        </div>
+                      </div>
 
-                  {res.keywords && res.keywords.length > 0 && (
-                    <div className="flex gap-1.5 flex-wrap pt-1 border-t border-slate-50 mt-1">
-                      {res.keywords.map((tag) => (
-                        <span
-                          key={tag}
-                          className="font-mono text-[9px] font-semibold tracking-wider text-slate-500 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-full uppercase"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      <p
+                        className={`font-inter text-xs leading-relaxed text-slate-500 text-justify cursor-pointer hover:text-slate-700 transition-colors ${
+                          expandedAbstracts[res.paperId] ? '' : 'line-clamp-3'
+                        }`}
+                        onClick={() => toggleAbstract(res.paperId)}
+                        title="Click to toggle abstract expansion"
+                      >
+                        {res.abstractText || 'No abstract text available.'}
+                      </p>
+
+                      <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-50 mt-1">
+                        {/* Tags / Categories */}
+                        <div className="flex gap-1.5 flex-wrap">
+                          {res.category && (
+                            <span className="font-mono text-[9px] font-bold tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase">
+                              {res.category}
+                            </span>
+                          )}
+                          {categoriesList.map((tag) => (
+                            <span
+                              key={tag}
+                              className="font-mono text-[9px] font-semibold tracking-wider text-slate-500 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-full uppercase"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {res.license && (
+                            <span className="font-mono text-[9px] font-semibold tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full uppercase">
+                              {res.license.replace(/https?:\/\/creativecommons.org\/licenses\//, 'CC ').replace(/\/$/, '')}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          {res.doi && (
+                            <a
+                              href={`https://doi.org/${res.doi}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400 hover:text-blue-600 transition-colors bg-slate-50 hover:bg-blue-50/50 border border-slate-200/50 px-2 py-0.5 rounded"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <span>DOI: {res.doi}</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors px-2.5 py-1 rounded border ${
+                              expandedAbstracts[res.paperId]
+                                ? 'text-deep-indigo bg-indigo-50 border-indigo-200'
+                                : 'text-slate-500 bg-slate-50 border-slate-200/60 hover:bg-slate-100 hover:text-slate-700'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleAbstract(res.paperId);
+                            }}
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>{expandedAbstracts[res.paperId] ? 'Hide Abstract' : 'Abstract'}</span>
+                          </button>
+                          {(res.paperUrl || res.paperId) && (
+                            <a
+                              href={res.paperUrl || `https://arxiv.org/abs/${res.paperId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors px-2.5 py-1 rounded bg-slate-50 border border-slate-200/60 hover:bg-slate-100"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Globe className="w-3.5 h-3.5 text-slate-400" />
+                              <span>Paper Page</span>
+                            </a>
+                          )}
+                          <a
+                            href={`https://arxiv.org/pdf/${res.paperId}.pdf`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors px-2.5 py-1 rounded bg-blue-50/50 hover:bg-blue-100/50 border border-blue-100"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <FileText className="w-3.5 h-3.5 text-blue-500" />
+                            <span>PDF</span>
+                          </a>
+                          {(() => {
+                            const isImported = importedPapers[res.paperId || res.title];
+                            const isLoading = loadingPaperId === (res.paperId || res.title);
+
+                            if (isImported) {
+                              return (
+                                <button
+                                  type="button"
+                                  disabled
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-100/70 border border-emerald-300 px-2.5 py-1 rounded opacity-90 cursor-default"
+                                >
+                                  <Check className="w-3.5 h-3.5 text-emerald-700" />
+                                  <span>In Library</span>
+                                </button>
+                              );
+                            }
+
+                            return (
+                              <button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const pId = res.paperId || res.title;
+                                  setLoadingPaperId(pId);
+                                  importMutation.mutate({
+                                    paperId: res.paperId,
+                                    title: res.title,
+                                    authors: res.authors,
+                                    categories: res.categories || res.category,
+                                    pdfUrl: res.paperUrl,
+                                    abstractText: res.abstractText,
+                                    publicationYear: res.created ? new Date(res.created).getFullYear() : undefined,
+                                  });
+                                }}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 shadow-sm disabled:opacity-75"
+                                title="Add this paper to your library"
+                              >
+                                {isLoading ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 text-emerald-600 animate-spin" />
+                                    <span>Adding...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Add to Library</span>
+                                  </>
+                                )}
+                              </button>
+                            );
+                          })()}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
+                  );
+                })
+              )
             ) : (
               <div className="bg-white border border-slate-100 rounded-xl p-10 text-center text-slate-400">
-                <p className="font-inter text-sm">No conceptual matches found in library.</p>
+                <p className="font-inter text-sm">
+                  {results.type === 'Library'
+                    ? 'No conceptual matches found in library.'
+                    : 'No conceptual matches found in global index.'}
+                </p>
               </div>
             )}
           </div>

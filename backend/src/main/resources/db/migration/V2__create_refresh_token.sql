@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE REFRESH_TOKENS (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     token_hash VARCHAR(255) NOT NULL,
     device_name VARCHAR(255) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE REFRESH_TOKENS (
 );
 
 CREATE TABLE user_identities (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     provider VARCHAR(30) NOT NULL,
     provider_user_id VARCHAR(255),
@@ -21,5 +21,3 @@ CREATE TABLE user_identities (
     CONSTRAINT uq_provider_identity UNIQUE (provider, provider_user_id),
     CONSTRAINT uq_user_provider UNIQUE (user_id, provider)
 );
-
-ALTER TABLE USERS DROP COLUMN password_hash;

@@ -5,12 +5,9 @@ import {
   MessageSquare,
   BookOpen,
   Map,
-  TrendingUp,
-  Star,
   Upload,
   GitCompare,
   Sparkles,
-  MoreHorizontal,
 } from 'lucide-react';
 import StatCard from '@/components/common/StatCard';
 import PaperListItem from '@/components/common/PaperListItem';
@@ -19,10 +16,7 @@ import { getProfile } from '@/api/userApi';
 import { listPapers } from '@/api/papersApi';
 import { listChatSessions } from '@/api/chatApi';
 import { listCollections } from '@/api/collectionsApi';
-import {
-  mockCollaborators,
-  mockRecentActivity,
-} from '@/data/dashboardMockData';
+import { getAllRoadmaps } from '@/api/roadmapApi';
 
 // Quick Action button data
 const quickActions = [
@@ -31,6 +25,23 @@ const quickActions = [
   { label: 'Compare', icon: GitCompare, path: '/compare' },
   { label: 'Analyze', icon: Sparkles, path: '/semantic-search' },
 ];
+
+// Helper to format relative time
+function formatTimeAgo(dateInput: string | Date | undefined): string {
+  if (!dateInput) return 'RECENTLY';
+  const date = new Date(dateInput);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (isNaN(seconds) || seconds < 60) return 'JUST NOW';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}M AGO`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}H AGO`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}D AGO`;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase();
+}
 
 // SVG graph node data for Knowledge Connectivity placeholder
 const graphNodes = [
@@ -81,6 +92,11 @@ export default function Dashboard() {
     queryFn: listCollections,
   });
 
+  const { data: roadmaps } = useQuery({
+    queryKey: ['roadmaps'],
+    queryFn: getAllRoadmaps,
+  });
+
   const getGreeting = () => {
     const hr = new Date().getHours();
     if (hr < 12) return 'Good Morning';
@@ -109,6 +125,48 @@ export default function Dashboard() {
   const userName = profile ? `${profile.firstName} ${profile.lastName}` : 'Researcher';
   const continuingProjectName = collections?.length ? collections[0].name : 'My Papers';
 
+  // Build real dynamic Recent Activity stream across user's entities
+  const realActivities: any[] = [];
+
+  (papers || []).forEach((paper) => {
+    realActivities.push({
+      id: `paper-${paper.id}`,
+      type: 'review',
+      title: 'Paper Added to Library',
+      description: paper.title,
+      timeAgo: formatTimeAgo(paper.createdAt),
+      timestamp: new Date(paper.createdAt).getTime(),
+    });
+  });
+
+  (chatSessions || []).forEach((session) => {
+    const ts = session.createdAt ? new Date(session.createdAt).getTime() : Date.now();
+    realActivities.push({
+      id: `chat-${session.sessionId}`,
+      type: 'ai',
+      title: 'AI Chat Session Active',
+      description: `Talk to Paper conversation.`,
+      timeAgo: formatTimeAgo(session.createdAt),
+      timestamp: ts,
+    });
+  });
+
+  (roadmaps || []).forEach((rm) => {
+    const ts = rm.createdAt ? new Date(rm.createdAt).getTime() : Date.now();
+    realActivities.push({
+      id: `rm-${rm.id}`,
+      type: 'share',
+      title: 'Research Roadmap Generated',
+      description: rm.topic ? `Topic: "${rm.topic}"` : 'AI Research Roadmap',
+      timeAgo: formatTimeAgo(rm.createdAt),
+      timestamp: ts,
+    });
+  });
+
+  const sortedActivities = realActivities
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, 5);
+
   return (
     <div className="p-6 md:p-8 max-w-[1440px] space-y-6">
 
@@ -120,74 +178,67 @@ export default function Dashboard() {
           </h1>
           <p className="font-inter text-sm text-slate-500 mt-1.5">
             Continue where you left off in{' '}
-            <Link to="/dashboard" className="text-vibrant-blue hover:text-primary font-medium transition-colors">
+            <Link to="/my-papers" className="text-vibrant-blue hover:text-primary font-medium transition-colors">
               {continuingProjectName}.
             </Link>
           </p>
         </div>
 
-        {/* Collaborators */}
+        {/* Active Stats Pill */}
         <div className="flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {mockCollaborators.map((c) => (
-              <div
-                key={c.initials}
-                className={`w-7 h-7 rounded-full border-2 border-white ${c.color} flex items-center justify-center font-mono text-[9px] font-bold text-white shadow-sm`}
-              >
-                {c.initials}
-              </div>
-            ))}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100 font-inter text-xs text-deep-indigo font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>{papers?.length || 0} Saved Papers</span>
           </div>
-          <span className="font-inter text-xs text-slate-500">
-            3 collaborators active
-          </span>
         </div>
       </div>
 
-      {/* ── Stat Cards ────────────────────────────────────── */}
+      {/* ── Real Stat Cards ────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<FileText className="w-5 h-5" />}
           label="Total Papers"
           value={(papers?.length || 0).toString()}
           badge={
-            <span className="flex items-center gap-1 text-success-green font-semibold">
-              <TrendingUp className="w-3 h-3" />
-              +12%
-            </span>
+            <Link to="/my-papers" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
+              Manage Library
+            </Link>
           }
         />
         <StatCard
           icon={<MessageSquare className="w-5 h-5" />}
           label="AI Conversations"
           value={(chatSessions?.length || 0).toString()}
-          badge={<span className="text-slate-400">Total Sessions</span>}
+          badge={
+            <Link to="/talk-to-paper" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
+              Open Chat
+            </Link>
+          }
         />
         <StatCard
           icon={<BookOpen className="w-5 h-5" />}
           label="Lit Reviews"
           value={(collections?.length || 0).toString()}
           badge={
-            <span className="flex items-center gap-1 text-warning-amber font-semibold">
-              <Star className="w-3 h-3 fill-warning-amber" />
-              Active
-            </span>
+            <Link to="/literature-reviews" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
+              Synthesize
+            </Link>
           }
         />
         <StatCard
           icon={<Map className="w-5 h-5" />}
           label="Roadmaps"
-          value="1"
+          value={(roadmaps?.length || 0).toString()}
           badge={
-            <Link to="/dashboard" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
-              View All
+            <Link to="/research-roadmaps" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
+              Generate
             </Link>
           }
         />
       </div>
 
       {/* ── Main Two-Column Row ───────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
 
         {/* LEFT: Recently Uploaded Papers */}
         <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
@@ -224,7 +275,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* RIGHT: Quick Actions + Recent Activity */}
+        {/* RIGHT: Quick Actions + Real Recent Activity */}
         <div className="flex flex-col gap-5">
 
           {/* Quick Actions */}
@@ -248,20 +299,23 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* Dynamic Recent Activity */}
           <div className="bg-white border border-slate-100 rounded-xl p-5 flex-1 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-hanken font-semibold text-sm text-slate-900">
                 Recent Activity
               </h2>
-              <button className="text-slate-400 hover:text-slate-600 transition-colors">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
             </div>
             <div className="space-y-0 divide-y divide-slate-50">
-              {mockRecentActivity.map((item) => (
-                <ActivityItem key={item.id} item={item} />
-              ))}
+              {sortedActivities.length > 0 ? (
+                sortedActivities.map((item) => (
+                  <ActivityItem key={item.id} item={item} />
+                ))
+              ) : (
+                <div className="py-6 text-center text-slate-400 font-inter text-xs">
+                  No recent research activities yet.
+                </div>
+              )}
             </div>
           </div>
 

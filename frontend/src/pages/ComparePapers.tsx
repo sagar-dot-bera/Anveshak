@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { listPapers, comparePapers } from '@/api/papersApi';
-import type { ResearchPaperResponse, PaperComparison } from '@/lib/types';
+import type { PaperComparison } from '@/lib/types';
 
 export default function ComparePapers() {
   const [selectedPaperIds, setSelectedPaperIds] = useState<string[]>([]);

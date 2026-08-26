@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -15,6 +15,7 @@ import {
   Lightbulb,
   ShieldCheck,
   AlignLeft,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createPaper } from '@/api/papersApi';
@@ -68,12 +69,16 @@ function StepIcon({ status }: { status: 'completed' | 'in-progress' | 'waiting' 
 }
 
 export default function UploadPaper() {
+  const location = useLocation();
+  const prefillPaper = (location.state as { prefillPaper?: any })?.prefillPaper;
+
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [keywords, setKeywords] = useState<string[]>(['Machine Learning', 'NLP']);
   const [keywordInput, setKeywordInput] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isFetchingPdf, setIsFetchingPdf] = useState(false);
   const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([
     {
       id: 'extraction',
@@ -102,6 +107,60 @@ export default function UploadPaper() {
     resolver: zodResolver(metadataSchema),
     defaultValues: { language: 'English', year: new Date().getFullYear().toString() },
   });
+
+  // Handle prefill paper metadata when redirected from Semantic Search or Roadmaps
+  useEffect(() => {
+    if (prefillPaper) {
+      const year = prefillPaper.created
+        ? new Date(prefillPaper.created).getFullYear().toString()
+        : prefillPaper.publicationYear?.toString() || new Date().getFullYear().toString();
+
+      reset({
+        title: prefillPaper.title || '',
+        authors: Array.isArray(prefillPaper.authors)
+          ? prefillPaper.authors.join(', ')
+          : prefillPaper.authors || '',
+        year: year,
+        language: 'English',
+      });
+
+      if (prefillPaper.categories || prefillPaper.keywords) {
+        const catStr = prefillPaper.categories || (Array.isArray(prefillPaper.keywords) ? prefillPaper.keywords.join(' ') : prefillPaper.keywords || '');
+        const catList = catStr.split(/[\s,]+/).filter((c: string) => c.length > 1).slice(0, 5);
+        if (catList.length > 0) {
+          setKeywords(catList);
+        }
+      }
+
+      // Auto-fetch PDF if paperId or pdfUrl exists
+      const targetPdfUrl = prefillPaper.pdfUrl || (prefillPaper.paperId ? `https://arxiv.org/pdf/${prefillPaper.paperId}.pdf` : null);
+      if (targetPdfUrl) {
+        setIsFetchingPdf(true);
+        const corsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetPdfUrl)}`;
+        fetch(corsProxyUrl)
+          .then((res) => {
+            if (!res.ok) throw new Error('CORS fetch failed');
+            return res.blob();
+          })
+          .then((blob) => {
+            const fileName = `${(prefillPaper.title || 'paper').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+            const file = new File([blob], fileName, { type: 'application/pdf' });
+            setSelectedFile(file);
+            toast.success('PDF fetched automatically', { description: fileName });
+          })
+          .catch(() => {
+            toast.info('Paper metadata imported', {
+              description: 'Select or drop the PDF file below to complete uploading to library.',
+            });
+          })
+          .finally(() => setIsFetchingPdf(false));
+      } else {
+        toast.info('Paper metadata imported', {
+          description: 'Select or drop the PDF file below to complete uploading to library.',
+        });
+      }
+    }
+  }, [prefillPaper, reset]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -250,6 +309,31 @@ export default function UploadPaper() {
           index the content, and generate embeddings for semantic querying.
         </p>
       </div>
+
+      {/* ── Prefill Banner Notice ─────────────────────────── */}
+      {prefillPaper && (
+        <div className="bg-indigo-50/80 border border-indigo-100 rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="font-hanken font-semibold text-xs text-slate-800">
+                Importing Paper: <span className="text-primary font-bold">{prefillPaper.title}</span>
+              </p>
+              <p className="font-inter text-[11px] text-slate-500 mt-0.5">
+                Metadata prefilled automatically. Confirm the details on the right to save this paper to your library.
+              </p>
+            </div>
+          </div>
+          {isFetchingPdf && (
+            <div className="flex items-center gap-2 font-inter text-xs text-primary font-medium flex-shrink-0 bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Auto-fetching PDF...
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Main Two-Column Grid ─────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">

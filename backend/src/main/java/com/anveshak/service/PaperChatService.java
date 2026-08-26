@@ -20,7 +20,10 @@ import com.anveshak.repository.ChatMessageRepository;
 import com.anveshak.repository.ChatSessionRepository;
 import com.pgvector.PGvector;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class PaperChatService {
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -52,7 +55,7 @@ public class PaperChatService {
         newSession.setCreatedAt(java.time.Instant.now());
         newSession = chatSessionRepository.save(newSession);
 
-        return new ChatSessionResponse(newSession.getId().toString());
+        return new ChatSessionResponse(newSession.getId().toString(), paper.getId().toString());
     }
 
     public ChatSession getChatSessionById(UUID sessionId) {
@@ -69,14 +72,23 @@ public class PaperChatService {
     public ChatMessageResponse sendMessage(ChatMessageRequest request) {
         ChatSession session = getChatSessionById(UUID.fromString(request.sessionId()));
         ResearchPaper paper = session.getPaper();
+        log.info("Sending message for paper: {}", paper.getId());
         float[] embedding = embeddingService.getEmbedding(request.message());
-        List<PaperChunk> chunks = paperChunkService.semanticSearch(new PGvector(embedding), 5, paper.getId());
+        PGvector pgVectorEmbedding = new PGvector(embedding);
 
+        log.info("Embedding: {}", pgVectorEmbedding.toString());
+        log.info("Type: {}", pgVectorEmbedding.getClass());
+        log.info("Vector: {}", pgVectorEmbedding.toString());
+        log.info("Embedding retrieved for message: {}", embedding.length);
+        List<PaperChunk> chunks = paperChunkService.semanticSearch(pgVectorEmbedding.toString(), 5, paper.getId());
+
+        log.info("Chunks retrieved for semantic search: {}", chunks.size());
         String prompt = promptService.buildPrompts(request.message(), chunks, request.role()).stream()
                 .reduce((a, b) -> a + "\n\n" + b)
                 .orElse("");
-        String message = geminiService.generateAnswer(prompt);
+        String message = geminiService.generateAnswer(prompt, null);
 
+        log.info("Generated answer: {}", message);
         // Store user question under "user" role
         storeMessage(request.message(), request.sessionId(), "user");
         // Store assistant answer under "assistant" role
@@ -106,7 +118,7 @@ public class PaperChatService {
     public List<ChatSessionResponse> getSessionsByUser(User user) {
         List<ChatSession> sessions = chatSessionRepository.findByUserOrderByCreatedAtDesc(user);
         return sessions.stream()
-                .map(session -> new ChatSessionResponse(session.getId().toString()))
+                .map(session -> new ChatSessionResponse(session.getId().toString(), session.getPaper().getId().toString()))
                 .toList();
     }
 

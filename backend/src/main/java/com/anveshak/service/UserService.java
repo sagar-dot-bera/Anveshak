@@ -206,9 +206,19 @@ public class UserService {
             throw new IllegalArgumentException("User cannot be null");
         }
 
-        user.setIsVerified(true);
+        user.setIsEmailVerified(true);
         user.setUpdatedAt(Instant.now());
         return userRepository.save(user);
+    }
+
+    public void isMailVerified(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
+        if (!user.getIsEmailVerified()) {
+            throw new EmailNotVerifiedException();
+        }
     }
 
     public User createUserFromGoogleIdPayload(GoogleIdToken.Payload payload) {
@@ -222,6 +232,21 @@ public class UserService {
         String lastName = (String) payload.get("family_name");
         String username = email.split("@")[0]; // Derive username from email
 
+        User newUser = new User(firstName, lastName, username, email, true);
+        return userRepository.save(newUser);
+    }
+
+    public User createUserFromGoogleUserInfo(java.util.Map<String, Object> userInfo) {
+        if (userInfo == null) {
+            throw new IllegalArgumentException("Google userinfo cannot be null");
+        }
+        String email = (String) userInfo.get("email");
+        String firstName = (String) userInfo.get("given_name");
+        String lastName = (String) userInfo.get("family_name");
+        if (firstName == null) {
+            firstName = (String) userInfo.get("name");
+        }
+        String username = email != null ? email.split("@")[0] : "user" + System.currentTimeMillis();
         User newUser = new User(firstName, lastName, username, email, true);
         return userRepository.save(newUser);
     }

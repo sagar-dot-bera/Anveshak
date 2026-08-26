@@ -33,10 +33,12 @@ import com.anveshak.service.CurrentUserResolver;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Authentication", description = "Endpoints for user authentication and authorization")
 public class AuthController {
 
@@ -61,8 +63,66 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest googleLoginRequest,
             HttpServletRequest request) throws Exception {
+        log.info("Received /auth/google request");
         return ResponseEntity
                 .ok(authService.loginWithGoogle(googleLoginRequest, getClientIp(request), getUserAgent(request)));
+    }
+
+    @Operation(summary = "Google OAuth Callback", description = "Handles Google OAuth redirect callback.")
+    @GetMapping("/google/callback")
+    public ResponseEntity<Void> googleCallback(@RequestParam(value = "code", required = false) String code,
+            @RequestParam(value = "error", required = false) String error,
+            HttpServletRequest request) {
+        log.info("Received /auth/google/callback code={}, error={}", code != null ? "[PRESENT]" : "null", error);
+        String frontendUrl = authService.getFrontendUrl();
+        if (error != null || code == null || code.isBlank()) {
+            String redirectUrl = frontendUrl + "/login?error=" + (error != null ? error : "google_auth_failed");
+            return ResponseEntity.status(HttpStatus.FOUND).header("Location", redirectUrl).build();
+        }
+
+        try {
+            AuthResponse authResponse = authService.handleGoogleCallback(code, getClientIp(request), getUserAgent(request));
+            String redirectUrl = String.format("%s/login?accessToken=%s&refreshToken=%s",
+                    frontendUrl, authResponse.accessToken(), authResponse.refreshToken());
+            return ResponseEntity.status(HttpStatus.FOUND).header("Location", redirectUrl).build();
+        } catch (Exception e) {
+            log.error("Error in /auth/google/callback: {}", e.getMessage(), e);
+            String redirectUrl = frontendUrl + "/login?error=" + java.net.URLEncoder.encode(e.getMessage(), java.nio.charset.StandardCharsets.UTF_8);
+            return ResponseEntity.status(HttpStatus.FOUND).header("Location", redirectUrl).build();
+        }
+    }
+
+    @Operation(summary = "Exchange Google auth code", description = "Exchanges a Google authorization code from popup flow for tokens.")
+    @PostMapping("/google/code")
+    public ResponseEntity<AuthResponse> googleCodeExchange(@RequestBody java.util.Map<String, String> body,
+            HttpServletRequest request) throws Exception {
+        log.info("Received /auth/google/code request with body keys: {}", body.keySet());
+        String code = body.get("code");
+        String redirectUri = body.get("redirect_uri");
+        if (redirectUri == null || redirectUri.isBlank()) {
+            redirectUri = "postmessage";
+        }
+
+        try {
+            log.info("Executing googleCodeExchange code length={}, redirectUri={}", code != null ? code.length() : 0, redirectUri);
+            AuthResponse authResponse = authService.handleGoogleCallback(code, redirectUri, getClientIp(request), getUserAgent(request));
+            log.info("googleCodeExchange succeeded!");
+            return ResponseEntity.ok(authResponse);
+        } catch (IllegalArgumentException e) {
+            log.warn("Primary googleCodeExchange failed for redirectUri={}: {}", redirectUri, e.getMessage());
+            // If postmessage failed, attempt with frontend URL as fallback redirect URI
+            if ("postmessage".equals(redirectUri)) {
+                try {
+                    log.info("Attempting fallback googleCodeExchange with frontendUrl={}", authService.getFrontendUrl());
+                    AuthResponse authResponse = authService.handleGoogleCallback(code, authService.getFrontendUrl(), getClientIp(request), getUserAgent(request));
+                    log.info("Fallback googleCodeExchange succeeded!");
+                    return ResponseEntity.ok(authResponse);
+                } catch (Exception fallbackEx) {
+                    log.error("Fallback googleCodeExchange also failed: {}", fallbackEx.getMessage());
+                }
+            }
+            throw e;
+        }
     }
 
     @Operation(summary = "Refresh tokens", description = "Refreshes the access and refresh tokens using a valid refresh token.")
@@ -132,4 +192,5 @@ public class AuthController {
         String userAgent = request.getHeader("User-Agent");
         return userAgent == null ? "unknown" : userAgent;
     }
+
 }

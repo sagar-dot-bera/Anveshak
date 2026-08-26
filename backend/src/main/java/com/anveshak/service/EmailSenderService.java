@@ -34,6 +34,7 @@ public class EmailSenderService {
             // Don't fail the flow in dev; log the content for debugging
             log.warn("Failed to send email to {}. Subject: {}. Falling back to log. Reason: {}", to, subject,
                     e.getMessage());
+            log.warn("From: {}", from);
             log.info("[DEV EMAIL Fallback] To: {}\nSubject: {}\n{}", to, subject, body);
         }
     }

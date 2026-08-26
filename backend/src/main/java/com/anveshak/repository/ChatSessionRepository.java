@@ -12,4 +12,5 @@ public interface ChatSessionRepository extends JpaRepository<ChatSession, UUID> 
 
     List<ChatSession> findByUserOrderByCreatedAtDesc(User user);
 
+    void deleteByPaper(com.anveshak.model.ResearchPaper paper);
 }

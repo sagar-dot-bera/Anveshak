@@ -5,6 +5,7 @@ import type {
   UpdatePaperRequest,
   PaperComparisonResponse,
   LiteratureReviewResponse,
+  GlobalPaperResponse,
 } from '@/lib/types';
 
 /** List all papers for the current user. */
@@ -71,14 +72,43 @@ export async function deletePaper(paperId: string): Promise<void> {
   await apiClient.delete(`/papers/${paperId}`);
 }
 
-/** Semantic search across the user's papers. */
-export async function searchPapers(
+/** Semantic search across the user's papers (local). */
+export async function searchPapersLocal(
   query: string,
+  threshold?: number,
 ): Promise<ResearchPaperResponse[]> {
   const { data } = await apiClient.get<ResearchPaperResponse[]>(
-    '/papers/search',
-    { params: { query } },
+    '/papers/search/local',
+    { params: { query, threshold } },
   );
+  return data;
+}
+
+/** Semantic search across global papers. */
+export async function searchPapersGlobal(
+  query: string,
+  limit?: number,
+  threshold?: number,
+): Promise<GlobalPaperResponse[]> {
+  const { data } = await apiClient.get<GlobalPaperResponse[]>(
+    '/papers/search/global',
+    { params: { query, limit, threshold } },
+  );
+  return data;
+}
+
+/** Import a paper directly into user's library without manual PDF upload. */
+export async function importPaperToLibrary(paper: {
+  paperId?: string;
+  title: string;
+  abstractText?: string;
+  authors?: string;
+  categories?: string;
+  pdfUrl?: string;
+  paperUrl?: string;
+  publicationYear?: number;
+}): Promise<ResearchPaperResponse> {
+  const { data } = await apiClient.post<ResearchPaperResponse>('/papers/import', paper);
   return data;
 }
 

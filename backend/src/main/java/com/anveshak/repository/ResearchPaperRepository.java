@@ -20,17 +20,21 @@ public interface ResearchPaperRepository extends JpaRepository<ResearchPaper, UU
 
     Optional<ResearchPaper> findByIdAndOwner(UUID id, User owner);
 
+    Optional<ResearchPaper> findByOwnerAndTitle(User owner, String title);
+
     @Query(value = """
             SELECT *
             FROM research_papers
             WHERE owner_id = :ownerId
             AND embedding IS NOT NULL
-            ORDER BY embedding <=> :queryEmbedding
+            AND (1 - (embedding <=> CAST(:queryEmbedding AS text)::vector)) >= :threshold
+            ORDER BY embedding <=> CAST(:queryEmbedding AS text)::vector
             LIMIT :limit
             """, nativeQuery = true)
     List<ResearchPaper> semanticSearch(
-            @Param("queryEmbedding") PGvector embedding,
+            @Param("queryEmbedding") String embedding,
             @Param("limit") int limit,
-            @Param("ownerId") UUID ownerId);
+            @Param("ownerId") UUID ownerId,
+            @Param("threshold") double threshold);
 
 }

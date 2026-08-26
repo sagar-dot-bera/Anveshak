@@ -5,9 +5,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.hibernate.annotations.Array;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.type.SqlTypes;
 
 import com.pgvector.PGvector;
 
@@ -79,6 +83,8 @@ public class ResearchPaper {
     @ManyToMany(mappedBy = "papers")
     private Set<ResearchCollection> collections = new HashSet<>();
 
-    @Column(name = "embedding", nullable = false)
-    private PGvector embedding;
+    @Column(name = "embedding", nullable = false, columnDefinition = "vector(384)")
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 384)
+    private float[] embedding;
 }

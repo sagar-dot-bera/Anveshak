@@ -11,6 +11,7 @@ import {
   X,
   Copy,
   Search,
+  FlaskConical,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { listPapers, generateLiteratureReview } from '@/api/papersApi';

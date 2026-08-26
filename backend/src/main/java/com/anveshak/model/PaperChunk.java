@@ -3,9 +3,12 @@ package com.anveshak.model;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.Array;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.type.SqlTypes;
 
 import com.pgvector.PGvector;
 
@@ -54,8 +57,10 @@ public class PaperChunk {
     @Column(name = "chunk_index", nullable = false)
     private Integer chunkIndex;
 
-    @Column(name = "embeddings")
-    private PGvector embeddings;
+    @Column(name = "embeddings", columnDefinition = "vector(384)")
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 384)
+    private float[] embeddings;
 
     @NotNull
     @ColumnDefault("current_timestamp")

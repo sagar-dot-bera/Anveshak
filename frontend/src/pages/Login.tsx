@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.svg';
-import { login } from '@/api/authApi';
-import { setTokens } from '@/lib/authStore';
+import { login, googleCodeExchange } from '@/api/authApi';
+import { setTokens, isAuthenticated } from '@/lib/authStore';
+import { useGoogleLogin } from '@react-oauth/google';
 
 const loginSchema = z.object({
   email: z
@@ -26,6 +27,54 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const accessToken = params.get('accessToken');
+    const refreshToken = params.get('refreshToken');
+    const errorParam = params.get('error');
+
+    if (accessToken && refreshToken) {
+      setTokens(accessToken, refreshToken);
+      toast.success('Successfully logged in with Google!', {
+        description: 'Welcome to Anveshak',
+      });
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
+    if (errorParam) {
+      toast.error('Google Login failed', { description: decodeURIComponent(errorParam) });
+    }
+
+    if (isAuthenticated()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [location, navigate]);
+
+  const googleOAuthLogin = useGoogleLogin({
+    flow: 'auth-code',
+    onSuccess: async (codeResponse) => {
+      setIsLoading(true);
+      try {
+        const res = await googleCodeExchange(codeResponse.code);
+        setTokens(res.accessToken, res.refreshToken);
+        toast.success('Successfully logged in with Google!', {
+          description: 'Welcome to Anveshak',
+        });
+        navigate('/dashboard', { replace: true });
+      } catch (err: any) {
+        const errMsg = err.response?.data?.message || err.response?.data?.error || err.message || 'Google login failed.';
+        toast.error('Google login failed', { description: errMsg });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      toast.error('Google login failed', { description: 'Could not connect to Google. Please try again.' });
+    },
+  });
 
   const {
     register,
@@ -51,7 +100,8 @@ export default function Login() {
       toast.success('Successfully logged in!', {
         description: `Welcome to Anveshak`,
       });
-      navigate('/dashboard', { replace: true });
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (err: any) {
       const errMsg = err.response?.data?.msg || err.response?.data?.error || 'Invalid email or password.';
       toast.error('Authentication failed', {
@@ -60,12 +110,6 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSocialLogin = (platform: 'Google' | 'Facebook') => {
-    toast.info(`Connecting to ${platform}...`, {
-      description: `This redirects to ${platform} OAuth in production.`,
-    });
   };
 
   return (
@@ -234,11 +278,11 @@ export default function Login() {
             </div>
 
             {/* Social Logins */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="w-full">
               <button
                 type="button"
-                onClick={() => handleSocialLogin('Google')}
-                className="flex items-center justify-center space-x-2 py-2 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+                onClick={() => googleOAuthLogin()}
+                className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
               >
                 {/* Google Icon SVG */}
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -259,19 +303,7 @@ export default function Login() {
                     fill="#EA4335"
                   />
                 </svg>
-                <span className="font-inter text-sm font-medium text-slate-700">Google</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSocialLogin('Facebook')}
-                className="flex items-center justify-center space-x-2 py-2 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
-              >
-                {/* Facebook Icon SVG */}
-                <svg className="w-4 h-4 text-[#1877F2]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                <span className="font-inter text-sm font-medium text-slate-700">Facebook</span>
+                <span className="font-inter text-sm font-medium text-slate-700">Continue with Google</span>
               </button>
             </div>
 

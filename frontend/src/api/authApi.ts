@@ -8,7 +8,8 @@ import type {
   GoogleLoginRequest,
 } from '@/lib/types';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 /** Login with email + password. Does NOT use the shared apiClient
  *  (we don't want the interceptor to refresh on a login failure). */
@@ -38,6 +39,18 @@ export async function googleLogin(
   const { data } = await axios.post<AuthResponse>(
     `${API_BASE_URL}/auth/google`,
     payload,
+  );
+  return data;
+}
+
+/** Exchange a Google auth code (from popup flow) for tokens. */
+export async function googleCodeExchange(
+  code: string,
+  redirectUri?: string
+): Promise<AuthResponse> {
+  const { data } = await axios.post<AuthResponse>(
+    `${API_BASE_URL}/auth/google/code`,
+    { code, redirect_uri: redirectUri || 'postmessage' },
   );
   return data;
 }

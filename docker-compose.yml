@@ -1,0 +1,85 @@
+name: anveshak
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: anveshak_postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${SPRING_DATASOURCE_USERNAME} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  embedding:
+    build:
+      context: ./embeddingService
+      dockerfile: Dockerfile
+    container_name: embedding_service
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./docker-data/huggingface:/root/.cache/huggingface
+    environment:
+      MODEL_NAME: ${MODEL_NAME:-all-MiniLM-L6-v2}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" ]
+      start_period: 60s
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: anveshak_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      EMBEDDING_SERVICE_URL: http://embedding:8001
+    volumes:
+      - ./keys:/app/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+      embedding:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+    container_name: anveshak_frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend

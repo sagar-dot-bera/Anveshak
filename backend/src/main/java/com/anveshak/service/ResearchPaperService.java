@@ -25,6 +25,7 @@ import com.anveshak.DTOs.PaperLookupRequest;
 import com.anveshak.DTOs.PaperSearchRequest;
 import com.anveshak.DTOs.ResearchPaperResponse;
 import com.anveshak.DTOs.UpdatePaperRequest;
+import com.anveshak.Exception.EmailNotVerifiedException;
 import com.anveshak.Exception.FailedToCreatePaperChunks;
 import com.anveshak.Exception.FailedToCreatePaperSummary;
 import com.anveshak.Exception.ResearchPaperNotFoundException;
@@ -38,8 +39,22 @@ import com.anveshak.model.User;
 import com.anveshak.repository.AuthorRepository;
 import com.anveshak.repository.KeywordRepository;
 import com.anveshak.repository.ResearchPaperRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.pgvector.PGvector;
+
+import java.io.ByteArrayInputStream;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import com.anveshak.DTOs.ImportPaperRequest;
+import com.anveshak.model.GlobalPaper;
+import com.anveshak.repository.GlobalPaperRepository;
+import com.anveshak.repository.PaperSummaryRepository;
+import com.anveshak.repository.ChatSessionRepository;
+import com.anveshak.repository.PaperChunkRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,8 +62,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ResearchPaperService {
 
-    private final AnveshakApplication anveshakApplication;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final ResearchPaperRepository researchPaperRepository;
     private final AuthorRepository authorRepository;
     private final KeywordRepository keywordRepository;
@@ -57,16 +70,20 @@ public class ResearchPaperService {
     private final PaperChunkService paperChunkService;
     private final PdfService pdfService;
     private final PaperSummaryService paperSummaryService;
-    private final GeminiService geminiService;
-    private final PromptService promptService;
-    private final int CHUNK_SIZE = 2000;
+    private final GlobalPaperRepository globalPaperRepository;
+    private final PaperChunkRepository paperChunkRepository;
+    private final PaperSummaryRepository paperSummaryRepository;
+    private final ChatSessionRepository chatSessionRepository;
+    private final RestTemplate restTemplate;
 
     public ResearchPaperService(ResearchPaperRepository researchPaperRepository, AuthorRepository authorRepository,
             KeywordRepository keywordRepository, FileStorageService fileStorageService,
             EmbeddingServiceClient embeddingServiceClient, PdfService pdfService, PaperChunkService paperChunkService,
-            RefreshTokenRepository refreshTokenRepository, GeminiService geminiService,
+            GeminiService geminiService,
             PaperSummaryService paperSummaryService, PromptService promptService,
-            AnveshakApplication anveshakApplication) {
+            GlobalPaperRepository globalPaperRepository, PaperChunkRepository paperChunkRepository,
+            PaperSummaryRepository paperSummaryRepository, ChatSessionRepository chatSessionRepository,
+            RestTemplate restTemplate) {
         this.researchPaperRepository = researchPaperRepository;
         this.authorRepository = authorRepository;
         this.keywordRepository = keywordRepository;
@@ -74,12 +91,12 @@ public class ResearchPaperService {
         this.embeddingServiceClient = embeddingServiceClient;
         this.paperChunkService = paperChunkService;
         this.pdfService = pdfService;
-        this.refreshTokenRepository = refreshTokenRepository;
-
-        this.geminiService = geminiService;
-        this.promptService = promptService;
         this.paperSummaryService = paperSummaryService;
-        this.anveshakApplication = anveshakApplication;
+        this.globalPaperRepository = globalPaperRepository;
+        this.paperChunkRepository = paperChunkRepository;
+        this.paperSummaryRepository = paperSummaryRepository;
+        this.chatSessionRepository = chatSessionRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Transactional
@@ -87,54 +104,187 @@ public class ResearchPaperService {
             throws IOException {
         validateOwner(owner);
         validateRequest(request);
+        if (pdfFile == null || pdfFile.isEmpty()) {
+            throw new IllegalArgumentException("PDF file is required for creating a paper.");
+        }
+        return saveAndProcessPaper(owner, request.title(), request.abstractText(), request.publicationYear(), request.authors(), request.keywords(), pdfFile);
+    }
 
+    private ResearchPaperResponse saveAndProcessPaper(User owner, String title, String abstractText, Integer publicationYear, String[] authors, String[] keywords, MultipartFile pdfFile) throws IOException {
         ResearchPaper paper = new ResearchPaper();
         paper.setOwner(owner);
-        paper.setTitle(request.title().trim());
-        paper.setAbstractText(request.abstractText().trim());
-        paper.setPublicationYear(request.publicationYear());
+        paper.setTitle(title.trim());
+        paper.setAbstractText(abstractText != null && !abstractText.isBlank() ? abstractText.trim() : "Title: " + title.trim());
+        paper.setPublicationYear(publicationYear != null ? publicationYear : Instant.now().atZone(java.time.ZoneId.systemDefault()).getYear());
         paper.setCreatedAt(Instant.now());
         paper.setUpdatedAt(Instant.now());
-        paper.setAuthors(resolveAuthors(request.authors()));
-        paper.setKeywords(resolveKeywords(request.keywords()));
+        paper.setAuthors(resolveAuthors(authors));
+        paper.setKeywords(resolveKeywords(keywords));
 
         String fileText = pdfService.extractText(pdfFile);
-
+        if (fileText == null || fileText.isBlank()) {
+            fileText = "Title: " + paper.getTitle() + "\nAbstract: " + paper.getAbstractText();
+        }
+        log.info("Extracted text from PDF: {}", fileText.substring(0, Math.min(fileText.length(), 20)) + "...");
         float[] embedding = embeddingServiceClient.getEmbedding(fileText);
 
-        paper.setEmbedding(new PGvector(embedding));
+        log.info("Generated embeddings from file: {}", embedding.length);
+
+        paper.setEmbedding(embedding);
 
         if (pdfFile != null && !pdfFile.isEmpty()) {
             paper.setPdfUrl(fileStorageService.upload(pdfFile));
         }
-
+        paper = researchPaperRepository.save(paper);
+        log.info("Storing paper chunks for PDF: {}", pdfFile.getOriginalFilename());
         List<PaperChunk> paperChunks = paperChunkService.storePaperChunks(pdfFile, paper, 2000);
 
         if (paperChunks == null || paperChunks.isEmpty()) {
-            throw new FailedToCreatePaperChunks("Failed to create paper chunks for the uploaded PDF.");
+            PaperChunk fallbackChunk = new PaperChunk();
+            fallbackChunk.setPaper(paper);
+            fallbackChunk.setContent("Title: " + paper.getTitle() + "\n\nAbstract:\n" + paper.getAbstractText());
+            fallbackChunk.setPageNumber(1);
+            fallbackChunk.setChunkIndex(0);
+            fallbackChunk.setEmbeddings(embedding);
+            fallbackChunk.setCreatedAt(Instant.now());
+            paperChunks = List.of(paperChunkRepository.save(fallbackChunk));
         }
 
-        String prompt = promptService.buildSummaryPrompt(paper, paperChunks);
+        log.info("Stored {} paper chunks for paper ID: {}", paperChunks.size(), paper.getId());
 
-        if (prompt == null || prompt.isBlank()) {
-            throw new IllegalArgumentException("Prompt cannot be null or empty");
+        PaperSummary paperSummary = paperSummaryService.savePaperSummary(paperChunks, paper);
+        log.info("Saved paper summary for paper ID: {}", paper.getId());
+
+        return toResponse(paper);
+    }
+
+    @Transactional
+    public ResearchPaperResponse importPaper(User owner, ImportPaperRequest request) {
+        validateOwner(owner);
+        if (request == null || request.title() == null || request.title().isBlank()) {
+            throw new IllegalArgumentException("Paper title cannot be empty for import");
         }
 
-        String summary = geminiService.generateAnswer(prompt);
+        String paperTitle = request.title().trim();
 
-        if (summary == null || summary.isBlank()) {
-            throw new IllegalArgumentException("Summary cannot be null or empty");
+        // 1. Check if paper already exists for this user
+        Optional<ResearchPaper> existingPaper = researchPaperRepository.findByOwnerAndTitle(owner, paperTitle);
+        if (existingPaper.isPresent()) {
+            ResearchPaper p = existingPaper.get();
+            log.info("Paper '{}' already exists in library for user {}", paperTitle, owner.getId());
+            if (paperSummaryRepository.findById(p.getId()).isEmpty()) {
+                List<PaperChunk> chunks = paperChunkRepository.findByPaperOrderByChunkIndexAsc(p);
+                paperSummaryService.savePaperSummary(chunks, p);
+            }
+            return toResponse(p);
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        InnerPaperSummaryDTO innerPaperSummaryDTO = objectMapper.readValue(summary, InnerPaperSummaryDTO.class);
-        PaperSummary paperSummary = paperSummaryService.savePaperSummary(innerPaperSummaryDTO, paper);
-
-        if (paperSummary == null) {
-            throw new FailedToCreatePaperSummary("Failed to create paper summary.");
+        // 2. Resolve external PDF download URL
+        String pdfLink = request.pdfUrl();
+        if (pdfLink == null || pdfLink.isBlank()) {
+            if (request.paperId() != null && !request.paperId().isBlank()) {
+                String rawId = request.paperId().trim();
+                if (rawId.startsWith("http://") || rawId.startsWith("https://")) {
+                    pdfLink = rawId;
+                } else {
+                    pdfLink = "https://arxiv.org/pdf/" + rawId + ".pdf";
+                }
+            }
         }
 
-        return toResponse(researchPaperRepository.save(paper));
+        // 3. Download the actual PDF bytes from the URL
+        byte[] pdfBytes = null;
+        if (pdfLink != null && !pdfLink.isBlank()) {
+            pdfBytes = fetchPdfBytes(pdfLink);
+        }
+
+        // 4. Require valid PDF bytes from source; throw exception if missing or invalid
+        if (pdfBytes == null || pdfBytes.length == 0 || !isValidPdfBytes(pdfBytes)) {
+            log.warn("Failed to download valid PDF from source for paper import: title='{}', pdfLink='{}'", paperTitle, pdfLink);
+            throw new IllegalArgumentException("We can't find PDF from source");
+        }
+
+        // 5. Wrap PDF bytes as ByteArrayMultipartFile and execute unified paper processing pipeline
+        try {
+            String safeFileName = paperTitle.replaceAll("[^a-zA-Z0-9._-]", "_") + ".pdf";
+            com.anveshak.Helper.ByteArrayMultipartFile multipartFile = new com.anveshak.Helper.ByteArrayMultipartFile(
+                    pdfBytes, "pdfFile", safeFileName, "application/pdf");
+
+            String[] authorArray = request.authors() != null && !request.authors().isBlank()
+                    ? request.authors().split(",")
+                    : new String[] { "Unknown Author" };
+
+            String[] keywordArray = request.categories() != null && !request.categories().isBlank()
+                    ? request.categories().split("[\\s,]+")
+                    : new String[] { "Research" };
+
+            Integer year = request.publicationYear() != null ? request.publicationYear()
+                    : Instant.now().atZone(java.time.ZoneId.systemDefault()).getYear();
+
+            String abstractText = request.abstractText() != null && !request.abstractText().isBlank()
+                    ? request.abstractText().trim()
+                    : "Imported paper: " + paperTitle;
+
+            ResearchPaperResponse response = saveAndProcessPaper(owner, paperTitle, abstractText, year, authorArray, keywordArray, multipartFile);
+            log.info("Successfully uploaded PDF to Supabase and processed imported paper '{}' for user {}", paperTitle, owner.getId());
+            return response;
+
+        } catch (Exception e) {
+            log.error("Error processing imported paper '{}': {}", paperTitle, e.getMessage(), e);
+            throw new IllegalArgumentException("We can't find PDF from source");
+        }
+    }
+
+    private byte[] fetchPdfBytes(String url) {
+        if (url == null || url.isBlank()) return null;
+        String rawUrl = url.trim();
+
+        // Generate candidate URLs for arXiv or generic URLs
+        List<String> candidates = new ArrayList<>();
+        if (rawUrl.contains("arxiv.org/abs/")) {
+            String pdfBase = rawUrl.replace("arxiv.org/abs/", "arxiv.org/pdf/");
+            candidates.add(pdfBase);
+            if (!pdfBase.endsWith(".pdf")) {
+                candidates.add(pdfBase + ".pdf");
+            }
+        } else if (rawUrl.contains("arxiv.org/pdf/")) {
+            candidates.add(rawUrl);
+            if (!rawUrl.endsWith(".pdf")) {
+                candidates.add(rawUrl + ".pdf");
+            } else {
+                candidates.add(rawUrl.substring(0, rawUrl.length() - 4));
+            }
+        } else {
+            candidates.add(rawUrl);
+        }
+
+        for (String candidateUrl : candidates) {
+            try {
+                log.info("Attempting external PDF download from candidate URL: {}", candidateUrl);
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                headers.set("Accept", "application/pdf,application/octet-stream,*/*");
+                HttpEntity<Void> entity = new HttpEntity<>(headers);
+                ResponseEntity<byte[]> response = restTemplate.exchange(candidateUrl, HttpMethod.GET, entity, byte[].class);
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null && response.getBody().length > 0) {
+                    byte[] bytes = response.getBody();
+                    if (isValidPdfBytes(bytes)) {
+                        log.info("Successfully fetched valid PDF ({} bytes) from candidate URL: {}", bytes.length, candidateUrl);
+                        return bytes;
+                    } else {
+                        log.warn("Candidate URL {} returned {} bytes but missing %PDF- magic header", candidateUrl, bytes.length);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed candidate download from {}: {}", candidateUrl, e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private boolean isValidPdfBytes(byte[] bytes) {
+        if (bytes == null || bytes.length < 100) return false;
+        return bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F';
     }
 
     @Transactional(readOnly = true)
@@ -149,6 +299,48 @@ public class ResearchPaperService {
         return toResponse(loadOwnedPaper(request, owner));
     }
 
+    @Transactional
+    public void deletePaper(PaperLookupRequest lookupRequest, User owner) {
+        validateOwner(owner);
+        ResearchPaper paper = loadOwnedPaper(lookupRequest, owner);
+        log.info("Deleting research paper '{}' (ID: {}) for user {}", paper.getTitle(), paper.getId(), owner.getId());
+
+        // 1. Delete associated paper chunks
+        try {
+            paperChunkRepository.deleteByPaper(paper);
+        } catch (Exception e) {
+            log.warn("Error deleting paper chunks: {}", e.getMessage());
+        }
+
+        // 2. Delete associated summary
+        try {
+            paperSummaryRepository.deleteByPaper(paper);
+        } catch (Exception e) {
+            log.warn("Error deleting paper summary: {}", e.getMessage());
+        }
+
+        // 3. Delete associated chat sessions
+        try {
+            chatSessionRepository.deleteByPaper(paper);
+        } catch (Exception e) {
+            log.warn("Error deleting chat sessions: {}", e.getMessage());
+        }
+
+        // 4. Delete storage file if in Supabase
+        if (paper.getPdfUrl() != null && !paper.getPdfUrl().isBlank()
+                && !paper.getPdfUrl().startsWith("http://") && !paper.getPdfUrl().startsWith("https://")) {
+            try {
+                fileStorageService.delete(paper.getPdfUrl());
+            } catch (Exception e) {
+                log.warn("Error deleting file from Supabase storage: {}", e.getMessage());
+            }
+        }
+
+        // 5. Delete paper entity
+        researchPaperRepository.delete(paper);
+        log.info("Paper '{}' deleted successfully.", paper.getId());
+    }
+
     @Transactional(readOnly = true)
     public InputStream downloadPaperPdf(PaperLookupRequest request, User owner) {
         ResearchPaper paper = loadOwnedPaper(request, owner);
@@ -156,7 +348,21 @@ public class ResearchPaperService {
             throw new IllegalArgumentException("Paper does not have a PDF attached");
         }
 
-        return fileStorageService.download(paper.getPdfUrl());
+        String pdfUrl = paper.getPdfUrl().trim();
+        if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://")) {
+            return downloadExternalPdf(pdfUrl);
+        }
+
+        return fileStorageService.download(pdfUrl);
+    }
+
+    private InputStream downloadExternalPdf(String url) {
+        byte[] bytes = fetchPdfBytes(url);
+        if (bytes != null && bytes.length > 0) {
+            return new ByteArrayInputStream(bytes);
+        }
+        log.error("Failed to download valid PDF from external URL: {}", url);
+        throw new IllegalArgumentException("Could not fetch valid PDF file from " + url);
     }
 
     @Transactional
@@ -198,18 +404,7 @@ public class ResearchPaperService {
         return toResponse(researchPaperRepository.save(paper));
     }
 
-    @Transactional
-    public void deletePaper(PaperLookupRequest request, User owner) {
-        validateOwner(owner);
 
-        ResearchPaper paper = loadOwnedPaper(request, owner);
-        String storageKey = paper.getPdfUrl();
-        researchPaperRepository.delete(paper);
-
-        if (storageKey != null && !storageKey.isBlank()) {
-            fileStorageService.delete(storageKey);
-        }
-    }
 
     @Transactional(readOnly = true)
     public List<ResearchPaperResponse> searchPapers(User owner, PaperSearchRequest request) {
@@ -355,7 +550,7 @@ public class ResearchPaperService {
         return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedQuery);
     }
 
-    public List<ResearchPaperResponse> semanticSearch(String query, User owner) {
+    public List<ResearchPaperResponse> semanticSearch(String query, User owner, double threshold) {
         if (query == null) {
             log.warn("Query is null, returning empty list");
             throw new IllegalArgumentException("Query cannot be null");
@@ -363,7 +558,7 @@ public class ResearchPaperService {
 
         float[] embedding = embeddingServiceClient.getEmbedding(query);
 
-        List<ResearchPaper> papers = researchPaperRepository.semanticSearch(new PGvector(embedding), 10, owner.getId());
+        List<ResearchPaper> papers = researchPaperRepository.semanticSearch(new PGvector(embedding).toString(), 10, owner.getId(), threshold);
 
         List<ResearchPaperResponse> matches = new ArrayList<>();
 
@@ -372,6 +567,10 @@ public class ResearchPaperService {
         }
 
         return matches;
+    }
+
+    public List<ResearchPaperResponse> semanticSearch(String query, User owner) {
+        return semanticSearch(query, owner, 0.0);
     }
 
     public boolean doesPaperExist(UUID paperId) {

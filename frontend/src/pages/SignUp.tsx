@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,7 +6,9 @@ import * as z from 'zod';
 import { User, AtSign, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.svg';
-import { register as registerUser } from '@/api/authApi';
+import { register as registerUser, googleCodeExchange } from '@/api/authApi';
+import { isAuthenticated, setTokens } from '@/lib/authStore';
+import { useGoogleLogin } from '@react-oauth/google';
 
 const signUpSchema = z.object({
   fullName: z
@@ -29,6 +31,12 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const {
     register,
@@ -73,11 +81,28 @@ export default function SignUp() {
     }
   };
 
-  const handleSocialSignUp = (platform: 'Google' | 'ORCID') => {
-    toast.info(`Connecting to ${platform}...`, {
-      description: `This redirects to ${platform} signup in production.`,
-    });
-  };
+  const googleOAuthSignUp = useGoogleLogin({
+    flow: 'auth-code',
+    onSuccess: async (codeResponse) => {
+      setIsLoading(true);
+      try {
+        const res = await googleCodeExchange(codeResponse.code);
+        setTokens(res.accessToken, res.refreshToken);
+        toast.success('Successfully signed up with Google!', {
+          description: 'Welcome to Anveshak',
+        });
+        navigate('/dashboard', { replace: true });
+      } catch (err: any) {
+        const errMsg = err.response?.data?.message || err.response?.data?.error || err.message || 'Google signup failed.';
+        toast.error('Google signup failed', { description: errMsg });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      toast.error('Google signup failed', { description: 'Could not connect to Google. Please try again.' });
+    },
+  });
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f7f9fb] p-4 md:p-8 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-50/40 via-[#f7f9fb] to-indigo-50/30">
@@ -196,11 +221,11 @@ export default function SignUp() {
         </div>
 
         {/* Social Buttons */}
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="w-full mt-4">
           <button
             type="button"
-            onClick={() => handleSocialSignUp('Google')}
-            className="flex items-center justify-center space-x-2 py-2 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+            onClick={() => googleOAuthSignUp()}
+            className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
           >
             {/* Google Icon SVG */}
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -221,19 +246,7 @@ export default function SignUp() {
                 fill="#EA4335"
               />
             </svg>
-            <span className="font-inter text-sm font-medium text-slate-700">Google</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleSocialSignUp('ORCID')}
-            className="flex items-center justify-center space-x-2 py-2 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
-          >
-            {/* ORCID Green ID Icon SVG */}
-            <svg className="w-4 h-4 text-[#A6CE39]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 .025C5.385.025 0 5.41 0 12.025S5.385 24.025 12 24.025s12-5.385 12-12S18.615.025 12 .025zM7.747 18.258H6.18V5.792h1.567v12.466zm-.783-13.882c-.528 0-.957-.428-.957-.956 0-.529.429-.957.957-.957s.956.428.956.957c0 .528-.428.956-.956.956zm10.85 7.159c0 3.395-2.228 5.766-5.834 5.766H9.191V5.792h3.04c3.486 0 5.56 2.052 5.56 5.518.001 1.637-.472 2.926-1.404 3.738zm-5.803-5.267h-1.223v8.528h1.223c2.721 0 4.148-1.56 4.148-4.267s-1.427-4.261-4.148-4.261z" />
-            </svg>
-            <span className="font-inter text-sm font-medium text-slate-700">ORCID</span>
+            <span className="font-inter text-sm font-medium text-slate-700">Continue with Google</span>
           </button>
         </div>
 

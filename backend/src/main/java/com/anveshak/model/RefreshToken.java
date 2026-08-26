@@ -49,7 +49,7 @@ public class RefreshToken {
     private String token;
 
     @NotNull
-    @Column(name = "expires_at", nullable = false)
+    @Column(name = "expirs_at", nullable = false)
     private Instant expiresAt;
 
     @NotNull

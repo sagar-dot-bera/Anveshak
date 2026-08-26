@@ -14,15 +14,20 @@ import com.pgvector.PGvector;
 public interface PaperChunkRepository extends JpaRepository<PaperChunk, UUID> {
         @Query(value = """
                         SELECT *
-                        FROM research_papers
+                        FROM paper_chunks
                         WHERE paper_id = :paperId
-                        AND embedding IS NOT NULL
-                        ORDER BY embedding <=> :queryEmbedding
+                        AND embeddings IS NOT NULL
+                        ORDER BY embeddings <=> CAST(:queryEmbedding AS text)::vector
                         LIMIT :limit
                         """, nativeQuery = true)
         List<PaperChunk> semanticSearch(
-                        @Param("queryEmbedding") PGvector embedding,
+                        @Param("queryEmbedding") String embedding,
                         @Param("limit") int limit,
                         @Param("paperId") UUID paperId);
 
+        void deleteByPaper(ResearchPaper paper);
+
+        List<PaperChunk> findByPaperOrderByChunkIndexAsc(ResearchPaper paper);
+
+        List<PaperChunk> findByPaper(ResearchPaper paper);
 }

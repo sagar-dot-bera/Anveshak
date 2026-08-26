@@ -5,7 +5,7 @@ CREATE TABLE paper_chunks (
     page_number INT,
     chunk_index INT NOT NULL,
     embeddings VECTOR (348),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE chat_sessions (
@@ -13,11 +13,11 @@ CREATE TABLE chat_sessions (
     paper_id UUID NOT NULL REFERENCES research_papers (id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE chat_messages (
     id UUID PRIMARY KEY,
-    session_id UUID NOT NULL REFERENCES chat_session (id) ON DELETE CASCADE,
+    session_id UUID NOT NULL REFERENCES chat_sessions (id) ON DELETE CASCADE,
     role VARCHAR(30),
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -35,4 +35,4 @@ CREATE TABLE paper_summaries (
 
 CREATE INDEX paper_chunks_paper_idx ON paper_chunks (paper_id);
 
-CREATE INDEX paper_chunks_embedding_idx ON paper_chunks USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX paper_chunks_embedding_idx ON paper_chunks USING hnsw (embeddings vector_cosine_ops);

@@ -1,0 +1,374 @@
+Date : 2026-07-16 11:22:39
+Directory : d:\spring_projects\anveshak\backend
+Total : 296 files,  10973 codes, 134 comments, 1609 blanks, all 12716 lines
+
+Languages
++-----------------+------------+------------+------------+------------+------------+
+| language        | files      | code       | comment    | blank      | total      |
++-----------------+------------+------------+------------+------------+------------+
+| Java            |        271 |      7,641 |        108 |      1,349 |      9,098 |
+| YAML            |          4 |      2,676 |          0 |        160 |      2,836 |
+| MS SQL          |         16 |        316 |          0 |         50 |        366 |
+| XML             |          1 |        188 |          0 |         24 |        212 |
+| Batch           |          1 |        139 |         26 |         25 |        190 |
+| JSON            |          2 |         10 |          0 |          0 |         10 |
+| Java Properties |          1 |          3 |          0 |          1 |          4 |
++-----------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                   |        296 |     10,973 |        134 |      1,609 |     12,716 |
+| . (Files)                                                                                                           |          2 |        327 |         26 |         49 |        402 |
+| .mvn                                                                                                                |          1 |          3 |          0 |          1 |          4 |
+| .mvn\wrapper                                                                                                        |          1 |          3 |          0 |          1 |          4 |
+| src                                                                                                                 |        146 |      6,232 |         70 |      1,433 |      7,735 |
+| src\main                                                                                                            |        144 |      6,171 |         70 |      1,405 |      7,646 |
+| src\main\java                                                                                                       |        133 |      4,670 |         70 |      1,300 |      6,040 |
+| src\main\java\com                                                                                                   |        133 |      4,670 |         70 |      1,300 |      6,040 |
+| src\main\java\com\anveshak                                                                                          |        133 |      4,670 |         70 |      1,300 |      6,040 |
+| src\main\java\com\anveshak (Files)                                                                                  |          1 |         11 |          0 |          3 |         14 |
+| src\main\java\com\anveshak\DTOs                                                                                     |         44 |        302 |          0 |        139 |        441 |
+| src\main\java\com\anveshak\Exception                                                                                |         16 |         99 |          0 |         46 |        145 |
+| src\main\java\com\anveshak\Helper                                                                                   |          1 |         21 |          0 |          4 |         25 |
+| src\main\java\com\anveshak\client                                                                                   |          1 |         55 |          8 |         14 |         77 |
+| src\main\java\com\anveshak\config                                                                                   |          5 |        230 |          1 |         49 |        280 |
+| src\main\java\com\anveshak\controller                                                                               |          9 |        673 |          0 |        113 |        786 |
+| src\main\java\com\anveshak\model                                                                                    |         17 |        742 |          2 |        170 |        914 |
+| src\main\java\com\anveshak\repository                                                                               |         14 |        199 |          0 |        112 |        311 |
+| src\main\java\com\anveshak\service                                                                                  |         25 |      2,338 |         59 |        650 |      3,047 |
+| src\main\resources                                                                                                  |         11 |      1,501 |          0 |        105 |      1,606 |
+| src\main\resources (Files)                                                                                          |          2 |      1,338 |          0 |         80 |      1,418 |
+| src\main\resources\META-INF                                                                                         |          1 |          5 |          0 |          0 |          5 |
+| src\main\resources\db                                                                                               |          8 |        158 |          0 |         25 |        183 |
+| src\main\resources\db\migration                                                                                     |          8 |        158 |          0 |         25 |        183 |
+| src\test                                                                                                            |          2 |         61 |          0 |         28 |         89 |
+| src\test\java                                                                                                       |          2 |         61 |          0 |         28 |         89 |
+| src\test\java\com                                                                                                   |          2 |         61 |          0 |         28 |         89 |
+| src\test\java\com\anveshak                                                                                          |          2 |         61 |          0 |         28 |         89 |
+| target                                                                                                              |        147 |      4,411 |         38 |        126 |      4,575 |
+| target\classes                                                                                                      |        145 |      4,383 |         38 |        126 |      4,547 |
+| target\classes (Files)                                                                                              |          2 |      1,338 |          0 |         80 |      1,418 |
+| target\classes\META-INF                                                                                             |          1 |          5 |          0 |          0 |          5 |
+| target\classes\com                                                                                                  |        134 |      2,882 |         38 |         21 |      2,941 |
+| target\classes\com\anveshak                                                                                         |        134 |      2,882 |         38 |         21 |      2,941 |
+| target\classes\com\anveshak (Files)                                                                                 |          1 |          8 |          0 |          0 |          8 |
+| target\classes\com\anveshak\DTOs                                                                                    |         44 |        518 |          0 |          0 |        518 |
+| target\classes\com\anveshak\Exception                                                                               |         16 |        145 |          0 |          0 |        145 |
+| target\classes\com\anveshak\Helper                                                                                  |          1 |         24 |          0 |          0 |         24 |
+| target\classes\com\anveshak\client                                                                                  |          2 |         32 |          0 |          0 |         32 |
+| target\classes\com\anveshak\config                                                                                  |          5 |        113 |         38 |          0 |        151 |
+| target\classes\com\anveshak\controller                                                                              |          9 |        292 |          0 |          0 |        292 |
+| target\classes\com\anveshak\model                                                                                   |         17 |        365 |          0 |          0 |        365 |
+| target\classes\com\anveshak\repository                                                                              |         14 |         93 |          0 |          1 |         94 |
+| target\classes\com\anveshak\service                                                                                 |         25 |      1,292 |          0 |         20 |      1,312 |
+| target\classes\db                                                                                                   |          8 |        158 |          0 |         25 |        183 |
+| target\classes\db\migration                                                                                         |          8 |        158 |          0 |         25 |        183 |
+| target\test-classes                                                                                                 |          2 |         28 |          0 |          0 |         28 |
+| target\test-classes\com                                                                                             |          2 |         28 |          0 |          0 |         28 |
+| target\test-classes\com\anveshak                                                                                    |          2 |         28 |          0 |          0 |         28 |
++---------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+
+| filename                                                                                                            | language        | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+
+| d:\spring_projects\anveshak\backend\.mvn\wrapper\maven-wrapper.properties                                           | Java Properties |          3 |          0 |          1 |          4 |
+| d:\spring_projects\anveshak\backend\mvnw.cmd                                                                        | Batch           |        139 |         26 |         25 |        190 |
+| d:\spring_projects\anveshak\backend\pom.xml                                                                         | XML             |        188 |          0 |         24 |        212 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\AnveshakApplication.java                             | Java            |         11 |          0 |          3 |         14 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\AuthMessageResponse.java                        | Java            |          3 |          0 |          2 |          5 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\AuthResponse.java                               | Java            |          5 |          0 |          3 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ChangePasswordRequest.java                      | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ChatMessageRequest.java                         | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ChatMessageResponse.java                        | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ChatSessionResponse.java                        | Java            |          5 |          0 |          4 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\CitationResponse.java                           | Java            |         11 |          0 |          3 |         14 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\CollectionLookupRequest.java                    | Java            |          4 |          0 |          3 |          7 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\CollectionPaperRequest.java                     | Java            |          4 |          0 |          3 |          7 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\EmbedRequest.java                               | Java            |          5 |          0 |          4 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\EmbedResponse.java                              | Java            |          7 |          0 |          6 |         13 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ErrorResponse.java                              | Java            |          8 |          0 |          4 |         12 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ForgotPasswordRequest.java                      | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\GlobalPaperDTO.java                             | Java            |         17 |          0 |          5 |         22 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\GoogleLoginRequest.java                         | Java            |          4 |          0 |          2 |          6 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\HarvestResult.java                              | Java            |          4 |          0 |          3 |          7 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\InnerPaperSummaryDTO.java                       | Java            |          9 |          0 |          3 |         12 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\LiteratureReview.java                           | Java            |         10 |          0 |          3 |         13 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\LiteratureReviewRequest.java                    | Java            |          4 |          0 |          3 |          7 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\LiteratureReviewResponse.java                   | Java            |          5 |          0 |          4 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\LoginRequest.java                               | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\NewChatSessionRequest.java                      | Java            |          4 |          0 |          3 |          7 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\NewCitationRequest.java                         | Java            |          6 |          0 |          4 |         10 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\NewCollectionRequest.java                       | Java            |          3 |          0 |          2 |          5 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\NewPaperRequest.java                            | Java            |          8 |          0 |          3 |         11 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperChunkDTO.java                              | Java            |          8 |          0 |          3 |         11 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperComparison.java                            | Java            |         11 |          0 |          3 |         14 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperComparisonRequest.java                     | Java            |          4 |          0 |          2 |          6 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperComparisonResponse.java                    | Java            |          5 |          0 |          4 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperLookupRequest.java                         | Java            |          4 |          0 |          3 |          7 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperSearchRequest.java                         | Java            |          3 |          0 |          2 |          5 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\PaperSummaryResponse.java                       | Java            |          5 |          0 |          3 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\RefreshTokenRequest.java                        | Java            |          6 |          0 |          2 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\RegisterRequest.java                            | Java            |         14 |          0 |          8 |         22 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ResearchCollectionResponse.java                 | Java            |         10 |          0 |          3 |         13 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ResearchPaperResponse.java                      | Java            |         15 |          0 |          3 |         18 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ResendVerificationTokenRequest.java             | Java            |          5 |          0 |          3 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\ResetPasswordRequest.java                       | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\UpdateCollectionRequest.java                    | Java            |          3 |          0 |          2 |          5 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\UpdatePaperRequest.java                         | Java            |          8 |          0 |          2 |         10 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\UpdateProfileRequest.java                       | Java            |          6 |          0 |          2 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\UserIdentityResponse.java                       | Java            |          9 |          0 |          3 |         12 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\UserProfileResponse.java                        | Java            |         13 |          0 |          3 |         16 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\DTOs\UserSessionResponse.java                        | Java            |         11 |          0 |          3 |         14 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\ChatSessionNotFoundException.java          | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\CitationNotFoundException.java             | Java            |          7 |          0 |          3 |         10 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\EmailAlreadyExistsException.java           | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\EmailNotVerifiedException.java             | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\EmbeddingServiceException.java             | Java            |          6 |          0 |          2 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\FailedToCreatePaperChunks.java             | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\FailedToCreatePaperSummary.java            | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\GoogleIdTokenNotValidException.java        | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\InvalidCredentialsException.java           | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\RefreshTokenNotFoundException.java         | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\ResearchCollectionNotFoundException.java   | Java            |          7 |          0 |          3 |         10 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\ResearchPaperNotFoundException.java        | Java            |          7 |          0 |          3 |         10 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\ResearchSummaryNotFoundException.java      | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\UserIdentityAlreadyExistsException.java    | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\UserNameAlreadyExistsException.java        | Java            |          6 |          0 |          2 |          8 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Exception\UserNotFoundException.java                 | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\Helper\HashUtil.java                                 | Java            |         21 |          0 |          4 |         25 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\client\EmbeddingServiceClient.java                   | Java            |         55 |          8 |         14 |         77 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\config\GeminiConfig.java                             | Java            |         17 |          0 |          6 |         23 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\config\GlobalExceptionHandler.java                   | Java            |         79 |          0 |         19 |         98 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\config\GoogleProperties.java                         | Java            |          6 |          0 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\config\JwtConfiguration.java                         | Java            |         62 |          1 |         11 |         74 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\config\SecurityConfiguration.java                    | Java            |         66 |          0 |         10 |         76 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\AuthController.java                       | Java            |        115 |          0 |         21 |        136 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\CitationController.java                   | Java            |         52 |          0 |          9 |         61 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\CollectionsController.java                | Java            |        102 |          0 |         14 |        116 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\HarvestController.java                    | Java            |         17 |          0 |          6 |         23 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\HealthController.java                     | Java            |         16 |          0 |          6 |         22 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\PaperChatController.java                  | Java            |         70 |          0 |         11 |         81 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\PapersController.java                     | Java            |        147 |          0 |         20 |        167 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\RestExceptionHandler.java                 | Java            |         22 |          0 |          7 |         29 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\controller\UserController.java                       | Java            |        132 |          0 |         19 |        151 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\AuthProviders.java                             | Java            |          7 |          0 |          2 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\AuthToken.java                                 | Java            |         43 |          0 |         12 |         55 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\AuthTokenTypes.java                            | Java            |          9 |          1 |          3 |         13 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\Author.java                                    | Java            |         33 |          0 |          6 |         39 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\ChatMessage.java                               | Java            |         45 |          0 |          9 |         54 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\ChatSession.java                               | Java            |         49 |          0 |          9 |         58 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\GlobalPaper.java                               | Java            |         61 |          0 |         19 |         80 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\Keyword.java                                   | Java            |         33 |          0 |          6 |         39 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\ModelRole.java                                 | Java            |          8 |          1 |          3 |         12 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\PaperChunk.java                                | Java            |         57 |          0 |         12 |         69 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\PaperCitation.java                             | Java            |         40 |          0 |          9 |         49 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\PaperSummary.java                              | Java            |         47 |          0 |         11 |         58 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\RefreshToken.java                              | Java            |         61 |          0 |         13 |         74 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\ResearchCollection.java                        | Java            |         51 |          0 |          9 |         60 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\ResearchPaper.java                             | Java            |         73 |          0 |         17 |         90 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\User.java                                      | Java            |         75 |          0 |         17 |         92 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\model\UserIdentity.java                              | Java            |         50 |          0 |         13 |         63 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\AuthTokenRepository.java                  | Java            |         10 |          0 |          8 |         18 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\AuthorRepository.java                     | Java            |         10 |          0 |          6 |         16 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\ChatMessageRepository.java                | Java            |         11 |          0 |          9 |         20 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\ChatSessionRepository.java                | Java            |          9 |          0 |          7 |         16 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\CitiationRepository.java                  | Java            |         13 |          0 |          8 |         21 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\GlobalPaperRepository.java                | Java            |         20 |          0 |          5 |         25 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\KeywordRepository.java                    | Java            |         10 |          0 |          6 |         16 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\PaperChunkRepository.java                 | Java            |         23 |          0 |          6 |         29 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\PaperSummaryRepository.java               | Java            |          6 |          0 |          6 |         12 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\RefreshTokenRepository.java               | Java            |         16 |          0 |         13 |         29 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\ResearchCollectionRepository.java         | Java            |         13 |          0 |          7 |         20 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\ResearchPaperRepository.java              | Java            |         28 |          0 |          9 |         37 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\UserIdentityRepository.java               | Java            |         16 |          0 |         12 |         28 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\repository\UserRepository.java                       | Java            |         14 |          0 |         10 |         24 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\AuthMailService.java                         | Java            |         72 |          0 |         25 |         97 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\AuthService.java                             | Java            |        139 |          1 |         38 |        178 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\AuthTokenService.java                        | Java            |         97 |          0 |         29 |        126 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\CitationService.java                         | Java            |        102 |          0 |         24 |        126 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\CurrentUserResolver.java                     | Java            |         29 |          0 |         11 |         40 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\EmailSenderService.java                      | Java            |         34 |          1 |          7 |         42 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\FileStorageService.java                      | Java            |          9 |          0 |          7 |         16 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\GeminiService.java                           | Java            |        105 |          0 |         20 |        125 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\GlobalPaperService.java                      | Java            |        149 |          0 |         34 |        183 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\GoogleTokenVerifier.java                     | Java            |         29 |          0 |         11 |         40 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\JwtService.java                              | Java            |         51 |          0 |         15 |         66 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\PaperChatService.java                        | Java            |        101 |          2 |         22 |        125 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\PaperChunkService.java                       | Java            |         68 |          6 |         17 |         91 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\PaperComparisonService.java                  | Java            |         38 |          0 |         15 |         53 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\PaperSummaryService.java                     | Java            |        116 |          1 |         34 |        151 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\PdfService.java                              | Java            |         42 |          0 |         16 |         58 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\PromptService.java                           | Java            |        137 |          0 |         38 |        175 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\RefreshTokenService.java                     | Java            |        114 |          1 |         30 |        145 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\ResearchCollectionService.java               | Java            |        124 |          0 |         31 |        155 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\ResearchPaperService.java                    | Java            |        324 |          0 |         81 |        405 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\ResearchSummaryService.java                  | Java            |          3 |          3 |          3 |          9 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\SupabaseFileStoreService.java                | Java            |         76 |          0 |         28 |        104 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\UserIdentityService.java                     | Java            |        158 |          0 |         46 |        204 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\UserService.java                             | Java            |        155 |         44 |         41 |        240 |
+| d:\spring_projects\anveshak\backend\src\main\java\com\anveshak\service\XMLParser.java                               | Java            |         66 |          0 |         27 |         93 |
+| d:\spring_projects\anveshak\backend\src\main\resources\META-INF\additional-spring-configuration-metadata.json       | JSON            |          5 |          0 |          0 |          5 |
+| d:\spring_projects\anveshak\backend\src\main\resources\application.yml                                              | YAML            |         58 |          0 |          8 |         66 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V1__create_user.sql                             | MS SQL          |         11 |          0 |          1 |         12 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V2__create_refresh_token.sql                    | MS SQL          |         21 |          0 |          2 |         23 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V3__create_auth_token.sql                       | MS SQL          |          9 |          0 |          1 |         10 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V4__research_papers.sql                         | MS SQL          |         53 |          0 |         11 |         64 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V5__create_paper_chunk.sql                      | MS SQL          |         33 |          0 |          5 |         38 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V6__create_paper_citations.sql                  | MS SQL          |          6 |          0 |          0 |          6 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V7__update_embedding_size.sql                   | MS SQL          |          2 |          0 |          1 |          3 |
+| d:\spring_projects\anveshak\backend\src\main\resources\db\migration\V8__global_papers.sql                           | MS SQL          |         23 |          0 |          4 |         27 |
+| d:\spring_projects\anveshak\backend\src\main\resources\openapi.yml                                                  | YAML            |      1,280 |          0 |         72 |      1,352 |
+| d:\spring_projects\anveshak\backend\src\test\java\com\anveshak\AnveshakApplicationTest.java                         | Java            |          6 |          0 |          4 |         10 |
+| d:\spring_projects\anveshak\backend\src\test\java\com\anveshak\AuthServiceTest.java                                 | Java            |         55 |          0 |         24 |         79 |
+| d:\spring_projects\anveshak\backend\target\classes\META-INF\additional-spring-configuration-metadata.json           | JSON            |          5 |          0 |          0 |          5 |
+| d:\spring_projects\anveshak\backend\target\classes\application.yml                                                  | YAML            |         58 |          0 |          8 |         66 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\AnveshakApplication.class                           | Java            |          8 |          0 |          0 |          8 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\AuthMessageResponse.class                      | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\AuthResponse.class                             | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ChangePasswordRequest.class                    | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ChatMessageRequest.class                       | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ChatMessageResponse.class                      | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ChatSessionResponse.class                      | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\CitationResponse.class                         | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\CollectionLookupRequest.class                  | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\CollectionPaperRequest.class                   | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\EmbedRequest.class                             | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\EmbedResponse.class                            | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ErrorResponse.class                            | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ForgotPasswordRequest.class                    | Java            |         12 |          0 |          0 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\GlobalPaperDTO.class                           | Java            |         76 |          0 |          0 |         76 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\GoogleLoginRequest.class                       | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\HarvestResult.class                            | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\InnerPaperSummaryDTO.class                     | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\LiteratureReview.class                         | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\LiteratureReviewRequest.class                  | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\LiteratureReviewResponse.class                 | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\LoginRequest.class                             | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\NewChatSessionRequest.class                    | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\NewCitationRequest.class                       | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\NewCollectionRequest.class                     | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\NewPaperRequest.class                          | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperChunkDTO.class                            | Java            |         12 |          0 |          0 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperComparison.class                          | Java            |         12 |          0 |          0 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperComparisonRequest.class                   | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperComparisonResponse.class                  | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperLookupRequest.class                       | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperSearchRequest.class                       | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\PaperSummaryResponse.class                     | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\RefreshTokenRequest.class                      | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\RegisterRequest.class                          | Java            |         17 |          0 |          0 |         17 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ResearchCollectionResponse.class               | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ResearchPaperResponse.class                    | Java            |         12 |          0 |          0 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ResendVerificationTokenRequest.class           | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\ResetPasswordRequest.class                     | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\UpdateCollectionRequest.class                  | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\UpdatePaperRequest.class                       | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\UpdateProfileRequest.class                     | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\UserIdentityResponse.class                     | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\UserProfileResponse.class                      | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\DTOs\UserSessionResponse.class                      | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\ChatSessionNotFoundException.class        | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\CitationNotFoundException.class           | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\EmailAlreadyExistsException.class         | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\EmailNotVerifiedException.class           | Java            |          6 |          0 |          0 |          6 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\EmbeddingServiceException.class           | Java            |          6 |          0 |          0 |          6 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\FailedToCreatePaperChunks.class           | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\FailedToCreatePaperSummary.class          | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\GoogleIdTokenNotValidException.class      | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\InvalidCredentialsException.class         | Java            |          6 |          0 |          0 |          6 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\RefreshTokenNotFoundException.class       | Java            |          8 |          0 |          0 |          8 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\ResearchCollectionNotFoundException.class | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\ResearchPaperNotFoundException.class      | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\ResearchSummaryNotFoundException.class    | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\UserIdentityAlreadyExistsException.class  | Java            |          8 |          0 |          0 |          8 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\UserNameAlreadyExistsException.class      | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Exception\UserNotFoundException.class               | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\Helper\HashUtil.class                               | Java            |         24 |          0 |          0 |         24 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\client\EmbeddingServiceClient$1.class               | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\client\EmbeddingServiceClient.class                 | Java            |         22 |          0 |          0 |         22 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\config\GeminiConfig.class                           | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\config\GlobalExceptionHandler.class                 | Java            |         26 |          0 |          0 |         26 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\config\GoogleProperties.class                       | Java            |         10 |          0 |          0 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\config\JwtConfiguration.class                       | Java            |         43 |          0 |          0 |         43 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\config\SecurityConfiguration.class                  | Java            |         23 |         38 |          0 |         61 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\AuthController.class                     | Java            |         48 |          0 |          0 |         48 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\CitationController.class                 | Java            |         24 |          0 |          0 |         24 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\CollectionsController.class              | Java            |         35 |          0 |          0 |         35 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\HarvestController.class                  | Java            |         13 |          0 |          0 |         13 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\HealthController.class                   | Java            |          7 |          0 |          0 |          7 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\PaperChatController.class                | Java            |         30 |          0 |          0 |         30 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\PapersController.class                   | Java            |         48 |          0 |          0 |         48 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\RestExceptionHandler.class               | Java            |         19 |          0 |          0 |         19 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\controller\UserController.class                     | Java            |         68 |          0 |          0 |         68 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\AuthProviders.class                           | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\AuthToken.class                               | Java            |         16 |          0 |          0 |         16 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\AuthTokenTypes.class                          | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\Author.class                                  | Java            |         18 |          0 |          0 |         18 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\ChatMessage.class                             | Java            |         21 |          0 |          0 |         21 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\ChatSession.class                             | Java            |         16 |          0 |          0 |         16 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\GlobalPaper.class                             | Java            |         61 |          0 |          0 |         61 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\Keyword.class                                 | Java            |         20 |          0 |          0 |         20 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\ModelRole.class                               | Java            |         11 |          0 |          0 |         11 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\PaperChunk.class                              | Java            |         26 |          0 |          0 |         26 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\PaperCitation.class                           | Java            |         17 |          0 |          0 |         17 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\PaperSummary.class                            | Java            |         19 |          0 |          0 |         19 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\RefreshToken.class                            | Java            |         21 |          0 |          0 |         21 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\ResearchCollection.class                      | Java            |         26 |          0 |          0 |         26 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\ResearchPaper.class                           | Java            |         26 |          0 |          0 |         26 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\User.class                                    | Java            |         18 |          0 |          0 |         18 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\model\UserIdentity.class                            | Java            |         29 |          0 |          0 |         29 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\AuthTokenRepository.class                | Java            |          5 |          0 |          0 |          5 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\AuthorRepository.class                   | Java            |          4 |          0 |          0 |          4 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\ChatMessageRepository.class              | Java            |          7 |          0 |          0 |          7 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\ChatSessionRepository.class              | Java            |          4 |          0 |          0 |          4 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\CitiationRepository.class                | Java            |          6 |          0 |          0 |          6 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\GlobalPaperRepository.class              | Java            |          9 |          0 |          0 |          9 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\KeywordRepository.class                  | Java            |          4 |          0 |          0 |          4 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\PaperChunkRepository.class               | Java            |         12 |          0 |          0 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\PaperSummaryRepository.class             | Java            |          2 |          0 |          1 |          3 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\RefreshTokenRepository.class             | Java            |          8 |          0 |          0 |          8 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\ResearchCollectionRepository.class       | Java            |          5 |          0 |          0 |          5 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\ResearchPaperRepository.class            | Java            |         12 |          0 |          0 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\UserIdentityRepository.class             | Java            |          7 |          0 |          0 |          7 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\repository\UserRepository.class                     | Java            |          8 |          0 |          0 |          8 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\AuthMailService.class                       | Java            |         20 |          0 |          0 |         20 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\AuthService.class                           | Java            |         80 |          0 |          0 |         80 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\AuthTokenService.class                      | Java            |         35 |          0 |          0 |         35 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\CitationService.class                       | Java            |         59 |          0 |          0 |         59 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\CurrentUserResolver.class                   | Java            |         21 |          0 |          0 |         21 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\EmailSenderService.class                    | Java            |         30 |          0 |          0 |         30 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\FileStorageService.class                    | Java            |          8 |          0 |          0 |          8 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\GeminiService.class                         | Java            |         34 |          0 |          2 |         36 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\GlobalPaperService.class                    | Java            |        100 |          0 |          2 |        102 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\GoogleTokenVerifier.class                   | Java            |         24 |          0 |          0 |         24 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\JwtService.class                            | Java            |         38 |          0 |          0 |         38 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\PaperChatService.class                      | Java            |         74 |          0 |          1 |         75 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\PaperChunkService.class                     | Java            |         49 |          0 |          0 |         49 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\PaperComparisonService.class                | Java            |         21 |          0 |          0 |         21 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\PaperSummaryService.class                   | Java            |         87 |          0 |          0 |         87 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\PdfService.class                            | Java            |         34 |          0 |          0 |         34 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\PromptService.class                         | Java            |         95 |          0 |         15 |        110 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\RefreshTokenService.class                   | Java            |         56 |          0 |          0 |         56 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\ResearchCollectionService.class             | Java            |         66 |          0 |          0 |         66 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\ResearchPaperService.class                  | Java            |        151 |          0 |          0 |        151 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\ResearchSummaryService.class                | Java            |          5 |          0 |          0 |          5 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\SupabaseFileStoreService.class              | Java            |         51 |          0 |          0 |         51 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\UserIdentityService.class                   | Java            |         50 |          0 |          0 |         50 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\UserService.class                           | Java            |         66 |          0 |          0 |         66 |
+| d:\spring_projects\anveshak\backend\target\classes\com\anveshak\service\XMLParser.class                             | Java            |         38 |          0 |          0 |         38 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V1__create_user.sql                                 | MS SQL          |         11 |          0 |          1 |         12 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V2__create_refresh_token.sql                        | MS SQL          |         21 |          0 |          2 |         23 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V3__create_auth_token.sql                           | MS SQL          |          9 |          0 |          1 |         10 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V4__research_papers.sql                             | MS SQL          |         53 |          0 |         11 |         64 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V5__create_paper_chunk.sql                          | MS SQL          |         33 |          0 |          5 |         38 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V6__create_paper_citations.sql                      | MS SQL          |          6 |          0 |          0 |          6 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V7__update_embedding_size.sql                       | MS SQL          |          2 |          0 |          1 |          3 |
+| d:\spring_projects\anveshak\backend\target\classes\db\migration\V8__global_papers.sql                               | MS SQL          |         23 |          0 |          4 |         27 |
+| d:\spring_projects\anveshak\backend\target\classes\openapi.yml                                                      | YAML            |      1,280 |          0 |         72 |      1,352 |
+| d:\spring_projects\anveshak\backend\target\test-classes\com\anveshak\AnveshakApplicationTest.class                  | Java            |          5 |          0 |          0 |          5 |
+| d:\spring_projects\anveshak\backend\target\test-classes\com\anveshak\AuthServiceTest.class                          | Java            |         23 |          0 |          0 |         23 |
+| Total                                                                                                               |                 |     10,973 |        134 |      1,609 |     12,716 |
++---------------------------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+

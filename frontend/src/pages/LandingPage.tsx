@@ -6,16 +6,12 @@ import {
   MessageSquare,
   BookOpen,
   Map,
-  CheckCircle2,
-  FileText,
-  MessageSquareCode,
-  Lock,
-  Globe,
-  Award,
   ChevronRight,
+  LayoutDashboard,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.svg';
+import { isAuthenticated } from '@/lib/authStore';
 import {
   landingStats,
   landingTrustedBy,
@@ -26,12 +22,13 @@ import {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const loggedIn = isAuthenticated();
 
   const handleDemo = () => {
     toast.info('Starting product demo walk...', {
       description: 'Redirecting to workspace...',
     });
-    setTimeout(() => navigate('/dashboard'), 1000);
+    setTimeout(() => navigate(loggedIn ? '/dashboard' : '/login'), 1000);
   };
 
   return (
@@ -39,7 +36,7 @@ export default function LandingPage() {
       
       {/* ── Public Navigation Bar ────────────────────────── */}
       <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 md:px-12 sticky top-0 z-50 shadow-[0_1px_4px_rgba(0,0,0,0.01)] select-none">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
           <div className="w-8 h-8 rounded-lg bg-deep-indigo flex items-center justify-center">
             <img src={logo} alt="Anveshak" className="w-5 h-5 object-contain brightness-0 invert" />
           </div>
@@ -59,13 +56,31 @@ export default function LandingPage() {
         </nav>
 
         {/* Action Button */}
-        <div>
-          <Link
-            to="/login"
-            className="px-5 py-2 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-semibold text-xs transition-all shadow active:scale-[0.98]"
-          >
-            Sign In
-          </Link>
+        <div className="flex items-center gap-3">
+          {loggedIn ? (
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-semibold text-xs transition-all shadow active:scale-[0.98]"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 font-inter font-semibold text-xs transition-all"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="px-5 py-2 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-semibold text-xs transition-all shadow active:scale-[0.98]"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
