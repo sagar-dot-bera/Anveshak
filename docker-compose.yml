@@ -33,8 +33,10 @@ services:
       - "8001:8001"
     volumes:
       - ./docker-data/huggingface:/root/.cache/huggingface
+      - ./docker-data/onnx_models:/root/.cache/onnx_models
     environment:
       MODEL_NAME: ${MODEL_NAME:-all-MiniLM-L6-v2}
+      ONNX_CACHE_DIR: /root/.cache/onnx_models
     depends_on:
       postgres:
         condition: service_healthy
