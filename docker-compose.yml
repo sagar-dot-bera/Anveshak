@@ -9,14 +9,14 @@ services:
       - .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
-      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5436:5432"
     volumes:
       - ./docker-data/postgres:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${SPRING_DATASOURCE_USERNAME} -d ${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,21 +25,20 @@ services:
     build:
       context: ./embeddingService
       dockerfile: Dockerfile
+      args:
+        MODEL_NAME: ${MODEL_NAME:-all-MiniLM-L6-v2}
     container_name: embedding_service
     restart: unless-stopped
     env_file:
       - .env
     ports:
       - "8001:8001"
-    volumes:
-      - ./docker-data/huggingface:/root/.cache/huggingface
-      - ./docker-data/onnx_models:/root/.cache/onnx_models
     environment:
       MODEL_NAME: ${MODEL_NAME:-all-MiniLM-L6-v2}
       ONNX_CACHE_DIR: /root/.cache/onnx_models
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" ]
       start_period: 60s
@@ -58,15 +57,15 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      EMBEDDING_SERVICE_URL: http://embedding:8001
+      EMBEDDING_SERVICE_URL: ${EMBEDDING_SERVICE_URL}
     volumes:
       - ./keys:/app/keys
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       embedding:
         condition: service_started
 
@@ -75,7 +74,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
         VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
     container_name: anveshak_frontend
     restart: unless-stopped

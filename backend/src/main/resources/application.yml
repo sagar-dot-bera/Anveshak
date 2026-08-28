@@ -43,6 +43,13 @@ google:
   redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/auth/google/callback}
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
+cors:
+  allowed-origins: ${FRONTEND_URL:http://localhost:5173}
+
+embedding:
+  service:
+    url: ${EMBEDDING_SERVICE_URL:http://localhost:8001}
+
 supabase:
   access-key: ${SUPABASE_ACCESS_KEY}
   secret-access-key: ${SUPABASE_SECRET_ACCESS_KEY}

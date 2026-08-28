@@ -2,8 +2,8 @@ import os
 from typing import List
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from optimum.onnxruntime import ORTModelForFeatureExtraction
 from transformers import AutoTokenizer
+import onnxruntime as ort
 import numpy as np
 import logging
 
@@ -14,13 +14,13 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Recommendation Engine - Embedding Service")
 
 MODEL_NAME = os.getenv("MODEL_NAME", "all-MiniLM-L6-v2")
-# Full HuggingFace model ID (sentence-transformers namespace)
-HF_MODEL_ID = f"sentence-transformers/{MODEL_NAME}"
-# Cache dir – mounted as a Docker volume so export only happens once
+# ONNX export baked into the image at build time (see Dockerfile's
+# `exporter` stage) - the running container never talks to HF Hub.
 ONNX_CACHE_DIR = os.getenv("ONNX_CACHE_DIR", "/root/.cache/onnx_models")
+MODEL_DIR = os.path.join(ONNX_CACHE_DIR, MODEL_NAME)
 
 tokenizer = None
-ort_model = None
+session = None
 
 
 def mean_pooling(token_embeddings: np.ndarray, attention_mask: np.ndarray) -> np.ndarray:
@@ -38,28 +38,22 @@ def normalize(embeddings: np.ndarray) -> np.ndarray:
 
 @app.on_event("startup")
 async def startup_event():
-    global tokenizer, ort_model
-    model_cache = os.path.join(ONNX_CACHE_DIR, MODEL_NAME)
+    global tokenizer, session
 
-    logger.info(f"Loading ONNX embedding model: {HF_MODEL_ID}")
-
-    if os.path.isdir(model_cache):
-        # Already exported – load from cache (fast path)
-        logger.info(f"Loading cached ONNX model from {model_cache}")
-        tokenizer = AutoTokenizer.from_pretrained(model_cache)
-        ort_model = ORTModelForFeatureExtraction.from_pretrained(model_cache)
-    else:
-        # Export from HuggingFace Hub and save to cache
-        logger.info("Exporting model to ONNX (first run – may take a minute)…")
-        os.makedirs(model_cache, exist_ok=True)
-        tokenizer = AutoTokenizer.from_pretrained(HF_MODEL_ID)
-        ort_model = ORTModelForFeatureExtraction.from_pretrained(
-            HF_MODEL_ID, export=True
+    if not os.path.isdir(MODEL_DIR):
+        raise RuntimeError(
+            f"No exported ONNX model found at {MODEL_DIR}. The model is "
+            f"exported at image build time - rebuild with "
+            f"'--build-arg MODEL_NAME={MODEL_NAME}' (or docker compose "
+            f"build embedding) so it matches the MODEL_NAME env var."
         )
-        tokenizer.save_pretrained(model_cache)
-        ort_model.save_pretrained(model_cache)
-        logger.info(f"Model exported and cached at {model_cache}")
 
+    logger.info(f"Loading ONNX model from {MODEL_DIR}")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+    session = ort.InferenceSession(
+        os.path.join(MODEL_DIR, "model.onnx"),
+        providers=["CPUExecutionProvider"],
+    )
     logger.info("ONNX model ready")
 
 
@@ -86,9 +80,11 @@ async def embed(request: EmbedRequest):
         return_tensors="np",
     )
 
-    outputs = ort_model(**inputs)
-    # outputs.last_hidden_state shape: (1, seq_len, hidden_size)
-    token_embeddings = outputs.last_hidden_state
+    input_names = {i.name for i in session.get_inputs()}
+    ort_inputs = {k: v for k, v in inputs.items() if k in input_names}
+    outputs = session.run(None, ort_inputs)
+    # outputs[0] (last_hidden_state) shape: (1, seq_len, hidden_size)
+    token_embeddings = outputs[0]
     attention_mask = inputs["attention_mask"]
 
     pooled = mean_pooling(token_embeddings, attention_mask)

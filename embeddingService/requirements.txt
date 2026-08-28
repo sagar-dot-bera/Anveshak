@@ -1,6 +1,6 @@
 fastapi==0.115.*
 uvicorn==0.35.*
-optimum[onnxruntime]>=1.21
+onnxruntime>=1.19
 transformers>=4.50
 huggingface-hub>=0.34
 pydantic>=2.10

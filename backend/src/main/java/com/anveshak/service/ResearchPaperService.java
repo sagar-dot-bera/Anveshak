@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,6 +76,9 @@ public class ResearchPaperService {
     private final PaperSummaryRepository paperSummaryRepository;
     private final ChatSessionRepository chatSessionRepository;
     private final RestTemplate restTemplate;
+
+    @Value("${arXiv.paper-pdf-base-url}")
+    private String arxivPaperPdfBaseUrl;
 
     public ResearchPaperService(ResearchPaperRepository researchPaperRepository, AuthorRepository authorRepository,
             KeywordRepository keywordRepository, FileStorageService fileStorageService,
@@ -187,7 +191,7 @@ public class ResearchPaperService {
                 if (rawId.startsWith("http://") || rawId.startsWith("https://")) {
                     pdfLink = rawId;
                 } else {
-                    pdfLink = "https://arxiv.org/pdf/" + rawId + ".pdf";
+                    pdfLink = arxivPaperPdfBaseUrl + "/" + rawId + ".pdf";
                 }
             }
         }
