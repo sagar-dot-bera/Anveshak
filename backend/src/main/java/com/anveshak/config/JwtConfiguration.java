@@ -11,8 +11,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -26,16 +24,16 @@ import java.util.Base64;
 
 @Configuration
 public class JwtConfiguration {
-    @Value("${jwt.private-key-file}")
-    private String privateKeyFile;
+    @Value("${jwt.private-key}")
+    private String privateKeyPem;
 
-    @Value("${jwt.public-key-file}")
-    private String publicKeyFile;
+    @Value("${jwt.public-key}")
+    private String publicKeyPem;
 
     @Bean
     public KeyPair keyPair() throws Exception {
-        PrivateKey privateKey = loadPrivateKey(Files.readString(Path.of(privateKeyFile)));
-        PublicKey publicKey = loadPublicKey(Files.readString(Path.of(publicKeyFile)));
+        PrivateKey privateKey = loadPrivateKey(privateKeyPem);
+        PublicKey publicKey = loadPublicKey(publicKeyPem);
         return new KeyPair(publicKey, privateKey);
     }
 
@@ -56,6 +54,7 @@ public class JwtConfiguration {
     private PrivateKey loadPrivateKey(String key) throws Exception {
         String pem = key.replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
+                .replace("\\n", "")
                 .replaceAll("\\s", "");
         byte[] decoded = Base64.getDecoder().decode(pem);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decoded);
@@ -65,6 +64,7 @@ public class JwtConfiguration {
     private PublicKey loadPublicKey(String key) throws Exception {
         String pem = key.replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
+                .replace("\\n", "")
                 .replaceAll("\\s", "");
         byte[] decoded = Base64.getDecoder().decode(pem);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);

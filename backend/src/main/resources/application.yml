@@ -60,8 +60,8 @@ supabase:
 jwt:
   secret: "${JWT_SECRET}"
   expiration: ${JWT_EXPIRATION:3600000}
-  private-key-file: '${JWT_PRIVATE_KEY_FILE:keys/private.pem}'
-  public-key-file: '${JWT_PUBLIC_KEY_FILE:keys/public.pem}'
+  private-key: ${JWT_PRIVATE_KEY}
+  public-key: ${JWT_PUBLIC_KEY}
 
 app:
   mail:

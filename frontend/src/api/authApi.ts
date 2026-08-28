@@ -85,6 +85,15 @@ export async function forgotPassword(
   return data;
 }
 
+/** Verify an email using the token from the verification link. */
+export async function verifyEmail(token: string): Promise<AuthMessageResponse> {
+  const { data } = await axios.get<AuthMessageResponse>(
+    `${API_BASE_URL}/auth/verify-email`,
+    { params: { token } },
+  );
+  return data;
+}
+
 /** Reset password using the reset token. */
 export async function resetPassword(
   token: string,

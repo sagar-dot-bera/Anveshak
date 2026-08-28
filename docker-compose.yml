@@ -61,8 +61,6 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       EMBEDDING_SERVICE_URL: ${EMBEDDING_SERVICE_URL}
-    volumes:
-      - ./keys:/app/keys
     depends_on:
       postgres:
         condition: service_started
