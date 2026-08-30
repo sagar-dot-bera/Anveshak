@@ -20,7 +20,7 @@ import './App.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const GOOGLE_CLIENT_ID =
-  import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+  import.meta.env.APP_GOOGLE_CLIENT_ID ||
   '999262474988-r0thqdtq1nbp3sdhvkktek8pds9pfaoa.apps.googleusercontent.com';
 
 // Initialize React Query client
@@ -56,7 +56,6 @@ function App() {
               <Route path="/talk-to-paper" element={<TalkToPaper />} />
               <Route path="/compare" element={<ComparePapers />} />
               <Route path="/literature-reviews" element={<LiteratureReview />} />
-              <Route path="/citation-graph" element={<Dashboard />} />
               <Route path="/research-roadmaps" element={<ResearchRoadmaps />} />
               <Route path="/settings" element={<Dashboard />} />
               <Route path="/support" element={<Dashboard />} />

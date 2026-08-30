@@ -9,7 +9,7 @@ import type {
 } from '@/lib/types';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  import.meta.env.APP_API_BASE_URL || 'http://localhost:8080';
 
 /** Login with email + password. Does NOT use the shared apiClient
  *  (we don't want the interceptor to refresh on a login failure). */

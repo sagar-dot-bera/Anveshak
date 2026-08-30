@@ -8,7 +8,6 @@ import {
   MessageSquare,
   GitCompare,
   BookOpen,
-  Network,
   Map,
   Settings,
   HelpCircle,
@@ -27,7 +26,6 @@ const navItems = [
   { label: 'Talk to Paper', icon: MessageSquare, path: '/talk-to-paper' },
   { label: 'Compare', icon: GitCompare, path: '/compare' },
   { label: 'Literature Reviews', icon: BookOpen, path: '/literature-reviews' },
-  { label: 'Citation Graph', icon: Network, path: '/citation-graph' },
   { label: 'Research Roadmaps', icon: Map, path: '/research-roadmaps' },
 ];
 

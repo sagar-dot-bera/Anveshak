@@ -8,6 +8,8 @@ import {
   Upload,
   GitCompare,
   Sparkles,
+  FolderOpen,
+  ChevronRight,
 } from 'lucide-react';
 import StatCard from '@/components/common/StatCard';
 import PaperListItem from '@/components/common/PaperListItem';
@@ -42,34 +44,6 @@ function formatTimeAgo(dateInput: string | Date | undefined): string {
   if (days < 30) return `${days}D AGO`;
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase();
 }
-
-// SVG graph node data for Knowledge Connectivity placeholder
-const graphNodes = [
-  { cx: 200, cy: 220, r: 8, fill: '#4f46e5', label: 'Deep Learning' },
-  { cx: 340, cy: 140, r: 6, fill: '#4f46e5', label: 'Genomics' },
-  { cx: 480, cy: 200, r: 9, fill: '#4f46e5', label: 'Neural Nets' },
-  { cx: 600, cy: 130, r: 6, fill: '#4f46e5', label: 'Finance' },
-  { cx: 520, cy: 300, r: 6, fill: '#3b82f6', label: 'Vision' },
-  { cx: 380, cy: 310, r: 5, fill: '#3b82f6', label: 'Transformers' },
-  { cx: 260, cy: 340, r: 5, fill: '#f59e0b', label: 'Ethics' },
-  { cx: 680, cy: 250, r: 5, fill: '#3b82f6', label: 'CV Review' },
-  { cx: 150, cy: 310, r: 4, fill: '#f59e0b', label: 'NLP' },
-  { cx: 700, cy: 160, r: 4, fill: '#4f46e5', label: 'Portfolio' },
-];
-
-const graphLinks = [
-  { x1: 200, y1: 220, x2: 340, y2: 140 },
-  { x1: 340, y1: 140, x2: 480, y2: 200 },
-  { x1: 480, y1: 200, x2: 600, y2: 130 },
-  { x1: 480, y1: 200, x2: 520, y2: 300 },
-  { x1: 520, y1: 300, x2: 380, y2: 310 },
-  { x1: 380, y1: 310, x2: 260, y2: 340 },
-  { x1: 260, y1: 340, x2: 200, y2: 220 },
-  { x1: 600, y1: 130, x2: 700, y2: 160 },
-  { x1: 520, y1: 300, x2: 680, y2: 250 },
-  { x1: 260, y1: 340, x2: 150, y2: 310 },
-  { x1: 200, y1: 220, x2: 150, y2: 310 },
-];
 
 export default function Dashboard() {
   const { data: profile, isLoading: isProfileLoading } = useQuery({
@@ -322,89 +296,59 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Knowledge Connectivity ────────────────────────── */}
+      {/* ── Research Collections ─────────────────────────── */}
       <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
-        <div className="flex items-start justify-between mb-2">
+        <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="font-hanken font-semibold text-base text-slate-900">
-              Knowledge Connectivity
+              Your Collections
             </h2>
             <p className="font-inter text-xs text-slate-400 mt-0.5">
-              AI-generated semantic map of your current research projects.
+              Groups of papers you're actively organizing for review.
             </p>
           </div>
-          <div className="flex gap-2">
-            <button className="font-mono text-[10px] font-semibold tracking-wider text-slate-600 border border-slate-200 rounded px-3 py-1.5 hover:bg-slate-50 transition-colors">
-              3D VIEW
-            </button>
-            <button className="font-mono text-[10px] font-semibold tracking-wider text-slate-600 border border-slate-200 rounded px-3 py-1.5 hover:bg-slate-50 transition-colors">
-              FILTER
-            </button>
-          </div>
-        </div>
-
-        {/* SVG Placeholder Graph */}
-        <div className="w-full h-64 md:h-80 rounded-lg bg-slate-50/60 overflow-hidden mt-4 relative">
-          <svg
-            viewBox="0 0 860 400"
-            className="w-full h-full"
-            aria-label="Knowledge connectivity graph"
+          <Link
+            to="/literature-reviews"
+            className="font-inter text-xs font-semibold text-vibrant-blue hover:text-primary transition-colors flex items-center gap-0.5"
           >
-            {/* Links */}
-            {graphLinks.map((link, i) => (
-              <line
-                key={i}
-                x1={link.x1} y1={link.y1}
-                x2={link.x2} y2={link.y2}
-                stroke="#e2e8f0"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-              />
-            ))}
-
-            {/* Nodes */}
-            {graphNodes.map((node) => (
-              <g key={node.label} className="cursor-pointer group">
-                <circle
-                  cx={node.cx} cy={node.cy} r={node.r + 4}
-                  fill={node.fill}
-                  opacity="0.08"
-                />
-                <circle
-                  cx={node.cx} cy={node.cy} r={node.r}
-                  fill={node.fill}
-                  opacity="0.85"
-                />
-                <text
-                  x={node.cx} y={node.cy + node.r + 13}
-                  textAnchor="middle"
-                  className="font-mono"
-                  fontSize="9"
-                  fill="#94a3b8"
-                  fontFamily="JetBrains Mono, monospace"
-                >
-                  {node.label}
-                </text>
-              </g>
-            ))}
-          </svg>
+            View All
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-6 mt-4">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#4f46e5]"></span>
-            <span className="font-inter text-xs text-slate-500">Direct Citation</span>
+        {collections && collections.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {collections.slice(0, 4).map((collection) => (
+              <Link
+                key={collection.id}
+                to="/literature-reviews"
+                className="border border-slate-100 rounded-lg p-4 flex flex-col gap-2 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-primary group-hover:bg-indigo-100 transition-colors">
+                  <FolderOpen className="w-4 h-4" />
+                </div>
+                <p className="font-hanken font-semibold text-sm text-slate-800 truncate">
+                  {collection.name}
+                </p>
+                <p className="font-mono text-[10px] font-semibold tracking-wide text-slate-400 uppercase">
+                  {collection.papers?.length || 0} {collection.papers?.length === 1 ? 'Paper' : 'Papers'}
+                </p>
+              </Link>
+            ))}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#3b82f6]"></span>
-            <span className="font-inter text-xs text-slate-500">Semantic Link</span>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <FolderOpen className="w-8 h-8 text-slate-300 mb-2" />
+            <p className="font-inter text-sm text-slate-400">No collections yet.</p>
+            <Link
+              to="/literature-reviews"
+              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-medium text-xs transition-all shadow-sm"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Start a Literature Review
+            </Link>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#f59e0b]"></span>
-            <span className="font-inter text-xs text-slate-500">New Discovery</span>
-          </div>
-        </div>
+        )}
       </div>
 
     </div>
