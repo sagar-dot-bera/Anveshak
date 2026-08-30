@@ -55,7 +55,7 @@ export default function Sidebar() {
     : 'Researcher';
 
   return (
-    <aside className="w-[260px] flex-shrink-0 h-screen bg-white border-r border-slate-100 flex flex-col sticky top-0 overflow-y-auto">
+    <aside className="w-[260px] flex-shrink-0 h-full bg-white border-r border-slate-100 flex flex-col sticky top-0 overflow-y-auto">
       {/* Brand Header */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-100">
         <div className="w-8 h-8 rounded-lg bg-deep-indigo flex items-center justify-center">

@@ -15,6 +15,8 @@ import LiteratureReview from '@/pages/LiteratureReview';
 import ResearchRoadmaps from '@/pages/ResearchRoadmaps';
 import AppLayout from '@/components/layout/AppLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
+import DemoNoticeBanner from '@/components/common/DemoNoticeBanner';
+import { UploadProvider } from '@/lib/uploadContext';
 import './App.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -38,33 +40,40 @@ function App() {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/auth/verify-email" element={<VerifyEmail />} />
-          <Route path="/auth/reset-password" element={<ResetPassword />} />
+        <UploadProvider>
+        <div className="flex flex-col min-h-screen">
+          <DemoNoticeBanner />
+          <div className="flex-1 min-h-0">
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/auth/verify-email" element={<VerifyEmail />} />
+              <Route path="/auth/reset-password" element={<ResetPassword />} />
 
-          {/* Authenticated routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/my-papers" element={<MyPapers />} />
-              <Route path="/upload" element={<UploadPaper />} />
-              <Route path="/semantic-search" element={<SemanticSearch />} />
-              <Route path="/talk-to-paper" element={<TalkToPaper />} />
-              <Route path="/compare" element={<ComparePapers />} />
-              <Route path="/literature-reviews" element={<LiteratureReview />} />
-              <Route path="/research-roadmaps" element={<ResearchRoadmaps />} />
-              <Route path="/settings" element={<Dashboard />} />
-              <Route path="/support" element={<Dashboard />} />
-            </Route>
-          </Route>
+              {/* Authenticated routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<AppLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/my-papers" element={<MyPapers />} />
+                  <Route path="/upload" element={<UploadPaper />} />
+                  <Route path="/semantic-search" element={<SemanticSearch />} />
+                  <Route path="/talk-to-paper" element={<TalkToPaper />} />
+                  <Route path="/compare" element={<ComparePapers />} />
+                  <Route path="/literature-reviews" element={<LiteratureReview />} />
+                  <Route path="/research-roadmaps" element={<ResearchRoadmaps />} />
+                  <Route path="/settings" element={<Dashboard />} />
+                  <Route path="/support" element={<Dashboard />} />
+                </Route>
+              </Route>
 
-          {/* Default redirect */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+              {/* Default redirect */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </div>
+        </UploadProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </GoogleOAuthProvider>

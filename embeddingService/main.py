@@ -70,26 +70,35 @@ class EmbedResponse(BaseModel):
 async def embed(request: EmbedRequest):
     """Generate a normalised mean-pooled embedding for a text string."""
     if not request.text or not request.text.strip():
+        logger.warning("Rejected /embed request with empty text")
         raise HTTPException(status_code=400, detail="text cannot be empty")
 
-    inputs = tokenizer(
-        request.text,
-        padding=True,
-        truncation=True,
-        max_length=512,
-        return_tensors="np",
-    )
+    text_preview = request.text[:80].replace("\n", " ")
+    logger.info(f"Embedding request received ({len(request.text)} chars): {text_preview!r}")
 
-    input_names = {i.name for i in session.get_inputs()}
-    ort_inputs = {k: v for k, v in inputs.items() if k in input_names}
-    outputs = session.run(None, ort_inputs)
-    # outputs[0] (last_hidden_state) shape: (1, seq_len, hidden_size)
-    token_embeddings = outputs[0]
-    attention_mask = inputs["attention_mask"]
+    try:
+        inputs = tokenizer(
+            request.text,
+            padding=True,
+            truncation=True,
+            max_length=512,
+            return_tensors="np",
+        )
 
-    pooled = mean_pooling(token_embeddings, attention_mask)
-    embedding = normalize(pooled)[0].tolist()
+        input_names = {i.name for i in session.get_inputs()}
+        ort_inputs = {k: v for k, v in inputs.items() if k in input_names}
+        outputs = session.run(None, ort_inputs)
+        # outputs[0] (last_hidden_state) shape: (1, seq_len, hidden_size)
+        token_embeddings = outputs[0]
+        attention_mask = inputs["attention_mask"]
 
+        pooled = mean_pooling(token_embeddings, attention_mask)
+        embedding = normalize(pooled)[0].tolist()
+    except Exception:
+        logger.exception("Embedding inference failed")
+        raise
+
+    logger.info(f"Embedding generated, dimension={len(embedding)}")
     return EmbedResponse(embedding=embedding, dimension=len(embedding))
 
 

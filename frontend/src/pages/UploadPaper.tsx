@@ -19,10 +19,10 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createPaper } from '@/api/papersApi';
+import { useUploadContext } from '@/lib/uploadContext';
 import {
   mockLanguages,
   mockInfoCards,
-  type AnalysisStep,
 } from '@/data/uploadMockData';
 
 const metadataSchema = z.object({
@@ -73,40 +73,47 @@ export default function UploadPaper() {
   const prefillPaper = (location.state as { prefillPaper?: any })?.prefillPaper;
 
   const [isDragOver, setIsDragOver] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [keywords, setKeywords] = useState<string[]>(['Machine Learning', 'NLP']);
   const [keywordInput, setKeywordInput] = useState('');
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isFetchingPdf, setIsFetchingPdf] = useState(false);
-  const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([
-    {
-      id: 'extraction',
-      label: 'Extraction',
-      description: 'Extracting text and identifying bibliographic data.',
-      status: 'waiting',
-    },
-    {
-      id: 'embedding',
-      label: 'Embedding',
-      description: 'Vectorizing content for semantic search capabilities.',
-      status: 'waiting',
-    },
-    {
-      id: 'completion',
-      label: 'Completion',
-      description: 'Generating AI summary and finalizing document in library.',
-      status: 'waiting',
-    },
-  ]);
+
+  const {
+    selectedFile,
+    setSelectedFile,
+    keywords,
+    setKeywords,
+    uploadProgress,
+    setUploadProgress,
+    isUploading,
+    setIsUploading,
+    isFetchingPdf,
+    setIsFetchingPdf,
+    analysisSteps,
+    setAnalysisSteps,
+    formValues,
+    setFormValues,
+    resetUploadState,
+  } = useUploadContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  const { register, handleSubmit, reset } = useForm<MetadataFormValues>({
+  const { register, handleSubmit, reset, watch } = useForm<MetadataFormValues>({
     resolver: zodResolver(metadataSchema),
-    defaultValues: { language: 'English', year: new Date().getFullYear().toString() },
+    defaultValues: formValues,
   });
+
+  // Keep the shared upload context in sync with the form so field values
+  // survive navigating away from and back to this page mid-edit.
+  useEffect(() => {
+    const subscription = watch((values) => {
+      setFormValues({
+        title: values.title ?? '',
+        authors: values.authors ?? '',
+        year: values.year ?? '',
+        language: values.language ?? 'English',
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setFormValues]);
 
   // Handle prefill paper metadata when redirected from Semantic Search or Roadmaps
   useEffect(() => {
@@ -274,11 +281,14 @@ export default function UploadPaper() {
       });
 
       setTimeout(() => {
-        setIsUploading(false);
-        setSelectedFile(null);
-        setKeywords(['Machine Learning', 'NLP']);
+        resetUploadState();
         reset();
-        navigate('/dashboard');
+        // Only redirect if the user is still on the upload screen - the
+        // upload itself runs to completion in the background even if they
+        // already navigated elsewhere, and it shouldn't yank them back.
+        if (window.location.pathname === '/upload') {
+          navigate('/dashboard');
+        }
       }, 1000);
     } catch (err: any) {
       clearInterval(progressInterval);
