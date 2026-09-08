@@ -1,7 +1,28 @@
-# 🔭 Anveshak — AI-Powered Research Intelligence Platform
+# 🔭 Anveshak
 
-> **Transform academic overload into actionable clarity.**  
-> Anveshak (*Sanskrit for "Investigator / Researcher"*) is an enterprise-grade AI research assistant that empowers academics, engineers, and scientists to intelligently search, summarize, compare, and converse with scholarly literature using state-of-the-art Retrieval-Augmented Generation (RAG) and dense vector embeddings.
+> **Transform academic overload into actionable clarity.**
+> Anveshak (*Sanskrit for "Investigator / Researcher"*) is a research assistant for anyone drowning in academic papers.
+
+---
+
+## 🌱 What is Anveshak, really?
+
+If you've ever had to read through a stack of research papers for a project, a thesis, or just to understand a new topic, you know the pain: papers are long, dense, and full of jargon, and it's hard to keep track of what each one actually says once you've read a dozen of them.
+
+Anveshak is like having a very well-read research assistant sitting next to you. You hand it your papers, and it helps you make sense of them:
+
+- **You can talk to a paper.** Instead of scrolling through 20 pages looking for one detail, you just ask a question — "What method did they use?" or "What were the limitations?" — and it answers based on that specific paper, pointing you to exactly where it found the answer.
+- **You can search by meaning, not just keywords.** You describe what you're looking for in your own words, and it finds relevant papers even if they don't use the exact words you typed.
+- **It can summarize a paper for you.** It breaks a paper down into the parts people actually care about: what the researchers were trying to do, how they did it, what they found, and what the paper doesn't cover.
+- **It can compare papers side by side.** If you're trying to decide between a few approaches or datasets, it lays out the differences for you instead of you having to cross-reference everything by hand.
+- **It can write a literature review draft.** Give it a set of papers on a topic and it pulls together a combined summary of what the field says, including where research is still thin.
+- **It can build you a study roadmap.** Tell it a topic you want to learn, and it suggests an order to read papers in, so you're not lost trying to figure out where to start.
+- **It keeps your papers organized.** You can save papers into folders/collections and get properly formatted citations for them automatically.
+- **It can pull in fresh papers on its own.** It's able to fetch newly published, freely available papers so your library doesn't go stale.
+
+In short: Anveshak takes the "I have 40 tabs open and no idea what I've read" problem and turns it into something you can actually navigate and reason about.
+
+Everything below this point is technical documentation for developers working on the project.
 
 ---
 
