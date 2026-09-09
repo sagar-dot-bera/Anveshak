@@ -16,8 +16,9 @@ public class AuthMailService {
     private final UserService userService;
 
     private final EmailSenderService emailSenderService;
-    @Value("${app.base-url}")
-    String baseUrl;
+
+    @Value("${google.frontend-url}")
+    String frontendUrl;
 
     @Value("${app.mail.from}")
     String from;
@@ -44,7 +45,7 @@ public class AuthMailService {
             throw new IllegalArgumentException("Token cannot be null");
         }
 
-        String verifyUrl = baseUrl + "/auth/verify-email?token=" + token;
+        String verifyUrl = frontendUrl + "/auth/verify-email?token=" + token;
 
         log.info("password: {}", password);
 
@@ -71,7 +72,7 @@ public class AuthMailService {
             throw new UserNotFoundException(email);
         }
 
-        String verifyUrl = baseUrl + "/auth/reset-password?token=" + token;
+        String verifyUrl = frontendUrl + "/auth/reset-password?token=" + token;
 
         emailSenderService.sendPlainText(email, "Reset your password",
                 " for Plug AI by clicking: " + verifyUrl
