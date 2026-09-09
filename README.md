@@ -39,6 +39,7 @@ Everything below this point is technical documentation for developers working on
 ![pgvector](https://img.shields.io/badge/pgvector_HNSW-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Google Gemini](https://img.shields.io/badge/Google_Gemini_AI-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 ![SentenceTransformers](https://img.shields.io/badge/SentenceTransformers-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white)
+![Transformers.js](https://img.shields.io/badge/Transformers.js_%2B_ONNX_Runtime_Web-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white)
 ![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker_&_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase_Storage-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
@@ -48,9 +49,9 @@ Everything below this point is technical documentation for developers working on
 
 | Domain | Core Technologies |
 |---|---|
-| **Frontend** | React 19, TypeScript, Vite 8, React Router v7, TanStack Query v5, Axios, Tailwind CSS v4, Lucide React, Sonner |
+| **Frontend** | React 19, TypeScript, Vite 8, React Router v7, TanStack Query v5, Axios, Tailwind CSS v4, Lucide React, Sonner, `pdfjs-dist`, `@huggingface/transformers` (client-side embeddings) |
 | **Backend API** | Java 21, Spring Boot 3.4+, Spring Security, Spring Data JPA, Hibernate, Apache PDFBox, Flyway DB, Scalar OpenAPI |
-| **AI / ML Microservice** | Python 3.11, FastAPI 0.115, SentenceTransformers (`all-MiniLM-L6-v2`), PyTorch, Hugging Face, Google Gemini API |
+| **AI / ML Microservice** | Python 3.11, FastAPI 0.115, SentenceTransformers (`all-MiniLM-L6-v2`), PyTorch, Hugging Face, Google Gemini API — used for the arXiv harvester and roadmap paper matching |
 | **Database & Storage** | PostgreSQL 17 + `pgvector` (HNSW Cosine Vector Indexing), Supabase Storage REST API |
 | **Security & DevOps** | Google OAuth2, Stateless JWT (RSA/HMAC), Argon2/BCrypt, Docker & Docker Compose |
 
@@ -77,8 +78,8 @@ Whether you are conducting a structured literature review, analyzing competing t
 
 | Feature Module | Description | Technical Core |
 |---|---|---|
-| 🔍 **Semantic Search & Vector Discovery** | Find research papers using natural language queries across personal and global paper repositories. | Dense 384-dim embeddings + HNSW Cosine Similarity |
-| 💬 **Talk-to-Paper (RAG Assistant)** | Interactive multi-turn conversational AI over specific PDFs with contextual chunk retrieval. | Apache PDFBox + HNSW Vector Lookup + Gemini LLM |
+| 🔍 **Semantic Search & Vector Discovery** | Find research papers using natural language queries across personal and global paper repositories. | Client-side 384-dim embeddings + HNSW Cosine Similarity |
+| 💬 **Talk-to-Paper (RAG Assistant)** | Interactive multi-turn conversational AI over specific PDFs with contextual chunk retrieval. | Client-side embeddings + HNSW Vector Lookup + Gemini LLM |
 | 📄 **Automated Paper Structuring** | Instant breakdown of PDFs into Objectives, Methodology, Datasets, Key Findings, and Limitations. | LLM Structured JSON Parsing |
 | ⚖️ **Multi-Paper Comparison Engine** | Side-by-side matrix evaluation comparing algorithms, datasets, performance, and research trade-offs. | Cross-Paper Contextual Prompt Engineering |
 | 📚 **Literature Review Generator** | Comprehensive thematic synthesis reports aggregating insights and research gaps across paper sets. | Multi-Document RAG Aggregation |
@@ -95,7 +96,8 @@ Anveshak is engineered as a high-performance **Microservices Monorepo**, decoupl
 ```
                                     ┌────────────────────────┐
                                     │    React 19 Frontend   │
-                                    │     (Vite + Tailwind)  │
+                                    │  (Vite + Tailwind +    │
+                                    │   transformers.js)     │
                                     └───────────┬────────────┘
                                                 │ REST (HTTP/JSON + JWT)
                                                 ▼
@@ -103,7 +105,7 @@ Anveshak is engineered as a high-performance **Microservices Monorepo**, decoupl
 │                               Spring Boot API Gateway & Core                           │
 │                                      (Java 21 / Spring 3.4+)                           │
 │  ┌──────────────────┬──────────────────┬───────────────────┬────────────────────────┐  │
-│  │ Security & Auth  │ PDF Ingest & RAG │ Gemini AI Engine  │ arXiv Harvester Engine │  │
+│  │ Security & Auth  │ Paper & Chat API │ Gemini AI Engine  │ arXiv Harvester Engine │  │
 │  └────────┬─────────┴────────┬─────────┴─────────┬─────────┴───────────┬────────────┘  │
 └───────────┼──────────────────┼───────────────────┼─────────────────────┼───────────────┘
             │                  │                   │                     │
@@ -120,22 +122,29 @@ Anveshak is engineered as a high-performance **Microservices Monorepo**, decoupl
 └───────────────────────┘                                    └───────────────────────┘
 ```
 
+> The FastAPI embedding microservice is only called by the backend itself now — for the arXiv harvester and roadmap paper matching, both of which run without a browser in the loop. Paper upload, semantic search, and chat all compute their 384-dim embeddings client-side (same `all-MiniLM-L6-v2` model, exported for `transformers.js`/ONNX Runtime Web) and send the finished vector to the API, so the microservice is no longer a dependency for those request paths.
+
 ---
 
 ## 🔄 End-to-End RAG Pipeline Flow
 
 ```
-[ PDF Upload ] ──► [ PDFBox Text Extraction ] ──► [ Sliding Window Chunking (500 words) ]
-                                                                   │
-                                                                   ▼
-[ Interactive Chat ] ◄── [ Google Gemini LLM ] ◄── [ Top-K Vector Match ] ◄── [ FastAPI Embedding ]
+[ PDF Upload ] ──► [ pdf.js Text Extraction ] ──► [ Chunking ] ──► [ In-Browser ONNX Embedding ]
+     (all in a Web Worker, client-side)                                        │
+                                                                                ▼
+                                                      [ Chunk batches + vectors uploaded to API ]
+                                                                                │
+                                                                                ▼
+[ Interactive Chat ] ◄── [ Google Gemini LLM ] ◄── [ Top-K Vector Match ] ◄── [ Query embedded client-side ]
 ```
 
-1. **Document Parsing**: When a PDF is uploaded, Apache PDFBox extracts clean, raw text and splits it into logical, page-indexed chunks.
-2. **Dense Vectorization**: Paper chunks are dispatched to the FastAPI embedding microservice running `SentenceTransformers (all-MiniLM-L6-v2)`, producing 384-dimensional dense vectors.
+1. **Document Parsing**: When a PDF is uploaded, the browser streams it through `pdf.js` page-by-page and splits the text into logical, page-indexed chunks — no round trip to the server yet.
+2. **Dense Vectorization**: Each chunk is embedded in-browser, off the main thread, via `transformers.js`/ONNX Runtime Web running the same `all-MiniLM-L6-v2` model the Python microservice uses, producing 384-dimensional dense vectors. Batches of `{content, embedding}` are uploaded to the API as they finish, which is also what makes an interrupted upload resumable.
 3. **Indexed Storage**: Vectors and document metadata are stored in PostgreSQL using the `pgvector` extension with a Hierarchical Navigable Small World (**HNSW**) cosine similarity index (`vector_cosine_ops`).
-4. **Contextual Retrieval**: User chat prompts generate real-time vector queries, retrieving the top-K relevant text chunks via vector similarity.
+4. **Contextual Retrieval**: A user's search query or chat prompt is embedded client-side the same way, and the resulting vector is sent to the API, which retrieves the top-K relevant text chunks via vector similarity — the server never has to compute a text embedding on the request path.
 5. **LLM Synthesis**: Retrieved chunks and conversational context are supplied to **Google Gemini API** to generate accurate, cited responses.
+
+The FastAPI microservice still handles embedding for the two paths without a browser present: the arXiv harvester (a backend batch job) and research roadmap generation (which searches the global paper index against AI-generated stage descriptions in the same request).
 
 ---
 
@@ -159,6 +168,7 @@ Anveshak is engineered as a high-performance **Microservices Monorepo**, decoupl
 - **ML Architecture**: PyTorch + HuggingFace `SentenceTransformers`
 - **Default Vector Model**: `all-MiniLM-L6-v2` (384-dimensional embeddings)
 - **Data Validation**: Pydantic v2
+- **Scope**: called only by the backend itself, for the arXiv harvester and roadmap paper matching — not on the paper upload, search, or chat request paths (those embed client-side, see below)
 
 ### 🔹 Frontend Application (`/frontend`)
 - **Framework**: React 19 + TypeScript (Strict Mode)
@@ -169,6 +179,7 @@ Anveshak is engineered as a high-performance **Microservices Monorepo**, decoupl
 - **Styling & UI**: Tailwind CSS v4, Lucide React icons
 - **Form Controls & Validation**: React Hook Form + Zod
 - **Notifications**: Sonner
+- **Client-Side PDF & Embeddings** (`src/lib/embedding`): `pdfjs-dist` for in-browser text extraction, `@huggingface/transformers` (ONNX Runtime Web, quantized `all-MiniLM-L6-v2`) running in a Web Worker to embed paper chunks, search queries, and chat messages without a round trip to the Python microservice
 
 ---
 
@@ -206,12 +217,16 @@ Anveshak exposes clean REST APIs documented interactively via **Scalar UI**.
 | **Auth** | `POST` | `/auth/login` | Email/password login, returns JWT token pair |
 | **Auth** | `POST` | `/auth/google` | Google OAuth2 authentication flow |
 | **Papers** | `GET` | `/papers` | Retrieve user's uploaded papers library |
-| **Papers** | `POST` | `/papers` | Upload new PDF paper with automatic parsing & embedding |
-| **Papers** | `GET` | `/papers/search?query=` | Perform semantic dense vector search across papers |
+| **Papers** | `POST` | `/papers/upload/init` | Create a paper record + upload the PDF; chunks follow separately |
+| **Papers** | `POST` | `/papers/upload/{paperId}/chunks` | Upload a batch of client-embedded chunks (resumable) |
+| **Papers** | `POST` | `/papers/upload/{paperId}/finalize` | Finalize an upload once all chunks are in, generating the AI summary |
+| **Papers** | `POST` | `/papers/search/local` | Semantic search over the user's library (client-computed query embedding) |
+| **Papers** | `POST` | `/papers/search/global` | Semantic search over the global arXiv index (client-computed query embedding) |
 | **Papers** | `POST` | `/papers/compare` | Multi-paper AI side-by-side comparative analysis |
 | **Papers** | `POST` | `/papers/literature-review` | Auto-generate structured synthesis review report |
-| **Chat** | `GET` | `/papers/{id}/chat` | Retrieve multi-turn chat history for a paper |
-| **Chat** | `POST` | `/papers/{id}/chat` | Send prompt to paper chat assistant (RAG) |
+| **Chat** | `POST` | `/chat-sessions` | Start a chat session for a paper |
+| **Chat** | `GET` | `/chat-sessions/{sessionId}/messages` | Retrieve multi-turn chat history for a session |
+| **Chat** | `POST` | `/chat-sessions/{sessionId}/messages` | Send a message to the paper chat assistant (RAG), embedding computed client-side |
 | **Roadmaps**| `POST` | `/roadmaps/generate` | Generate AI-driven research roadmap for a topic |
 | **Roadmaps**| `GET` | `/roadmaps` | List user roadmaps |
 | **Collections**| `GET/POST`| `/collections` | List or create personal paper collections |
@@ -246,16 +261,17 @@ cd Anveshak
 
 ### Step 2: Start Core Infrastructure (Docker)
 
-Launch PostgreSQL with `pgvector` and the Python Embedding Service:
+Launch PostgreSQL with `pgvector` and the Python Embedding Service (`docker-compose.yml` lives at the repo root):
 
 ```bash
-cd infra
-docker compose up -d
+docker compose up -d postgres embedding
 ```
 
 Verify running containers:
 - **PostgreSQL 17**: Port `5436`
-- **Embedding Service**: Port `8001` (`http://localhost:8001/health`)
+- **Embedding Service**: Port `8001` (`http://localhost:8001/health`) — only used by the backend for the arXiv harvester and roadmap generation; paper upload, search, and chat don't need it
+
+> Running `docker compose up -d` with no service names also builds and starts the `backend` and `frontend` containers. For local development it's usually faster to run those two directly (Steps 4–5) and point them at the dockerized `postgres`/`embedding` ports instead.
 
 ---
 
@@ -295,6 +311,7 @@ cd ../backend
 
 - API Server will start on `http://localhost:8080`
 - Database Flyway migrations apply automatically on boot.
+- The root `.env` is written for the dockerized `backend` service, so `SPRING_DATASOURCE_URL` and `EMBEDDING_SERVICE_URL` point at the docker-internal hostnames (`postgres`, `embedding`). Running the backend directly on the host instead of in Docker, override both to use `localhost` and the mapped ports (`jdbc:postgresql://localhost:5436/anveshak_db` and `http://localhost:8001`).
 
 ---
 
