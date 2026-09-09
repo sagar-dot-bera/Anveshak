@@ -11,7 +11,6 @@ import {
   Map,
   Settings,
   HelpCircle,
-  Plus,
   LogOut,
 } from 'lucide-react';
 import logo from '@/assets/logo.svg';
@@ -69,16 +68,8 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* New Project CTA */}
-      <div className="px-4 py-4">
-        <button className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-medium text-sm transition-all duration-200 shadow-sm active:scale-[0.98]">
-          <Plus className="w-4 h-4" />
-          New Project
-        </button>
-      </div>
-
       {/* Main Nav */}
-      <nav className="flex-1 px-3 pb-4 space-y-0.5" aria-label="Main navigation">
+      <nav className="flex-1 px-3 pt-4 pb-4 space-y-0.5" aria-label="Main navigation">
         {navItems.map(({ label, icon: Icon, path }) => (
           <NavLink
             key={path}

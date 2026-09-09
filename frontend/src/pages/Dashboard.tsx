@@ -8,8 +8,6 @@ import {
   Upload,
   GitCompare,
   Sparkles,
-  FolderOpen,
-  ChevronRight,
 } from 'lucide-react';
 import StatCard from '@/components/common/StatCard';
 import PaperListItem from '@/components/common/PaperListItem';
@@ -114,14 +112,13 @@ export default function Dashboard() {
   });
 
   (chatSessions || []).forEach((session) => {
-    const ts = session.createdAt ? new Date(session.createdAt).getTime() : Date.now();
     realActivities.push({
       id: `chat-${session.sessionId}`,
       type: 'ai',
       title: 'AI Chat Session Active',
       description: `Talk to Paper conversation.`,
       timeAgo: formatTimeAgo(session.createdAt),
-      timestamp: ts,
+      timestamp: new Date(session.createdAt).getTime(),
     });
   });
 
@@ -294,61 +291,6 @@ export default function Dashboard() {
           </div>
 
         </div>
-      </div>
-
-      {/* ── Research Collections ─────────────────────────── */}
-      <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="font-hanken font-semibold text-base text-slate-900">
-              Your Collections
-            </h2>
-            <p className="font-inter text-xs text-slate-400 mt-0.5">
-              Groups of papers you're actively organizing for review.
-            </p>
-          </div>
-          <Link
-            to="/literature-reviews"
-            className="font-inter text-xs font-semibold text-vibrant-blue hover:text-primary transition-colors flex items-center gap-0.5"
-          >
-            View All
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        {collections && collections.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {collections.slice(0, 4).map((collection) => (
-              <Link
-                key={collection.id}
-                to="/literature-reviews"
-                className="border border-slate-100 rounded-lg p-4 flex flex-col gap-2 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-primary group-hover:bg-indigo-100 transition-colors">
-                  <FolderOpen className="w-4 h-4" />
-                </div>
-                <p className="font-hanken font-semibold text-sm text-slate-800 truncate">
-                  {collection.name}
-                </p>
-                <p className="font-mono text-[10px] font-semibold tracking-wide text-slate-400 uppercase">
-                  {collection.papers?.length || 0} {collection.papers?.length === 1 ? 'Paper' : 'Papers'}
-                </p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <FolderOpen className="w-8 h-8 text-slate-300 mb-2" />
-            <p className="font-inter text-sm text-slate-400">No collections yet.</p>
-            <Link
-              to="/literature-reviews"
-              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-medium text-xs transition-all shadow-sm"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              Start a Literature Review
-            </Link>
-          </div>
-        )}
       </div>
 
     </div>
