@@ -22,6 +22,7 @@ import com.anveshak.service.CurrentUserResolver;
 import com.anveshak.service.PaperChatService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -72,10 +73,10 @@ public class PaperChatController {
     @PostMapping("/{sessionId}/messages")
     public ResponseEntity<ChatMessageResponse> sendMessage(@RequestHeader("Authorization") String authorizationHeader,
             @PathVariable UUID sessionId,
-            @RequestBody ChatMessageRequest request) {
+            @Valid @RequestBody ChatMessageRequest request) {
         currentUserResolver.resolveUser(authorizationHeader);
         ChatMessageRequest sessionRequest = new ChatMessageRequest(request.message(), sessionId.toString(),
-                request.role());
+                request.role(), request.embedding());
         return ResponseEntity.ok(paperChatService.sendMessage(sessionRequest));
     }
 }

@@ -10,7 +10,6 @@ import com.anveshak.DTOs.ChatMessageResponse;
 import com.anveshak.DTOs.ChatSessionResponse;
 import com.anveshak.DTOs.NewChatSessionRequest;
 import com.anveshak.Exception.ChatSessionNotFoundException;
-import com.anveshak.client.EmbeddingServiceClient;
 import com.anveshak.model.ChatMessage;
 import com.anveshak.model.ChatSession;
 import com.anveshak.model.PaperChunk;
@@ -30,18 +29,16 @@ public class PaperChatService {
     private final PaperChunkService paperChunkService;
     private final ResearchPaperService researchPaperService;
     private final GeminiService geminiService;
-    private final EmbeddingServiceClient embeddingService;
     private final PromptService promptService;
 
     public PaperChatService(ChatSessionRepository chatSessionRepository, ChatMessageRepository chatMessageRepository,
             PaperChunkService paperChunkService, ResearchPaperService researchPaperService,
-            GeminiService geminiService, EmbeddingServiceClient embeddingService, PromptService promptService) {
+            GeminiService geminiService, PromptService promptService) {
         this.chatSessionRepository = chatSessionRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.paperChunkService = paperChunkService;
         this.researchPaperService = researchPaperService;
         this.geminiService = geminiService;
-        this.embeddingService = embeddingService;
         this.promptService = promptService;
     }
 
@@ -55,7 +52,7 @@ public class PaperChatService {
         newSession.setCreatedAt(java.time.Instant.now());
         newSession = chatSessionRepository.save(newSession);
 
-        return new ChatSessionResponse(newSession.getId().toString(), paper.getId().toString());
+        return new ChatSessionResponse(newSession.getId().toString(), paper.getId().toString(), newSession.getCreatedAt());
     }
 
     public ChatSession getChatSessionById(UUID sessionId) {
@@ -73,7 +70,7 @@ public class PaperChatService {
         ChatSession session = getChatSessionById(UUID.fromString(request.sessionId()));
         ResearchPaper paper = session.getPaper();
         log.info("Sending message for paper: {}", paper.getId());
-        float[] embedding = embeddingService.getEmbedding(request.message());
+        float[] embedding = request.embeddingFloatArray();
         PGvector pgVectorEmbedding = new PGvector(embedding);
 
         log.info("Embedding: {}", pgVectorEmbedding.toString());
@@ -118,7 +115,7 @@ public class PaperChatService {
     public List<ChatSessionResponse> getSessionsByUser(User user) {
         List<ChatSession> sessions = chatSessionRepository.findByUserOrderByCreatedAtDesc(user);
         return sessions.stream()
-                .map(session -> new ChatSessionResponse(session.getId().toString(), session.getPaper().getId().toString()))
+                .map(session -> new ChatSessionResponse(session.getId().toString(), session.getPaper().getId().toString(), session.getCreatedAt()))
                 .toList();
     }
 

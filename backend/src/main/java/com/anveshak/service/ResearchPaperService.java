@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.anveshak.DTOs.InnerPaperSummaryDTO;
 import com.anveshak.DTOs.NewPaperRequest;
+import com.anveshak.DTOs.PaperChunkUploadDTO;
 import com.anveshak.DTOs.PaperComparisonResponse;
 import com.anveshak.DTOs.PaperLookupRequest;
 import com.anveshak.DTOs.PaperSearchRequest;
@@ -159,6 +160,108 @@ public class ResearchPaperService {
         PaperSummary paperSummary = paperSummaryService.savePaperSummary(paperChunks, paper);
         log.info("Saved paper summary for paper ID: {}", paper.getId());
 
+        return toResponse(paper);
+    }
+
+    /**
+     * Starts a client-embedded paper upload: creates the paper record and
+     * stores the PDF, but does none of the text extraction, chunking or
+     * embedding - the browser does that and pushes chunks separately via
+     * {@link #uploadPaperChunksBatch}, then calls {@link #finalizePaperUpload}.
+     */
+    @Transactional
+    public ResearchPaperResponse initPaperUpload(User owner, NewPaperRequest request, MultipartFile pdfFile)
+            throws IOException {
+        validateOwner(owner);
+        validateRequest(request);
+        if (pdfFile == null || pdfFile.isEmpty()) {
+            throw new IllegalArgumentException("PDF file is required for creating a paper.");
+        }
+
+        ResearchPaper paper = new ResearchPaper();
+        paper.setOwner(owner);
+        paper.setTitle(request.title().trim());
+        paper.setAbstractText(request.abstractText() != null && !request.abstractText().isBlank()
+                ? request.abstractText().trim()
+                : "Title: " + request.title().trim());
+        paper.setPublicationYear(request.publicationYear() != null ? request.publicationYear()
+                : Instant.now().atZone(java.time.ZoneId.systemDefault()).getYear());
+        paper.setCreatedAt(Instant.now());
+        paper.setUpdatedAt(Instant.now());
+        paper.setAuthors(resolveAuthors(request.authors()));
+        paper.setKeywords(resolveKeywords(request.keywords()));
+        paper.setPdfUrl(fileStorageService.upload(pdfFile));
+
+        paper = researchPaperRepository.save(paper);
+        log.info("Initialized client-embedded paper upload, paper ID: {}", paper.getId());
+        return toResponse(paper);
+    }
+
+    /**
+     * Stores a batch of chunk text + embeddings the browser already computed.
+     * Idempotent per chunkIndex, so a retried/duplicated batch is a no-op for
+     * chunks already stored - this is what makes the upload resumable.
+     */
+    @Transactional
+    public void uploadPaperChunksBatch(User owner, UUID paperId, List<PaperChunkUploadDTO> chunkDtos) {
+        validateOwner(owner);
+        ResearchPaper paper = loadOwnedPaper(new PaperLookupRequest(paperId), owner);
+        paperChunkService.upsertChunks(paper, chunkDtos);
+
+        if (paper.getEmbedding() == null) {
+            chunkDtos.stream()
+                    .filter(dto -> Integer.valueOf(0).equals(dto.chunkIndex()))
+                    .findFirst()
+                    .ifPresent(dto -> {
+                        paper.setEmbedding(dto.embeddingFloatArray());
+                        researchPaperRepository.save(paper);
+                    });
+        }
+    }
+
+    /** Chunk indices already persisted for a paper, so a resumed upload can skip them. */
+    @Transactional(readOnly = true)
+    public List<Integer> getUploadedChunkIndices(User owner, UUID paperId) {
+        validateOwner(owner);
+        ResearchPaper paper = loadOwnedPaper(new PaperLookupRequest(paperId), owner);
+        return paperChunkRepository.findChunkIndicesByPaper(paper);
+    }
+
+    /**
+     * Completes a client-embedded upload: generates the AI summary from the
+     * chunks the browser uploaded. Falls back to the old server-side
+     * extraction+embedding path if, for whatever reason (e.g. a scanned PDF
+     * with no extractable text), no chunks ever arrived - the same safety net
+     * {@link #saveAndProcessPaper} always had.
+     */
+    @Transactional
+    public ResearchPaperResponse finalizePaperUpload(User owner, UUID paperId) throws IOException {
+        validateOwner(owner);
+        ResearchPaper paper = loadOwnedPaper(new PaperLookupRequest(paperId), owner);
+        List<PaperChunk> paperChunks = paperChunkRepository.findByPaperOrderByChunkIndexAsc(paper);
+
+        if (paperChunks == null || paperChunks.isEmpty()) {
+            String fallbackText = "Title: " + paper.getTitle() + "\nAbstract: " + paper.getAbstractText();
+            float[] fallbackEmbedding = embeddingServiceClient.getEmbedding(fallbackText);
+            paper.setEmbedding(fallbackEmbedding);
+
+            PaperChunk fallbackChunk = new PaperChunk();
+            fallbackChunk.setPaper(paper);
+            fallbackChunk.setContent("Title: " + paper.getTitle() + "\n\nAbstract:\n" + paper.getAbstractText());
+            fallbackChunk.setPageNumber(1);
+            fallbackChunk.setChunkIndex(0);
+            fallbackChunk.setEmbeddings(fallbackEmbedding);
+            fallbackChunk.setCreatedAt(Instant.now());
+            paperChunks = List.of(paperChunkRepository.save(fallbackChunk));
+            researchPaperRepository.save(paper);
+        } else if (paper.getEmbedding() == null) {
+            // Safety net in case chunk 0 was never the first batch delivered.
+            paper.setEmbedding(paperChunks.get(0).getEmbeddings());
+            researchPaperRepository.save(paper);
+        }
+
+        paperSummaryService.savePaperSummary(paperChunks, paper);
+        log.info("Finalized client-embedded paper upload for paper ID: {}", paper.getId());
         return toResponse(paper);
     }
 
@@ -554,13 +657,11 @@ public class ResearchPaperService {
         return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedQuery);
     }
 
-    public List<ResearchPaperResponse> semanticSearch(String query, User owner, double threshold) {
-        if (query == null) {
-            log.warn("Query is null, returning empty list");
-            throw new IllegalArgumentException("Query cannot be null");
+    public List<ResearchPaperResponse> semanticSearch(float[] embedding, User owner, double threshold) {
+        if (embedding == null) {
+            log.warn("Embedding is null, returning empty list");
+            throw new IllegalArgumentException("Embedding cannot be null");
         }
-
-        float[] embedding = embeddingServiceClient.getEmbedding(query);
 
         List<ResearchPaper> papers = researchPaperRepository.semanticSearch(new PGvector(embedding).toString(), 10, owner.getId(), threshold);
 
@@ -571,10 +672,6 @@ public class ResearchPaperService {
         }
 
         return matches;
-    }
-
-    public List<ResearchPaperResponse> semanticSearch(String query, User owner) {
-        return semanticSearch(query, owner, 0.0);
     }
 
     public boolean doesPaperExist(UUID paperId) {

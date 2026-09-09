@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,10 +25,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.anveshak.DTOs.CollectionLookupRequest;
 import com.anveshak.DTOs.CollectionPaperRequest;
 import com.anveshak.DTOs.GlobalPaperDTO;
+import com.anveshak.DTOs.GlobalPaperSearchRequest;
+import com.anveshak.DTOs.LocalPaperSearchRequest;
 import com.anveshak.DTOs.NewCollectionRequest;
 import com.anveshak.DTOs.NewPaperRequest;
 import com.anveshak.DTOs.LiteratureReviewRequest;
 import com.anveshak.DTOs.LiteratureReviewResponse;
+import com.anveshak.DTOs.PaperChunkBatchUploadRequest;
 import com.anveshak.DTOs.PaperComparisonRequest;
 import com.anveshak.DTOs.PaperComparisonResponse;
 import com.anveshak.DTOs.PaperLookupRequest;
@@ -82,6 +84,45 @@ public class PapersController {
             @RequestPart("pdfFile") MultipartFile pdfFile) throws IOException {
         User user = currentUserResolver.resolveUser(authorizationHeader);
         return ResponseEntity.status(201).body(researchPaperService.createPaper(user, request, pdfFile));
+    }
+
+    @Operation(summary = "Start a client-embedded paper upload", description = "Creates the paper record and stores the PDF. Chunk text and embeddings (computed in-browser) are uploaded separately via the chunks batch endpoint, then finalized.")
+    @PostMapping(value = "/papers/upload/init", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResearchPaperResponse> initPaperUpload(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestPart("paper") @Valid NewPaperRequest request,
+            @RequestPart("pdfFile") MultipartFile pdfFile) throws IOException {
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        return ResponseEntity.status(201).body(researchPaperService.initPaperUpload(user, request, pdfFile));
+    }
+
+    @Operation(summary = "Upload a batch of paper chunks", description = "Stores chunk text and embeddings computed client-side. Safe to retry - chunk indices already stored are skipped, which is what makes an interrupted upload resumable.")
+    @PostMapping("/papers/upload/{paperId}/chunks")
+    public ResponseEntity<Void> uploadPaperChunksBatch(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable UUID paperId,
+            @RequestBody @Valid PaperChunkBatchUploadRequest request) {
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        researchPaperService.uploadPaperChunksBatch(user, paperId, request.chunks());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "List already-uploaded chunk indices", description = "Used to resume an interrupted upload without recomputing or resending chunks the server already has.")
+    @GetMapping("/papers/upload/{paperId}/chunks")
+    public ResponseEntity<List<Integer>> getUploadedChunkIndices(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable UUID paperId) {
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        return ResponseEntity.ok(researchPaperService.getUploadedChunkIndices(user, paperId));
+    }
+
+    @Operation(summary = "Finalize a client-embedded paper upload", description = "Call once all chunk batches have been uploaded; generates the AI summary and completes the paper.")
+    @PostMapping("/papers/upload/{paperId}/finalize")
+    public ResponseEntity<ResearchPaperResponse> finalizePaperUpload(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable UUID paperId) throws IOException {
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        return ResponseEntity.ok(researchPaperService.finalizePaperUpload(user, paperId));
     }
 
     @Operation(summary = "Import paper into library", description = "Imports a paper directly into the user's library without requiring manual PDF upload.")
@@ -143,14 +184,13 @@ public class PapersController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Search research papers", description = "Searches for research papers based on the provided query for the authenticated user.")
-    @GetMapping("/papers/search/local")
+    @Operation(summary = "Search research papers", description = "Semantic search over the authenticated user's library. The query embedding is computed client-side and sent as base64-encoded float32 bytes.")
+    @PostMapping("/papers/search/local")
     public ResponseEntity<List<ResearchPaperResponse>> searchPapers(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam(required = false) String query,
-            @RequestParam(required = false, defaultValue = "0.0") double threshold) {
+            @Valid @RequestBody LocalPaperSearchRequest request) {
         User user = currentUserResolver.resolveUser(authorizationHeader);
-        return ResponseEntity.ok(researchPaperService.semanticSearch(query, user, threshold));
+        return ResponseEntity.ok(researchPaperService.semanticSearch(request.embeddingFloatArray(), user, request.threshold()));
     }
 
     @Operation(summary = "List collections", description = "Lists all research paper collections for the authenticated user.")
@@ -164,15 +204,14 @@ public class PapersController {
         return ResponseEntity.ok(entity);
     }
 
-    @GetMapping("/papers/search/global")
+    @Operation(summary = "Search global papers", description = "Semantic search over the global arXiv index. The query embedding is computed client-side and sent as base64-encoded float32 bytes.")
+    @PostMapping("/papers/search/global")
     public ResponseEntity<List<GlobalPaperDTO>> searchGlobalPapers(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestParam(required = true) String query,
-            @RequestParam(required = false, defaultValue = "10") int limit,
-            @RequestParam(required = false, defaultValue = "0.0") double threshold) {
+            @Valid @RequestBody GlobalPaperSearchRequest request) {
         currentUserResolver.resolveUser(authorizationHeader);
 
-        return ResponseEntity.ok(globalPaperService.sematicSearchOnPaper(query, limit, threshold));
+        return ResponseEntity.ok(globalPaperService.sematicSearchOnPaper(request.embeddingFloatArray(), request.limit(), request.threshold()));
     }
 
 }

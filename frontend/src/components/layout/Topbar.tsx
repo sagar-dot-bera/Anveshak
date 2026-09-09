@@ -14,16 +14,6 @@ export default function Topbar() {
             className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-vibrant-blue/20 focus:border-vibrant-blue transition-all"
           />
         </div>
-
-        {/* Tabs: Recent / Starred */}
-        <div className="flex items-center gap-1">
-          <button className="font-inter text-sm font-semibold text-deep-indigo border-b-2 border-deep-indigo pb-0.5 px-1 transition-colors">
-            Recent
-          </button>
-          <button className="font-inter text-sm font-medium text-slate-400 hover:text-slate-700 pb-0.5 px-1 transition-colors ml-2">
-            Starred
-          </button>
-        </div>
       </div>
 
       {/* Right Controls */}

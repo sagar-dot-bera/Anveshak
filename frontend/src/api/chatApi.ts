@@ -5,6 +5,7 @@ import type {
   ChatMessageResponse,
   ChatMessageRequest,
 } from '@/lib/types';
+import { embedQuery } from '@/lib/embedding/embedQuery';
 
 /** Create a new chat session for a paper. */
 export async function createChatSession(
@@ -39,16 +40,18 @@ export async function listChatMessages(
   return data;
 }
 
-/** Send a message in a chat session. */
+/** Send a message in a chat session. The message embedding is computed client-side. */
 export async function sendMessage(
   sessionId: string,
   message: string,
   role: string = 'user',
 ): Promise<ChatMessageResponse> {
+  const embedding = await embedQuery(message);
   const request: ChatMessageRequest = {
     message,
     sessionId,
     role,
+    embedding,
   };
   const { data } = await apiClient.post<ChatMessageResponse>(
     `/chat-sessions/${sessionId}/messages`,

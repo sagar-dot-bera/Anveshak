@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import logo from '@/assets/logo.svg';
@@ -11,6 +11,11 @@ export default function VerifyEmail() {
   const token = searchParams.get('token');
   const [status, setStatus] = useState<Status>('verifying');
   const [message, setMessage] = useState('');
+  // The token is single-use (the backend deletes it once verified), so
+  // StrictMode's dev-mode double-invoke of this effect must not fire the
+  // request twice - the second call would fail on an already-consumed token
+  // and clobber the first call's success.
+  const requestedTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -19,14 +24,14 @@ export default function VerifyEmail() {
       return;
     }
 
-    let cancelled = false;
+    if (requestedTokenRef.current === token) return;
+    requestedTokenRef.current = token;
+
     verifyEmail(token)
       .then(() => {
-        if (cancelled) return;
         setStatus('success');
       })
       .catch((err: any) => {
-        if (cancelled) return;
         setStatus('error');
         setMessage(
           err.response?.data?.msg ||
@@ -34,10 +39,6 @@ export default function VerifyEmail() {
             'This verification link is invalid or has expired.',
         );
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, [token]);
 
   return (

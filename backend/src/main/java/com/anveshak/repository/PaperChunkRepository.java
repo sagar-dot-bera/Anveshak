@@ -30,4 +30,7 @@ public interface PaperChunkRepository extends JpaRepository<PaperChunk, UUID> {
         List<PaperChunk> findByPaperOrderByChunkIndexAsc(ResearchPaper paper);
 
         List<PaperChunk> findByPaper(ResearchPaper paper);
+
+        @Query("SELECT c.chunkIndex FROM PaperChunk c WHERE c.paper = :paper")
+        List<Integer> findChunkIndicesByPaper(@Param("paper") ResearchPaper paper);
 }

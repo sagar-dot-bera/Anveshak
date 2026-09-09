@@ -3,13 +3,16 @@ package com.anveshak.service;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.anveshak.DTOs.PaperChunkDTO;
+import com.anveshak.DTOs.PaperChunkUploadDTO;
 import com.anveshak.client.EmbeddingServiceClient;
 import com.anveshak.model.PaperChunk;
 import com.anveshak.model.ResearchPaper;
@@ -53,6 +56,38 @@ public class PaperChunkService {
         }
 
         return newPaperChunks;
+    }
+
+    /**
+     * Stores client-embedded chunks for a paper, skipping any chunkIndex
+     * already present so a batch (or the whole upload) can be safely retried
+     * after a dropped connection without duplicating rows.
+     */
+    @Transactional
+    public List<PaperChunk> upsertChunks(ResearchPaper paper, List<PaperChunkUploadDTO> chunkDtos) {
+        if (chunkDtos == null || chunkDtos.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Integer> existingIndices = new HashSet<>(paperChunkRepository.findChunkIndicesByPaper(paper));
+        List<PaperChunk> toSave = new ArrayList<>();
+
+        for (PaperChunkUploadDTO dto : chunkDtos) {
+            if (!existingIndices.add(dto.chunkIndex())) {
+                continue;
+            }
+
+            PaperChunk chunk = new PaperChunk();
+            chunk.setPaper(paper);
+            chunk.setContent(dto.content());
+            chunk.setPageNumber(dto.pageNumber());
+            chunk.setChunkIndex(dto.chunkIndex());
+            chunk.setEmbeddings(dto.embeddingFloatArray());
+            chunk.setCreatedAt(Instant.now());
+            toSave.add(chunk);
+        }
+
+        return paperChunkRepository.saveAll(toSave);
     }
 
     public List<PaperChunk> getChunksByPaperId(UUID paperId) {
