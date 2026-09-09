@@ -155,9 +155,8 @@ public class GlobalPaperService {
 
     }
 
-    public List<GlobalPaperDTO> sematicSearchOnPaper(String query, int limit, double threshold) {
+    public List<GlobalPaperDTO> sematicSearchOnPaper(float[] queryEmbedding, int limit, double threshold) {
 
-        float[] queryEmbedding = embeddingServiceClient.getEmbedding(query);
         PGvector queryVector = new PGvector(queryEmbedding);
         log.info("query embeddings" + queryVector.toString());
         List<GlobalPaper> papers = globalPaperRepository.semanticSearch(queryVector.toString(), limit, threshold);

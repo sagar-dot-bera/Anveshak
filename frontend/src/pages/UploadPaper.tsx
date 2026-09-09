@@ -18,7 +18,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { createPaper } from '@/api/papersApi';
+import { runClientSidePaperUpload, type UploadProgressState } from '@/lib/embedding/uploadPipeline';
 import { useUploadContext } from '@/lib/uploadContext';
 import {
   mockLanguages,
@@ -219,38 +219,45 @@ export default function UploadPaper() {
 
     setIsUploading(true);
     setUploadProgress(5);
-    setAnalysisSteps([
-      { ...analysisSteps[0], status: 'in-progress' },
-      { ...analysisSteps[1], status: 'waiting' },
-      { ...analysisSteps[2], status: 'waiting' },
+    setAnalysisSteps((prev) => [
+      { ...prev[0], status: 'in-progress' },
+      { ...prev[1], status: 'waiting' },
+      { ...prev[2], status: 'waiting' },
     ]);
 
-    // Progress simulation interval
-    const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        const nextVal = prev + Math.floor(Math.random() * 8) + 2;
-
-        // Update steps status based on progress simulation
-        setAnalysisSteps((prevSteps) => {
-          const stepsCopy = [...prevSteps];
-          if (nextVal >= 30 && nextVal < 70) {
-            stepsCopy[0].status = 'completed';
-            stepsCopy[1].status = 'in-progress';
-          } else if (nextVal >= 70) {
-            stepsCopy[0].status = 'completed';
-            stepsCopy[1].status = 'completed';
-            stepsCopy[2].status = 'in-progress';
-          }
-          return stepsCopy;
-        });
-
-        return nextVal;
-      });
-    }, 400);
+    // Drives the same three-step UI as before, but from the real client-side
+    // pipeline (PDF extraction -> in-browser embedding -> AI summary) instead
+    // of a simulated timer.
+    const handlePipelineProgress = (progressState: UploadProgressState) => {
+      if (progressState.stage === 'extracting') {
+        const pct = progressState.pagesTotal > 0
+          ? (progressState.pagesProcessed / progressState.pagesTotal) * 30
+          : 5;
+        setUploadProgress(Math.max(5, Math.round(pct)));
+        setAnalysisSteps((prev) => [
+          { ...prev[0], status: 'in-progress' },
+          { ...prev[1], status: 'waiting' },
+          { ...prev[2], status: 'waiting' },
+        ]);
+      } else if (progressState.stage === 'embedding') {
+        const pct = progressState.chunksTotal > 0
+          ? 30 + (progressState.chunksProcessed / progressState.chunksTotal) * 60
+          : 30;
+        setUploadProgress(Math.round(pct));
+        setAnalysisSteps((prev) => [
+          { ...prev[0], status: 'completed' },
+          { ...prev[1], status: 'in-progress' },
+          { ...prev[2], status: 'waiting' },
+        ]);
+      } else if (progressState.stage === 'finalizing') {
+        setUploadProgress(95);
+        setAnalysisSteps((prev) => [
+          { ...prev[0], status: 'completed' },
+          { ...prev[1], status: 'completed' },
+          { ...prev[2], status: 'in-progress' },
+        ]);
+      }
+    };
 
     try {
       const parsedYear = Number(data.year) || new Date().getFullYear();
@@ -266,14 +273,13 @@ export default function UploadPaper() {
         keywords: keywords.length > 0 ? keywords : ['Research'],
       };
 
-      await createPaper(paperPayload, selectedFile);
+      await runClientSidePaperUpload(paperPayload, selectedFile, handlePipelineProgress);
 
-      clearInterval(progressInterval);
       setUploadProgress(100);
-      setAnalysisSteps([
-        { ...analysisSteps[0], status: 'completed' },
-        { ...analysisSteps[1], status: 'completed' },
-        { ...analysisSteps[2], status: 'completed' },
+      setAnalysisSteps((prev) => [
+        { ...prev[0], status: 'completed' },
+        { ...prev[1], status: 'completed' },
+        { ...prev[2], status: 'completed' },
       ]);
 
       toast.success('Paper uploaded and analyzed successfully!', {
@@ -291,13 +297,12 @@ export default function UploadPaper() {
         }
       }, 1000);
     } catch (err: any) {
-      clearInterval(progressInterval);
       setIsUploading(false);
       setUploadProgress(0);
-      setAnalysisSteps([
-        { ...analysisSteps[0], status: 'waiting' },
-        { ...analysisSteps[1], status: 'waiting' },
-        { ...analysisSteps[2], status: 'waiting' },
+      setAnalysisSteps((prev) => [
+        { ...prev[0], status: 'waiting' },
+        { ...prev[1], status: 'waiting' },
+        { ...prev[2], status: 'waiting' },
       ]);
       const errMsg = err.response?.data?.msg || err.response?.data?.error || 'Failed to analyze the paper.';
       toast.error('Upload failed', {

@@ -112,6 +112,30 @@ export interface UpdatePaperRequest {
   keywords?: string[];
 }
 
+// ── Client-embedded paper upload ────────────────────────────
+// content + a base64-encoded little-endian float32[384] embedding, computed
+// in-browser via ONNX Runtime Web (see src/lib/embedding).
+export interface PaperChunkUpload {
+  content: string;
+  pageNumber: number;
+  chunkIndex: number;
+  embedding: string;
+}
+
+// ── Client-embedded semantic search ─────────────────────────
+// Same base64 float32[384] wire format as PaperChunkUpload's embedding,
+// computed from the search box text via src/lib/embedding/embedQuery.
+export interface LocalPaperSearchRequest {
+  embedding: string;
+  threshold: number;
+}
+
+export interface GlobalPaperSearchRequest {
+  embedding: string;
+  limit: number;
+  threshold: number;
+}
+
 // ── Collections ─────────────────────────────────────────────
 export interface ResearchCollectionResponse {
   id: string;
@@ -132,7 +156,7 @@ export interface UpdateCollectionRequest {
 export interface ChatSessionResponse {
   sessionId: string;
   paperId: string;
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface NewChatSessionRequest {
@@ -143,6 +167,10 @@ export interface ChatMessageRequest {
   message: string;
   sessionId: string;
   role: string;
+  // Base64 float32[384] embedding of `message`, computed in-browser (see
+  // src/lib/embedding/embedQuery) so the backend never needs a text-in
+  // embedding call for chat.
+  embedding: string;
 }
 
 export interface ChatMessageResponse {
