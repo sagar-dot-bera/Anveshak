@@ -105,17 +105,20 @@ export default function SignUp() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f7f9fb] p-4 md:p-8 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-50/40 via-[#f7f9fb] to-indigo-50/30">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-aurora p-4 md:p-8 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -left-24 w-[30rem] h-[30rem] rounded-full bg-violet-400/35 blur-[100px] animate-float-slow" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 w-[30rem] h-[30rem] rounded-full bg-pink-400/35 blur-[100px] animate-float" />
+      <div className="pointer-events-none absolute top-1/3 right-1/4 w-72 h-72 rounded-full bg-orange-300/30 blur-[90px] animate-float-slow" />
       
       {/* Centered Logo & Brand Headers */}
-      <div className="text-center space-y-2 max-w-sm">
+      <div className="relative text-center space-y-2 max-w-sm">
         <img 
           src={logo} 
           alt="Anveshak Logo" 
-          className="w-10 h-10 object-contain mx-auto" 
+          className="w-14 h-14 p-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 object-contain mx-auto -rotate-6 shadow-[0_12px_28px_-8px_rgba(99,102,241,0.8)]" 
         />
-        <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 tracking-tight leading-none pt-2">
-          Create your account
+        <h1 className="font-hanken font-extrabold text-3xl md:text-4xl text-slate-900 tracking-tight leading-none pt-3">
+          Create your <span className="text-prism">account</span>
         </h1>
         <p className="font-inter text-sm text-slate-500">
           Your second brain for academic excellence.
@@ -123,7 +126,7 @@ export default function SignUp() {
       </div>
 
       {/* Main SignUp Card */}
-      <div className="w-full max-w-[460px] bg-white rounded-xl shadow-[0_12px_45px_-15px_rgba(0,0,0,0.06)] border border-slate-100 p-8 md:p-10 mt-8">
+      <div className="w-full max-w-[460px] relative bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-[0_40px_80px_-40px_rgba(124,58,237,0.55)] border border-white p-8 md:p-10 mt-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-left">
           
           {/* Full Name */}
@@ -132,13 +135,13 @@ export default function SignUp() {
               Full Name
             </label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
               <input
                 type="text"
                 placeholder="Dr. Sarah Chen"
-                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border ${
-                  errors.fullName ? 'border-error-red focus:ring-error-red/20' : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                className={`w-full pl-10 pr-4 py-3 bg-violet-50/40 border-2 ${
+                  errors.fullName ? 'border-error-red focus:ring-error-red/20' : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                 {...register('fullName')}
               />
             </div>
@@ -153,13 +156,13 @@ export default function SignUp() {
               Academic/Work Email
             </label>
             <div className="relative">
-              <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
               <input
                 type="email"
                 placeholder="s.chen@university.edu"
-                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border ${
-                  errors.email ? 'border-error-red focus:ring-error-red/20' : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                className={`w-full pl-10 pr-4 py-3 bg-violet-50/40 border-2 ${
+                  errors.email ? 'border-error-red focus:ring-error-red/20' : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                 {...register('email')}
               />
             </div>
@@ -174,13 +177,13 @@ export default function SignUp() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className={`w-full pl-10 pr-10 py-2.5 bg-slate-50/70 border ${
-                  errors.password ? 'border-error-red focus:ring-error-red/20' : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                className={`w-full pl-10 pr-10 py-3 bg-violet-50/40 border-2 ${
+                  errors.password ? 'border-error-red focus:ring-error-red/20' : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                 {...register('password')}
               />
               <button
@@ -204,7 +207,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-deep-indigo hover:bg-primary text-white py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none mt-2"
+            className="w-full bg-deep-indigo hover:bg-primary text-white py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none mt-2"
           >
             <span>{isLoading ? 'Joining...' : 'Join Anveshak'}</span>
             {!isLoading && <ArrowRight className="w-4 h-4" />}
@@ -225,7 +228,7 @@ export default function SignUp() {
           <button
             type="button"
             onClick={() => googleOAuthSignUp()}
-            className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+            className="w-full flex items-center justify-center space-x-2 py-3 px-4 border-2 border-violet-100 hover:border-pink-200 rounded-full bg-white hover:bg-pink-50/40 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
           >
             {/* Google Icon SVG */}
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -262,32 +265,6 @@ export default function SignUp() {
           >
             Log in
           </Link>
-        </p>
-        
-        <p className="font-mono text-[10px] md:text-[11px] text-slate-400 leading-normal">
-          By creating an account, you agree to Anveshak's{' '}
-          <a
-            href="#terms"
-            onClick={(e) => {
-              e.preventDefault();
-              toast.info('Terms of Service dialog not implemented.');
-            }}
-            className="underline hover:text-slate-600 transition-colors"
-          >
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a
-            href="#privacy"
-            onClick={(e) => {
-              e.preventDefault();
-              toast.info('Privacy Policy dialog not implemented.');
-            }}
-            className="underline hover:text-slate-600 transition-colors"
-          >
-            Privacy Policy
-          </a>
-          . We prioritize data privacy for all researchers.
         </p>
       </div>
 

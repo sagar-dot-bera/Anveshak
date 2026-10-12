@@ -71,9 +71,9 @@ export default function ComparePapers() {
 
   if (isPapersLoading) {
     return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center bg-[#f7f9fb]">
+      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-deep-indigo border-t-transparent" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-500 border-r-pink-500 border-b-orange-400 border-t-transparent" />
           <p className="font-inter text-sm text-slate-500 font-medium">Loading papers for comparison...</p>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function ComparePapers() {
               <ChevronRight className="w-3 h-3" />
               <span className="text-slate-500 font-medium">Comparison Results</span>
             </nav>
-            <h1 className="font-hanken font-bold text-2xl text-slate-900 mt-1 leading-none">
+            <h1 className="font-hanken font-extrabold text-2xl tracking-tight bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent mt-1 leading-none">
               Compare Papers
             </h1>
           </div>
@@ -134,7 +134,7 @@ export default function ComparePapers() {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-100 rounded-xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-white/90 border border-white rounded-3xl shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px] border-collapse">
               <thead>
@@ -179,7 +179,7 @@ export default function ComparePapers() {
 
   // ── Render Paper Selection View ────────────────────────
   return (
-    <div className="px-6 md:px-8 pt-6 pb-20 max-w-[1440px] space-y-6 mx-auto h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <div className="px-6 md:px-8 pt-6 pb-20 max-w-[1440px] space-y-6 mx-auto h-full overflow-y-auto">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <nav className="flex items-center gap-1.5 text-xs font-inter text-slate-400">
@@ -189,7 +189,7 @@ export default function ComparePapers() {
             <ChevronRight className="w-3 h-3" />
             <span className="text-slate-500 font-medium">Compare Papers</span>
           </nav>
-          <h1 className="font-hanken font-bold text-2xl text-slate-900 mt-1 leading-none">
+          <h1 className="font-hanken font-extrabold text-2xl tracking-tight bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent mt-1 leading-none">
             Compare Papers
           </h1>
           <p className="font-inter text-sm text-slate-500 mt-2">

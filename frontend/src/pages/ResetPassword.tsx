@@ -54,10 +54,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f7f9fb] p-4 md:p-8 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-50/40 via-[#f7f9fb] to-indigo-50/30">
-      <div className="w-full max-w-[440px] bg-white rounded-xl shadow-[0_12px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden p-8 md:p-10 flex flex-col items-center text-center space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-aurora p-4 md:p-8 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -left-24 w-[30rem] h-[30rem] rounded-full bg-violet-400/35 blur-[100px] animate-float-slow" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 w-[30rem] h-[30rem] rounded-full bg-pink-400/35 blur-[100px] animate-float" />
+      <div className="pointer-events-none absolute top-1/3 right-1/4 w-72 h-72 rounded-full bg-orange-300/30 blur-[90px] animate-float-slow" />
+      <div className="w-full max-w-[440px] relative bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-[0_40px_80px_-40px_rgba(124,58,237,0.55)] border border-white overflow-hidden p-8 md:p-10 flex flex-col items-center text-center space-y-6">
         <div className="flex items-center space-x-3">
-          <img src={logo} alt="Anveshak Logo" className="w-7 h-7 rounded-md object-cover shadow-sm" />
+          <img src={logo} alt="Anveshak Logo" className="w-9 h-9 p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 object-contain" />
           <span className="font-hanken font-bold text-lg tracking-wide text-slate-900">Anveshak</span>
         </div>
 
@@ -72,7 +75,7 @@ export default function ResetPassword() {
             </div>
             <Link
               to="/login"
-              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center"
+              className="w-full bg-violet-50 hover:bg-violet-100 text-violet-700 py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center"
             >
               Back to Sign In
             </Link>
@@ -89,7 +92,7 @@ export default function ResetPassword() {
             </div>
             <button
               onClick={() => navigate('/login', { replace: true })}
-              className="w-full bg-deep-indigo hover:bg-primary text-white py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow active:scale-[0.98]"
+              className="w-full bg-deep-indigo hover:bg-primary text-white py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow active:scale-[0.98]"
             >
               Go to Sign In
             </button>
@@ -109,15 +112,15 @@ export default function ResetPassword() {
                   New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className={`w-full pl-10 pr-10 py-2.5 bg-slate-50/70 border ${
+                    className={`w-full pl-10 pr-10 py-3 bg-violet-50/40 border-2 ${
                       errors.newPassword
                         ? 'border-error-red focus:ring-error-red/20'
-                        : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                    } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                        : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                    } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                     {...register('newPassword')}
                   />
                   <button
@@ -138,15 +141,15 @@ export default function ResetPassword() {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className={`w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border ${
+                    className={`w-full pl-10 pr-4 py-3 bg-violet-50/40 border-2 ${
                       errors.confirmPassword
                         ? 'border-error-red focus:ring-error-red/20'
-                        : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                    } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                        : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                    } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                     {...register('confirmPassword')}
                   />
                 </div>
@@ -158,7 +161,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-deep-indigo hover:bg-primary text-white py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none"
+                className="w-full bg-deep-indigo hover:bg-primary text-white py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none"
               >
                 <span>{isLoading ? 'Resetting...' : 'Reset Password'}</span>
                 {!isLoading && <ArrowRight className="w-4 h-4" />}

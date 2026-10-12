@@ -3,6 +3,7 @@ package com.anveshak;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.InetAddress;
@@ -17,10 +18,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.anveshak.DTOs.AuthResponse;
 import com.anveshak.DTOs.LoginRequest;
+import com.anveshak.model.RefreshToken;
 import com.anveshak.model.User;
 import com.anveshak.model.UserIdentity;
 import com.anveshak.service.AuthMailService;
 import com.anveshak.service.AuthService;
+import com.anveshak.service.DemoAuthService;
 import com.anveshak.service.AuthTokenService;
 import com.anveshak.service.GoogleTokenVerifier;
 import com.anveshak.service.JwtService;
@@ -52,6 +55,9 @@ public class AuthServiceTest {
     @Mock
     GoogleTokenVerifier googleTokenVerifier;
 
+    @Mock
+    DemoAuthService demoAuthService;
+
     @InjectMocks
     AuthService authService;
 
@@ -76,4 +82,20 @@ public class AuthServiceTest {
 
     }
 
+
+    @Test
+    void refreshForDemoUserIssuesDemoTokens() throws Exception {
+        User demoUser = new User();
+        demoUser.setEmail("demo@anveshak.test");
+        RefreshToken stored = new RefreshToken();
+        stored.setUser(demoUser);
+        InetAddress client = InetAddress.getLoopbackAddress();
+        AuthResponse demoTokens = new AuthResponse("demo-access", "demo-refresh");
+        when(refreshTokenService.revokeRefreshToken("old")).thenReturn(stored);
+        when(demoAuthService.isDemoUser(demoUser)).thenReturn(true);
+        when(demoAuthService.issueDemoTokens(demoUser, client, "chrome")).thenReturn(demoTokens);
+
+        assertEquals(demoTokens, authService.refreshTokens("old", client, "chrome"));
+        verifyNoInteractions(jwtService);
+    }
 }

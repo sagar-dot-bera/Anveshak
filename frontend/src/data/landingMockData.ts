@@ -133,4 +133,3 @@ export const landingRigorRoadmap = {
   },
 };
 
-export const landingFooterLinks = ['Privacy Policy', 'Terms of Service', 'Research Ethics', 'Contact Support'];

@@ -125,7 +125,7 @@ export default function SemanticSearch() {
       
       {/* ── Page Header ─────────────────────────────────────── */}
       <div className="text-center space-y-2">
-        <h1 className="font-hanken font-bold text-3xl md:text-4xl text-slate-900 tracking-tight leading-none">
+        <h1 className="font-hanken font-extrabold text-3xl md:text-4xl tracking-tight bg-gradient-to-r from-cyan-500 via-sky-500 to-violet-500 bg-clip-text text-transparent tracking-tight leading-none">
           Semantic Search
         </h1>
         <p className="font-inter text-slate-500 text-sm max-w-lg mx-auto">
@@ -156,7 +156,7 @@ export default function SemanticSearch() {
         </div>
 
         {/* Filters & Parameters Row */}
-        <div className="bg-white border border-slate-100 rounded-xl px-5 py-4 flex flex-wrap items-center justify-between gap-6 shadow-[0_1px_4px_rgba(0,0,0,0.02)] select-none">
+        <div className="bg-white/90 border border-white rounded-3xl px-5 py-4 flex flex-wrap items-center justify-between gap-6 shadow-[0_1px_4px_rgba(0,0,0,0.02)] select-none">
           
           {/* Similarity Threshold Slider */}
           <div className="flex items-center gap-4 flex-1 min-w-[240px]">
@@ -261,7 +261,7 @@ export default function SemanticSearch() {
                 (results.data as ResearchPaperResponse[]).map((res) => (
                   <div
                     key={res.id}
-                    className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md transition-shadow flex flex-col gap-3 cursor-pointer group"
+                    className="bg-white/90 border border-white rounded-3xl p-5 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] hover:shadow-md transition-shadow flex flex-col gap-3 cursor-pointer group"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
@@ -305,7 +305,7 @@ export default function SemanticSearch() {
                   return (
                     <div
                       key={res.paperId}
-                      className="relative bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md hover:border-blue-200/60 transition-all flex flex-col gap-3 group overflow-hidden before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-blue-500"
+                      className="relative bg-white/90 border border-white rounded-3xl p-5 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] hover:shadow-md hover:border-blue-200/60 transition-all flex flex-col gap-3 group overflow-hidden before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-blue-500"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-3">
@@ -472,7 +472,7 @@ export default function SemanticSearch() {
                 })
               )
             ) : (
-              <div className="bg-white border border-slate-100 rounded-xl p-10 text-center text-slate-400">
+              <div className="bg-white/90 border border-white rounded-3xl p-10 text-center text-slate-400">
                 <p className="font-inter text-sm">
                   {results.type === 'Library'
                     ? 'No conceptual matches found in library.'
@@ -493,12 +493,6 @@ export default function SemanticSearch() {
               Trending Research Topics
             </h2>
           </div>
-          <button
-            onClick={() => toast.info('View all semantic clusters — coming soon.')}
-            className="font-inter text-xs font-semibold text-vibrant-blue hover:text-primary transition-colors"
-          >
-            View all clusters
-          </button>
         </div>
 
         {/* Card Grid */}
@@ -510,7 +504,7 @@ export default function SemanticSearch() {
               <div
                 key={topic.id}
                 onClick={() => handleTopicClick(topic.title)}
-                className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md hover:border-indigo-200/50 transition-all cursor-pointer flex flex-col justify-between min-h-[190px] group"
+                className="bg-white/90 border border-white rounded-3xl p-5 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] hover:shadow-md hover:border-indigo-200/50 transition-all cursor-pointer flex flex-col justify-between min-h-[190px] group"
               >
                 <div className="space-y-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg}`}>

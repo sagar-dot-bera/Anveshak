@@ -1,0 +1,312 @@
+/* Cel Sunset: the materials of the public and auth pages, plus the grain that
+   sits over the whole product. Hard-edged bands and flat cel shadows are the
+   world's own shading, not decoration: a 90s background painter had no blur. */
+
+:root {
+  /* Film grain: monochrome specks, blended so they pick up the colour beneath. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Softer, alpha-only specks for the reading surfaces of the workspace. */
+  --grain-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .13 0 0 0 0 .07 0 0 0 0 .17 0 0 0 -.16 .12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --cel-line: 2px solid var(--color-night);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ------------------------------------------------------------------ world */
+
+.cel-world {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-night);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  caret-color: var(--color-butter);
+  scrollbar-color: var(--color-plum) var(--color-night);
+}
+
+/* Grain prints over everything on the page, colour and type alike. */
+.cel-world::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 240px 240px;
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+
+/* The workspace gets a finer, quieter grain on its ground only; cards stay clean for reading. */
+.workspace-grain {
+  background-image: var(--grain-soft);
+  background-size: 200px 200px;
+  background-attachment: local;
+}
+
+/* Page titles in the workspace are lettered like title cards, with the low sun behind them. */
+.workspace h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: -0.005em;
+  text-shadow: 0.04em 0.05em 0 var(--color-butter);
+}
+
+.workspace .prose h1,
+.workspace [data-markdown] h1 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.cel-world ::selection {
+  background: var(--color-butter);
+  color: var(--color-night);
+}
+
+.cel-world :focus-visible {
+  outline: 2px solid var(--color-butter);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.cel-world a {
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+
+/* The sky, painted in flat bands and anchored to the horizon at the bottom. */
+.sky-bands {
+  background-color: var(--color-night);
+  background-image: linear-gradient(
+    to top,
+    var(--color-night) 0 2.5rem,
+    var(--color-butter) 2.5rem 4.75rem,
+    var(--color-apricot) 4.75rem 7.25rem,
+    var(--color-tangerine) 7.25rem 10.25rem,
+    #f2627a 10.25rem 13.5rem,
+    var(--color-magenta) 13.5rem 17rem,
+    #a83382 17rem 21rem,
+    var(--color-plum) 21rem 25.5rem,
+    var(--color-dusk-raised) 25.5rem 31rem,
+    var(--color-dusk) 31rem 38rem,
+    #2a1548 38rem 46rem,
+    var(--color-night) 46rem
+  );
+}
+
+/* A shorter sky for the auth pages and the sidebar: the horizon sits at the bottom edge. */
+.sky-bands--short {
+  background-color: var(--color-night);
+  background-image: linear-gradient(
+    to top,
+    var(--color-butter) 0 1.75rem,
+    var(--color-apricot) 1.75rem 3.5rem,
+    var(--color-tangerine) 3.5rem 5.75rem,
+    var(--color-magenta) 5.75rem 8.5rem,
+    #a83382 8.5rem 11.5rem,
+    var(--color-plum) 11.5rem 15rem,
+    var(--color-dusk-raised) 15rem 19.5rem,
+    var(--color-dusk) 19.5rem 26rem,
+    #2a1548 26rem 34rem,
+    var(--color-night) 34rem
+  );
+}
+
+/* --------------------------------------------------------------- lettering */
+
+/* Title-card lettering: heavy, cream, with a flat magenta cel shadow. */
+.title-card {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+  color: var(--color-cream);
+  letter-spacing: -0.01em;
+  text-shadow: 0.045em 0.055em 0 var(--color-magenta);
+}
+
+.title-card--teal {
+  text-shadow: 0.045em 0.055em 0 var(--color-teal);
+}
+
+.title-card--ink {
+  color: var(--color-night);
+  text-shadow: 0.045em 0.055em 0 var(--color-butter);
+}
+
+/* A fansub subtitle: yellow, outlined in night so it reads over any band. */
+.fansub {
+  font-family: var(--font-body);
+  font-weight: 800;
+  color: #ffe45c;
+  letter-spacing: 0.005em;
+  /* An eight-way outline: survives every renderer, unlike text-stroke on HTML text. */
+  text-shadow:
+    0.07em 0 0 var(--color-night), -0.07em 0 0 var(--color-night),
+    0 0.07em 0 var(--color-night), 0 -0.07em 0 var(--color-night),
+    0.05em 0.05em 0 var(--color-night), -0.05em 0.05em 0 var(--color-night),
+    0.05em -0.05em 0 var(--color-night), -0.05em -0.05em 0 var(--color-night);
+}
+
+/* -------------------------------------------------------------- cel stock */
+
+/* The dialogue panel the answer is spoken in. */
+.cel-panel {
+  position: relative;
+  background: var(--color-night);
+  border: 2px solid var(--color-cream);
+  border-radius: 14px;
+  box-shadow: 7px 8px 0 var(--color-teal);
+}
+
+/* Speaker nameplate tab on a panel's top edge. */
+.nameplate {
+  position: absolute;
+  top: 0;
+  left: 1.25rem;
+  transform: translateY(-55%);
+  padding: 0.15rem 0.8rem 0.2rem;
+  background: var(--color-butter);
+  color: var(--color-night);
+  border: 2px solid var(--color-night);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+/* A printed page, laid in as a cel: white stock, night line, flat teal shadow. */
+.cel-page {
+  position: relative;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: var(--cel-line);
+  border-radius: 8px;
+  box-shadow: 7px 8px 0 var(--color-teal);
+}
+
+.cel-strip {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: var(--cel-line);
+  border-radius: 8px;
+  box-shadow: 7px 8px 0 var(--color-teal);
+}
+
+/* The form card on the auth pages. */
+.cel-card {
+  position: relative;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border: var(--cel-line);
+  border-radius: 18px;
+  box-shadow: 7px 8px 0 var(--color-teal);
+}
+
+.cel-card ::selection {
+  background: var(--color-butter);
+  color: var(--color-ink);
+}
+
+.cel-card :focus-visible {
+  outline-color: var(--color-magenta);
+}
+
+/* ------------------------------------------------------------------ motion */
+
+.cite-stroke {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cite-stroke--draw {
+  stroke-dasharray: var(--stroke-length);
+  stroke-dashoffset: var(--stroke-length);
+  animation: cite-draw var(--stroke-duration, 900ms) var(--ease-out) var(--stroke-delay, 0ms) forwards;
+}
+
+@keyframes cite-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Subtitle words come up one after another, the way a fansub line fades in. */
+.sub-word {
+  opacity: 0;
+  animation: sub-word 380ms var(--ease-out) forwards;
+}
+
+@keyframes sub-word {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* Moving between auth steps: the card pans in like a cel slid under the camera. */
+.cel-pan {
+  animation: cel-pan 620ms var(--ease-out);
+}
+
+@keyframes cel-pan {
+  from {
+    transform: translateX(2.5rem) rotate(1.5deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.blink {
+  animation: blink 1.3s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* The sun sinks a little on load, then holds. */
+.sun-set {
+  animation: sun-set 2.4s var(--ease-out) both;
+}
+
+@keyframes sun-set {
+  from {
+    transform: translateY(-14%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cite-stroke--draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .sub-word {
+    animation: none;
+    opacity: 1;
+  }
+
+  .cel-pan,
+  .blink,
+  .sun-set {
+    animation: none;
+  }
+}

@@ -20,10 +20,10 @@ import { getAllRoadmaps } from '@/api/roadmapApi';
 
 // Quick Action button data
 const quickActions = [
-  { label: 'Upload', icon: Upload, path: '/upload' },
-  { label: 'Chat', icon: MessageSquare, path: '/talk-to-paper' },
-  { label: 'Compare', icon: GitCompare, path: '/compare' },
-  { label: 'Analyze', icon: Sparkles, path: '/semantic-search' },
+  { label: 'Upload', icon: Upload, path: '/upload', tint: 'from-indigo-500 to-violet-500' },
+  { label: 'Chat', icon: MessageSquare, path: '/talk-to-paper', tint: 'from-emerald-500 to-teal-400' },
+  { label: 'Compare', icon: GitCompare, path: '/compare', tint: 'from-violet-500 to-purple-600' },
+  { label: 'Analyze', icon: Sparkles, path: '/semantic-search', tint: 'from-cyan-500 to-sky-500' },
 ];
 
 // Helper to format relative time
@@ -80,9 +80,9 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center bg-[#f7f9fb]">
+      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-deep-indigo border-t-transparent" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500 border-r-violet-500 border-b-violet-300 border-t-transparent" />
           <p className="font-inter text-sm text-slate-500 font-medium">Loading research space...</p>
         </div>
       </div>
@@ -139,104 +139,125 @@ export default function Dashboard() {
     .slice(0, 5);
 
   return (
-    <div className="p-6 md:p-8 max-w-[1440px] space-y-6">
+    <div className="p-6 md:p-8 max-w-[1440px] space-y-7">
 
-      {/* ── Greeting Row ─────────────────────────────────── */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 leading-none">
-            {getGreeting()}, {userName}
-          </h1>
-          <p className="font-inter text-sm text-slate-500 mt-1.5">
-            Continue where you left off in{' '}
-            <Link to="/my-papers" className="text-vibrant-blue hover:text-primary font-medium transition-colors">
-              {continuingProjectName}.
-            </Link>
-          </p>
-        </div>
+      {/* ── Greeting Hero ─────────────────────────────────── */}
+      <section className="relative overflow-hidden rounded-[2rem] bg-[#141433] text-white px-7 py-8 md:px-10 md:py-10">
+        <div className="pointer-events-none absolute -top-24 -left-16 w-80 h-80 rounded-full bg-indigo-600/45 blur-3xl animate-float-slow" />
+        <div className="pointer-events-none absolute -bottom-28 left-1/3 w-96 h-72 rounded-full bg-violet-600/30 blur-3xl animate-float" />
+        <div className="pointer-events-none absolute -top-10 -right-10 w-72 h-72 rounded-full bg-sky-500/20 blur-3xl animate-float-slow" />
+        <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:radial-gradient(rgba(255,255,255,0.25)_1px,transparent_1px)] [background-size:22px_22px]" />
 
-        {/* Active Stats Pill */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-100 font-inter text-xs text-deep-indigo font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{papers?.length || 0} Saved Papers</span>
+        <div className="relative flex items-end justify-between flex-wrap gap-6">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/12 border border-white/15 font-mono text-[10px] font-semibold tracking-[0.2em] uppercase text-white/85">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              {papers?.length || 0} papers in your library
+            </span>
+            <h1 className="font-hanken font-extrabold text-3xl md:text-5xl leading-[1.05] mt-4">
+              {getGreeting()},{' '}
+              <span className="bg-gradient-to-r from-indigo-200 via-violet-200 to-sky-200 bg-clip-text text-transparent">
+                {userName}
+              </span>
+            </h1>
+            <p className="font-inter text-sm md:text-base text-white/70 mt-3">
+              Continue where you left off in{' '}
+              <Link to="/my-papers" className="font-bold text-white underline decoration-indigo-300 decoration-2 underline-offset-4 hover:decoration-sky-300 transition-colors">
+                {continuingProjectName}
+              </Link>
+              .
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {quickActions.map(({ label, icon: Icon, path, tint }) => (
+              <Link
+                key={label}
+                to={path}
+                className="group flex items-center gap-2 pl-1.5 pr-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur transition-all hover:-translate-y-0.5"
+              >
+                <span className={`w-8 h-8 rounded-full bg-gradient-to-br ${tint} flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform`}>
+                  <Icon className="w-4 h-4 text-white" />
+                </span>
+                <span className="font-inter text-sm font-bold text-white">{label}</span>
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Real Stat Cards ────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── Stat Cards ────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
+          tone="indigo"
           icon={<FileText className="w-5 h-5" />}
           label="Total Papers"
           value={(papers?.length || 0).toString()}
-          badge={
-            <Link to="/my-papers" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
-              Manage Library
-            </Link>
-          }
+          badge={<Link to="/my-papers">Manage →</Link>}
         />
         <StatCard
+          tone="violet"
           icon={<MessageSquare className="w-5 h-5" />}
           label="AI Conversations"
           value={(chatSessions?.length || 0).toString()}
-          badge={
-            <Link to="/talk-to-paper" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
-              Open Chat
-            </Link>
-          }
+          badge={<Link to="/talk-to-paper">Open chat →</Link>}
         />
         <StatCard
+          tone="sky"
           icon={<BookOpen className="w-5 h-5" />}
           label="Lit Reviews"
           value={(collections?.length || 0).toString()}
-          badge={
-            <Link to="/literature-reviews" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
-              Synthesize
-            </Link>
-          }
+          badge={<Link to="/literature-reviews">Synthesize →</Link>}
         />
         <StatCard
+          tone="teal"
           icon={<Map className="w-5 h-5" />}
           label="Roadmaps"
           value={(roadmaps?.length || 0).toString()}
-          badge={
-            <Link to="/research-roadmaps" className="text-vibrant-blue hover:underline text-[10px] font-semibold">
-              Generate
-            </Link>
-          }
+          badge={<Link to="/research-roadmaps">Generate →</Link>}
         />
       </div>
 
       {/* ── Main Two-Column Row ───────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
 
         {/* LEFT: Recently Uploaded Papers */}
-        <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
+        <div className="bg-white/85 backdrop-blur border border-white rounded-[1.75rem] p-6 shadow-[0_20px_50px_-32px_rgba(79,70,229,0.35)]">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-hanken font-semibold text-base text-slate-900">
-              Recently Uploaded Papers
-            </h2>
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(79,70,229,0.8)]">
+                <FileText className="w-5 h-5" />
+              </span>
+              <div>
+                <h2 className="font-hanken font-bold text-lg text-slate-900 leading-tight">
+                  Recently Uploaded
+                </h2>
+                <p className="font-inter text-xs text-slate-500">Your newest additions, ready to explore</p>
+              </div>
+            </div>
             <Link
               to="/my-papers"
-              className="font-inter text-xs font-semibold text-vibrant-blue hover:text-primary transition-colors"
+              className="font-inter text-xs font-bold px-3.5 py-2 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
             >
-              View Library
+              View Library →
             </Link>
           </div>
 
-          <div className="space-y-0 divide-y divide-slate-50">
+          <div className="space-y-0">
             {recentPapers.length > 0 ? (
               recentPapers.map((paper) => (
                 <PaperListItem key={paper.id} paper={paper} />
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <FileText className="w-8 h-8 text-slate-300 mb-2" />
-                <p className="font-inter text-sm text-slate-400">No papers uploaded yet.</p>
+              <div className="flex flex-col items-center justify-center py-12 text-center rounded-3xl bg-gradient-to-br from-indigo-50 to-violet-50 border-2 border-dashed border-indigo-200">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white flex items-center justify-center mb-3 rotate-[-6deg] shadow-lg">
+                  <FileText className="w-7 h-7" />
+                </div>
+                <p className="font-hanken font-bold text-base text-slate-800">Your library is waiting</p>
+                <p className="font-inter text-sm text-slate-500 mt-1">Drop in your first paper to get started.</p>
                 <Link
                   to="/upload"
-                  className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-deep-indigo hover:bg-primary text-white font-inter font-medium text-xs transition-all shadow-sm"
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-deep-indigo text-white font-inter font-bold text-xs transition-all"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   Upload First Paper
@@ -246,50 +267,30 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* RIGHT: Quick Actions + Real Recent Activity */}
-        <div className="flex flex-col gap-5">
-
-          {/* Quick Actions */}
-          <div className="bg-deep-indigo rounded-xl p-5 shadow-[0_4px_20px_-4px_rgba(49,46,129,0.4)]">
-            <h2 className="font-hanken font-semibold text-sm text-white/90 mb-4">
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {quickActions.map(({ label, icon: Icon, path }) => (
-                <Link
-                  key={label}
-                  to={path}
-                  className="flex flex-col items-center justify-center gap-2 py-4 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/25 transition-all cursor-pointer group"
-                >
-                  <Icon className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
-                  <span className="font-inter text-xs font-medium text-white/80 group-hover:text-white transition-colors">
-                    {label}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Dynamic Recent Activity */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5 flex-1 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-hanken font-semibold text-sm text-slate-900">
+        {/* RIGHT: Recent Activity */}
+        <div className="bg-white/85 backdrop-blur border border-white rounded-[1.75rem] p-6 shadow-[0_20px_50px_-32px_rgba(79,70,229,0.35)]">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(245,158,11,0.7)]">
+              <Sparkles className="w-5 h-5" />
+            </span>
+            <div>
+              <h2 className="font-hanken font-bold text-lg text-slate-900 leading-tight">
                 Recent Activity
               </h2>
-            </div>
-            <div className="space-y-0 divide-y divide-slate-50">
-              {sortedActivities.length > 0 ? (
-                sortedActivities.map((item) => (
-                  <ActivityItem key={item.id} item={item} />
-                ))
-              ) : (
-                <div className="py-6 text-center text-slate-400 font-inter text-xs">
-                  No recent research activities yet.
-                </div>
-              )}
+              <p className="font-inter text-xs text-slate-500">What's been happening</p>
             </div>
           </div>
-
+          <div className="space-y-0">
+            {sortedActivities.length > 0 ? (
+              sortedActivities.map((item) => (
+                <ActivityItem key={item.id} item={item} />
+              ))
+            ) : (
+              <div className="py-8 text-center text-slate-400 font-inter text-sm">
+                No research activity yet — it'll show up here.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

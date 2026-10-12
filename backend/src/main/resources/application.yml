@@ -76,3 +76,7 @@ arXiv:
   base-url: ${ARXIV_BASE_URL:https://oaipmh.arxiv.org/oai}
   paper-base-url: ${ARXIV_PAPER_BASE_URL:https://arxiv.org/abs}
   paper-pdf-base-url: ${ARXIV_PAPER_PDF_BASE_URL:https://arxiv.org/pdf}
+demo:
+  enabled: ${DEMO_ENABLED:false}
+  email: ${DEMO_EMAIL:}
+  max-logins-per-minute: ${DEMO_MAX_LOGINS_PER_MINUTE:5}
