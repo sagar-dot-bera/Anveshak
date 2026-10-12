@@ -1,6 +1,7 @@
 package com.anveshak.service;
 
 import java.time.Instant;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 @Service
 public class JwtService {
 
+    /** Claim marking a token as belonging to a read-only demo session. */
+    public static final String DEMO_CLAIM = "demo";
+
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
@@ -23,16 +27,21 @@ public class JwtService {
     }
 
     public String generateToken(String userId, String email, String username, long expiration) {
+        return generateToken(userId, email, username, expiration, Map.of());
+    }
+
+    public String generateToken(String userId, String email, String username, long expiration,
+            Map<String, Object> extraClaims) {
         Instant now = Instant.now();
 
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        JwtClaimsSet.Builder builder = JwtClaimsSet.builder()
                 .subject(userId)
                 .claim("email", email)
                 .claim("username", username)
-
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiration))
-                .build();
+                .expiresAt(now.plusSeconds(expiration));
+        extraClaims.forEach(builder::claim);
+        JwtClaimsSet claims = builder.build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }

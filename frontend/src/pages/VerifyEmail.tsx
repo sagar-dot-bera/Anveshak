@@ -42,16 +42,19 @@ export default function VerifyEmail() {
   }, [token]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f7f9fb] p-4 md:p-8 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-50/40 via-[#f7f9fb] to-indigo-50/30">
-      <div className="w-full max-w-[440px] bg-white rounded-xl shadow-[0_12px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden p-8 md:p-10 flex flex-col items-center text-center space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-aurora p-4 md:p-8 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -left-24 w-[30rem] h-[30rem] rounded-full bg-violet-400/35 blur-[100px] animate-float-slow" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 w-[30rem] h-[30rem] rounded-full bg-pink-400/35 blur-[100px] animate-float" />
+      <div className="pointer-events-none absolute top-1/3 right-1/4 w-72 h-72 rounded-full bg-orange-300/30 blur-[90px] animate-float-slow" />
+      <div className="w-full max-w-[440px] relative bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-[0_40px_80px_-40px_rgba(124,58,237,0.55)] border border-white overflow-hidden p-8 md:p-10 flex flex-col items-center text-center space-y-6">
         <div className="flex items-center space-x-3">
-          <img src={logo} alt="Anveshak Logo" className="w-7 h-7 rounded-md object-cover shadow-sm" />
+          <img src={logo} alt="Anveshak Logo" className="w-9 h-9 p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 object-contain" />
           <span className="font-hanken font-bold text-lg tracking-wide text-slate-900">Anveshak</span>
         </div>
 
         {status === 'verifying' && (
           <>
-            <Loader2 className="w-12 h-12 text-vibrant-blue animate-spin" />
+            <Loader2 className="w-12 h-12 text-pink-500 animate-spin" />
             <div className="space-y-1.5">
               <h1 className="font-hanken font-bold text-xl text-slate-900">Verifying your email…</h1>
               <p className="font-inter text-sm text-slate-500">Please wait a moment.</p>
@@ -70,7 +73,7 @@ export default function VerifyEmail() {
             </div>
             <Link
               to="/login"
-              className="w-full bg-deep-indigo hover:bg-primary text-white py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow active:scale-[0.98]"
+              className="w-full bg-deep-indigo hover:bg-primary text-white py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow active:scale-[0.98]"
             >
               Go to Sign In
             </Link>
@@ -86,7 +89,7 @@ export default function VerifyEmail() {
             </div>
             <Link
               to="/login"
-              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center"
+              className="w-full bg-violet-50 hover:bg-violet-100 text-violet-700 py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center"
             >
               Back to Sign In
             </Link>

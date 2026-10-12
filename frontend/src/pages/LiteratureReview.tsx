@@ -78,9 +78,9 @@ export default function LiteratureReview() {
 
   if (isPapersLoading) {
     return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center bg-[#f7f9fb]">
+      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-deep-indigo border-t-transparent" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-500 border-r-pink-500 border-b-orange-400 border-t-transparent" />
           <p className="font-inter text-sm text-slate-500 font-medium">Loading research papers...</p>
         </div>
       </div>
@@ -88,10 +88,10 @@ export default function LiteratureReview() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-slate-100/50">
+    <div className="flex h-full overflow-hidden bg-slate-100/50">
       
       {/* ── Left Column: Synthesis Pipeline Workspace ── */}
-      <div className="flex-1 flex flex-col h-full bg-[#f8fafc] overflow-hidden">
+      <div className="flex-1 flex flex-col h-full bg-transparent overflow-hidden">
         
         {/* Synthesis Control Area */}
         <div className="p-5 border-b border-slate-200 bg-white space-y-4 flex-shrink-0 select-none">
@@ -161,7 +161,7 @@ export default function LiteratureReview() {
             <div className="max-w-[800px] mx-auto space-y-4">
               
               {/* Document Header Controls */}
-              <div className="flex items-center justify-between bg-white border border-slate-100 rounded-xl px-4 py-2.5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] select-none">
+              <div className="flex items-center justify-between bg-white/90 border border-white rounded-3xl px-4 py-2.5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] select-none">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-success-green animate-pulse" />
                   <span className="font-inter text-xs text-slate-500 font-medium">
@@ -180,11 +180,11 @@ export default function LiteratureReview() {
               </div>
 
               {/* Document Sheet */}
-              <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_4px_24px_-10px_rgba(0,0,0,0.1)] p-10 md:p-12 space-y-8 text-slate-800 text-left font-serif leading-relaxed">
+              <div className="bg-white/90 rounded-3xl border border-violet-100/80 shadow-[0_4px_24px_-10px_rgba(0,0,0,0.1)] p-10 md:p-12 space-y-8 text-slate-800 text-left font-serif leading-relaxed">
                 
                 {/* Title */}
                 <div className="text-center space-y-3 pb-4 border-b border-slate-100">
-                  <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 leading-snug">
+                  <h1 className="font-hanken font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent leading-snug">
                     Synthesized Literature Review
                   </h1>
                   <p className="font-sans text-xs text-slate-400 font-medium">

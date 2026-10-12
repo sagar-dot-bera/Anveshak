@@ -75,7 +75,7 @@ export default function MyPapers() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center bg-[#f7f9fb]">
+      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-10 w-10 animate-spin text-deep-indigo" />
           <p className="font-inter text-sm text-slate-500 font-medium">Loading your paper library...</p>
@@ -109,7 +109,7 @@ export default function MyPapers() {
             <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-deep-indigo">
               <BookOpen className="w-4 h-4" />
             </div>
-            <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 leading-none">
+            <h1 className="font-hanken font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent leading-none">
               My Library
             </h1>
           </div>
@@ -128,7 +128,7 @@ export default function MyPapers() {
       </div>
 
       {/* ── Search & Filter Bar ──────────────────────────────────── */}
-      <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] flex flex-col md:flex-row gap-4 justify-between items-center">
+      <div className="bg-white/90 border border-white rounded-3xl p-4 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] flex flex-col md:flex-row gap-4 justify-between items-center">
         {/* Search Input */}
         <div className="relative w-full md:max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -186,7 +186,7 @@ export default function MyPapers() {
           {filteredPapers.map((paper) => (
             <div
               key={paper.id}
-              className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] hover:shadow-md transition-all flex flex-col justify-between group"
+              className="bg-white/90 border border-white rounded-3xl p-5 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] hover:shadow-md transition-all flex flex-col justify-between group"
             >
               <div className="space-y-3">
                 {/* Publication year badge */}
@@ -259,7 +259,7 @@ export default function MyPapers() {
           ))}
         </div>
       ) : (
-        <div className="bg-white border border-slate-100 rounded-xl p-12 text-center max-w-lg mx-auto shadow-sm">
+        <div className="bg-white/90 border border-white rounded-3xl p-12 text-center max-w-lg mx-auto shadow-sm">
           <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <h3 className="font-hanken font-bold text-base text-slate-900">
             {searchQuery ? 'No matching papers found' : 'Your library is empty'}

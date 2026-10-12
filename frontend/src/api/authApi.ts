@@ -21,6 +21,12 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
   return data;
 }
 
+/** Start a read-only session on the seeded demo account. */
+export async function demoLogin(): Promise<AuthResponse> {
+  const { data } = await axios.post<AuthResponse>(`${API_BASE_URL}/auth/demo`);
+  return data;
+}
+
 /** Register a new account. */
 export async function register(
   payload: RegisterRequest,

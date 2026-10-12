@@ -29,6 +29,7 @@ import com.anveshak.DTOs.ResendVerificationTokenRequest;
 import com.anveshak.model.User;
 import com.anveshak.service.AuthService;
 import com.anveshak.service.CurrentUserResolver;
+import com.anveshak.service.DemoAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,6 +45,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final CurrentUserResolver currentUserResolver;
+    private final DemoAuthService demoAuthService;
 
     @Operation(summary = "Register a new user", description = "Registers a new user with the provided details.")
     @PostMapping("/register")
@@ -57,6 +59,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest,
             HttpServletRequest request) throws UnknownHostException {
         return ResponseEntity.ok(authService.loginUser(loginRequest, getClientIp(request), getUserAgent(request)));
+    }
+
+    @Operation(summary = "Start a demo session", description = "Signs into the shared, read-only demo account.")
+    @PostMapping("/demo")
+    public ResponseEntity<AuthResponse> demoLogin(HttpServletRequest request) throws UnknownHostException {
+        return ResponseEntity.ok(demoAuthService.startDemoSession(getClientIp(request), getUserAgent(request)));
     }
 
     @Operation(summary = "Login with Google", description = "Logs in a user using Google OAuth.")

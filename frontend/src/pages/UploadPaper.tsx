@@ -316,7 +316,7 @@ export default function UploadPaper() {
 
       {/* ── Page Header ─────────────────────────────────── */}
       <div>
-        <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 leading-none">
+        <h1 className="font-hanken font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent leading-none">
           Upload Research Paper
         </h1>
         <p className="font-inter text-sm text-slate-500 mt-2 max-w-2xl leading-relaxed">
@@ -431,7 +431,7 @@ export default function UploadPaper() {
           </div>
 
           {/* Analysis Status Card */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
+          <div className="bg-white/90 border border-white rounded-3xl p-5 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-hanken font-semibold text-base text-slate-900">
                 Analysis Status
@@ -491,7 +491,7 @@ export default function UploadPaper() {
         {/* RIGHT COLUMN: Paper Metadata Form */}
         <form onSubmit={handleSubmit(onSubmit)}>
           <fieldset disabled={isUploading} className="space-y-5">
-            <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] space-y-5">
+            <div className="bg-white/90 border border-white rounded-3xl p-6 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] space-y-5">
               {/* Panel Title */}
               <div className="flex items-center gap-2">
                 <AlignLeft className="w-4 h-4 text-vibrant-blue" />
@@ -508,7 +508,7 @@ export default function UploadPaper() {
                 <input
                   type="text"
                   placeholder="Enter paper title"
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-vibrant-blue/20 focus:border-vibrant-blue transition-all"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-pink-500/15 focus:border-pink-400 transition-all"
                   {...register('title')}
                 />
               </div>
@@ -521,7 +521,7 @@ export default function UploadPaper() {
                 <input
                   type="text"
                   placeholder="e.g. Dr. Jane Smith, John Doe"
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-vibrant-blue/20 focus:border-vibrant-blue transition-all"
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-pink-500/15 focus:border-pink-400 transition-all"
                   {...register('authors')}
                 />
                 <p className="font-inter text-[10px] text-slate-400">
@@ -540,7 +540,7 @@ export default function UploadPaper() {
                     placeholder="2024"
                     min={1900}
                     max={new Date().getFullYear() + 1}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-vibrant-blue/20 focus:border-vibrant-blue transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-pink-500/15 focus:border-pink-400 transition-all"
                     {...register('year')}
                   />
                 </div>
@@ -550,7 +550,7 @@ export default function UploadPaper() {
                   </label>
                   <div className="relative">
                     <select
-                      className="w-full appearance-none px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-vibrant-blue/20 focus:border-vibrant-blue transition-all pr-8 cursor-pointer"
+                      className="w-full appearance-none px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-500/15 focus:border-pink-400 transition-all pr-8 cursor-pointer"
                       {...register('language')}
                     >
                       {mockLanguages.map((lang) => (
@@ -604,7 +604,7 @@ export default function UploadPaper() {
                       if (e.key === 'Enter') { e.preventDefault(); addKeyword(); }
                     }}
                     placeholder="Add keyword..."
-                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-vibrant-blue/20 focus:border-vibrant-blue transition-all"
+                    className="w-full px-3.5 py-2.5 pr-10 bg-white border border-slate-200 rounded-lg font-inter text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-pink-500/15 focus:border-pink-400 transition-all"
                   />
                   <button
                     type="button"
@@ -628,22 +628,6 @@ export default function UploadPaper() {
                 <Sparkles className="w-4 h-4" />
                 Confirm &amp; Save to Library
               </button>
-
-              {/* Terms */}
-              <p className="font-mono text-[10px] text-center text-slate-400 leading-relaxed" />
-              By uploading, you agree to our{' '}
-              <button
-                type="button"
-                onClick={() => toast.info('Terms of Service — coming soon.')}
-                className="underline hover:text-slate-600 transition-colors"
-              >
-                Terms of Service
-              </button>
-              {' '}and{' '}
-              <span className="underline cursor-pointer hover:text-slate-600 transition-colors">
-                Privacy Policy
-              </span>
-              .
             </div>
           </fieldset>
         </form>
@@ -656,7 +640,7 @@ export default function UploadPaper() {
           return (
             <div
               key={card.id}
-              className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] hover:shadow-md transition-shadow"
+              className="bg-white/90 border border-white rounded-3xl p-5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] hover:shadow-md transition-shadow"
             >
               <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mb-3">
                 <Icon className="w-4 h-4 text-primary" />

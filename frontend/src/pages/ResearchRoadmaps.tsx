@@ -205,7 +205,7 @@ function StageCard({ stage, index, totalStages }: StageCardProps) {
       : 'bg-rose-50 text-rose-700 border-rose-100';
 
   return (
-    <div className="w-full max-w-[640px] bg-white border border-slate-200 rounded-xl shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
+    <div className="w-full max-w-[640px] bg-white/90 border border-violet-100 rounded-3xl shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
       {/* Stage header */}
       <div className="p-5 flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
@@ -267,7 +267,7 @@ function StageCard({ stage, index, totalStages }: StageCardProps) {
 
 function StageSkeleton() {
   return (
-    <div className="w-full max-w-[640px] bg-white border border-slate-100 rounded-xl p-5 space-y-3 animate-pulse">
+    <div className="w-full max-w-[640px] bg-white/90 border border-white rounded-3xl p-5 space-y-3 animate-pulse">
       <div className="flex items-center gap-2.5">
         <div className="w-6 h-6 rounded-full bg-slate-100" />
         <div className="h-4 bg-slate-100 rounded w-48" />
@@ -378,13 +378,13 @@ export default function ResearchRoadmaps() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-slate-100/50">
+    <div className="flex h-full overflow-hidden bg-slate-100/50">
       {/* ── Left Column: Main Workspace ────────────────────── */}
-      <div className="flex-1 flex flex-col h-full bg-[#f8fafc] overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full bg-transparent overflow-y-auto">
         <div className="p-6 md:p-8 max-w-[800px] mx-auto w-full space-y-6">
           {/* Header */}
           <div>
-            <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 leading-none">
+            <h1 className="font-hanken font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent leading-none">
               Research Roadmaps
             </h1>
             <p className="font-inter text-xs text-slate-400 mt-1.5">
@@ -394,7 +394,7 @@ export default function ResearchRoadmaps() {
           </div>
 
           {/* Generator input */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] space-y-3">
+          <div className="bg-white/90 border border-white rounded-3xl p-5 shadow-[0_18px_40px_-28px_rgba(124,58,237,0.45)] space-y-3">
             <p className="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase select-none">
               Generate a New Roadmap
             </p>

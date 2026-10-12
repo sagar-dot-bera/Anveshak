@@ -2,6 +2,14 @@ import { Link } from 'react-router-dom';
 import { FileText } from 'lucide-react';
 import type { ResearchPaperResponse } from '@/lib/types';
 
+const tagTones = [
+  'bg-violet-100 text-violet-700',
+  'bg-pink-100 text-pink-700',
+  'bg-orange-100 text-orange-700',
+  'bg-teal-100 text-teal-700',
+  'bg-sky-100 text-sky-700',
+];
+
 interface PaperListItemProps {
   paper: ResearchPaperResponse;
 }
@@ -16,10 +24,10 @@ export default function PaperListItem({ paper }: PaperListItemProps) {
   return (
     <Link
       to={`/talk-to-paper?paperId=${paper.id}`}
-      className="flex items-start gap-4 py-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50/50 transition-colors rounded-lg px-2 -mx-2 cursor-pointer group block decoration-none"
+      className="flex items-start gap-4 py-4 border-b border-slate-100 last:border-b-0 hover:bg-gradient-to-r hover:from-violet-50 hover:to-pink-50/60 transition-colors rounded-2xl px-3 -mx-3 cursor-pointer group block decoration-none"
     >
       {/* Thumbnail */}
-      <div className="w-10 h-12 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 text-slate-400 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+      <div className="w-11 h-13 rounded-xl bg-gradient-to-br from-violet-100 to-pink-100 flex items-center justify-center flex-shrink-0 text-violet-500 group-hover:from-violet-500 group-hover:to-pink-500 group-hover:text-white group-hover:-rotate-6 transition-all duration-300">
         <FileText className="w-5 h-5" />
       </div>
 
@@ -33,10 +41,10 @@ export default function PaperListItem({ paper }: PaperListItemProps) {
         </p>
         {paper.keywords && paper.keywords.length > 0 && (
           <div className="flex gap-1.5 mt-2 flex-wrap font-normal">
-            {paper.keywords.map((tag) => (
+            {paper.keywords.map((tag, i) => (
               <span
                 key={tag}
-                className="font-mono text-[9px] font-semibold tracking-wider text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full uppercase"
+                className={`font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full uppercase ${tagTones[i % tagTones.length]}`}
               >
                 {tag}
               </span>

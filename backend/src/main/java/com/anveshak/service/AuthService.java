@@ -42,11 +42,12 @@ public class AuthService {
     GoogleTokenVerifier googleTokenVerifier;
     GoogleProperties googleProperties;
     RestTemplate restTemplate;
+    DemoAuthService demoAuthService;
 
     public AuthService(UserService userService, JwtService jwtService, AuthTokenService authTokenService,
             AuthMailService authMailService, RefreshTokenService refreshTokenService,
             UserIdentityService userIdentityService, GoogleTokenVerifier googleTokenVerifier,
-            GoogleProperties googleProperties, RestTemplate restTemplate) {
+            GoogleProperties googleProperties, RestTemplate restTemplate, DemoAuthService demoAuthService) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authTokenService = authTokenService;
@@ -56,6 +57,7 @@ public class AuthService {
         this.userIdentityService = userIdentityService;
         this.googleProperties = googleProperties;
         this.restTemplate = restTemplate;
+        this.demoAuthService = demoAuthService;
     }
 
     public void registerUser(RegisterRequest registerRequest) {
@@ -284,6 +286,10 @@ public class AuthService {
     }
 
     private AuthResponse issueToken(User user, InetAddress ipAddress, String userAgent) {
+        if (demoAuthService.isDemoUser(user)) {
+            return demoAuthService.issueDemoTokens(user, ipAddress, userAgent);
+        }
+
         String accessToken = jwtService.generateToken(
                 user.getId().toString(),
                 user.getEmail(),

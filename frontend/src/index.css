@@ -1,64 +1,105 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand & Custom Colors */
-  --color-primary: #3525cd;
+  /* Brand & Custom Colors — "Iris": indigo-violet core, warm accents used sparingly */
+  --color-primary: #4f46e5;
   --color-on-primary: #ffffff;
-  --color-primary-container: #4f46e5;
-  --color-on-primary-container: #dad7ff;
-  --color-inverse-primary: #c3c0ff;
-  
-  --color-secondary: #0058be;
+  --color-primary-container: #6d5df5;
+  --color-on-primary-container: #eef0ff;
+  --color-inverse-primary: #c7c4ff;
+
+  --color-secondary: #7c3aed;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #2170e4;
-  --color-on-secondary-container: #fefcff;
+  --color-secondary-container: #8b5cf6;
+  --color-on-secondary-container: #f5f0ff;
 
-  --color-tertiary: #3a495f;
+  --color-tertiary: #e8590c;
   --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #516177;
-  --color-on-tertiary-container: #ccdcf7;
+  --color-tertiary-container: #fb923c;
+  --color-on-tertiary-container: #fff4ea;
 
-  --color-error: #ba1a1a;
+  --color-error: #e11d48;
   --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
+  --color-error-container: #ffe4e9;
+  --color-on-error-container: #9f1239;
 
-  --color-background: #f7f9fb;
-  --color-on-background: #191c1e;
+  --color-background: #f7f7fb;
+  --color-on-background: #161629;
 
-  /* Neutral surfaces */
-  --color-surface: #f7f9fb;
-  --color-surface-dim: #d8dadc;
-  --color-surface-bright: #f7f9fb;
+  /* Neutral surfaces with only a whisper of indigo, so content reads cleanly */
+  --color-surface: #f7f7fb;
+  --color-surface-dim: #dedfea;
+  --color-surface-bright: #fcfcfe;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f4f6;
-  --color-surface-container: #eceef0;
-  --color-surface-container-high: #e6e8ea;
-  --color-surface-container-highest: #e0e3e5;
+  --color-surface-container-low: #f3f3f9;
+  --color-surface-container: #ededf5;
+  --color-surface-container-high: #e7e7f1;
+  --color-surface-container-highest: #e1e1ec;
 
-  --color-on-surface: #191c1e;
-  --color-on-surface-variant: #464555;
-  --color-outline: #777587;
-  --color-outline-variant: #c7c4d8;
+  --color-on-surface: #161629;
+  --color-on-surface-variant: #4e4f68;
+  --color-outline: #84859d;
+  --color-outline-variant: #d2d3e0;
 
   /* Special design colors */
-  --color-deep-indigo: #312E81;
-  --color-vibrant-blue: #2563EB;
-  --color-slate-900: #0F172A;
-  --color-success-green: #10B981;
-  --color-warning-amber: #F59E0B;
-  --color-error-red: #EF4444;
+  --color-deep-indigo: #4f46e5;
+  --color-vibrant-blue: #7c3aed;
+  --color-success-green: #10b981;
+  --color-warning-amber: #f59e0b;
+  --color-error-red: #f43f5e;
+
+  /* Cool slate with a faint indigo cast: every page that uses slate-* stays on-brand */
+  --color-slate-50: #f8f8fc;
+  --color-slate-100: #f0f1f7;
+  --color-slate-200: #e2e3ee;
+  --color-slate-300: #c9cadb;
+  --color-slate-400: #9596ae;
+  --color-slate-500: #686983;
+  --color-slate-600: #50516a;
+  --color-slate-700: #3b3c53;
+  --color-slate-800: #27283c;
+  --color-slate-900: #161629;
+  --color-slate-950: #0d0d1c;
+
+  /* True indigo, the anchor of the brand gradient */
+  --color-indigo-50: #eef0ff;
+  --color-indigo-100: #e0e3ff;
+  --color-indigo-200: #c7cbfe;
+  --color-indigo-300: #a5abfc;
+  --color-indigo-400: #8187f8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #4338ca;
 
   /* Typography Fonts */
-  --font-hanken: "Hanken Grotesk", sans-serif;
-  --font-inter: "Inter", sans-serif;
+  --font-hanken: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  --font-inter: "Plus Jakarta Sans", "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* Shapes - Soft-Modern Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  /* Shapes */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-float-slow: float 14s ease-in-out infinite;
+  --animate-shimmer: shimmer 6s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    33% { transform: translate3d(2%, -4%, 0) scale(1.05); }
+    66% { transform: translate3d(-3%, 2%, 0) scale(0.97); }
+  }
+
+  @keyframes shimmer {
+    to { background-position: 200% center; }
+  }
+}
+
+:root {
+  --prism: linear-gradient(120deg, #4f46e5 0%, #6d4df2 50%, #8b5cf6 100%);
+  --prism-soft: linear-gradient(120deg, #e0e3ff 0%, #ebe4ff 50%, #f3e8ff 100%);
 }
 
 html, body, #root {
@@ -73,6 +114,75 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+  background: #c7cbfe;
+  color: #161629;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c9cadb transparent;
+}
+
+/* Primary actions across the app glow with the prism gradient. */
+.bg-deep-indigo {
+  background-image: var(--prism);
+  background-size: 140% 100%;
+  background-position: 0% center;
+  transition-property: background-position, box-shadow, transform, filter, opacity;
+}
+
+:is(a, button).bg-deep-indigo {
+  box-shadow: 0 8px 22px -10px rgba(79, 70, 229, 0.6);
+}
+
+:is(a, button).bg-deep-indigo:hover {
+  background-position: 100% center;
+  box-shadow: 0 12px 28px -10px rgba(124, 58, 237, 0.6);
+}
+
+/* Soft aurora wash used as the ground of the workspace and auth pages. */
+.bg-aurora {
+  background-color: #f7f7fb;
+  background-image:
+    radial-gradient(44rem 28rem at 0% 0%, rgba(99, 102, 241, 0.12), transparent 60%),
+    radial-gradient(38rem 26rem at 100% 0%, rgba(139, 92, 246, 0.10), transparent 60%),
+    radial-gradient(40rem 30rem at 100% 100%, rgba(56, 189, 248, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+.text-prism {
+  background-image: linear-gradient(100deg, #4f46e5, #7c3aed, #a78bfa, #7c3aed, #4f46e5);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: var(--animate-shimmer);
+}
+
+.border-prism {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--prism) border-box;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+
+.dot-grid {
+  background-image: radial-gradient(rgba(79, 70, 229, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Workspace page titles pick up the display face automatically. */
+main h1 {
+  letter-spacing: -0.02em;
+}
+
 /* PDF Reader Text Selection Layer Styling */
 .select-text {
   user-select: text !important;
@@ -80,6 +190,14 @@ html, body, #root {
 }
 
 .select-text ::selection {
-  background-color: rgba(79, 70, 229, 0.45) !important;
+  background-color: rgba(99, 102, 241, 0.35) !important;
   color: transparent !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-prism,
+  .animate-float,
+  .animate-float-slow {
+    animation: none;
+  }
 }

@@ -163,9 +163,9 @@ export default function TalkToPaper() {
 
   if (isPapersLoading) {
     return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center bg-[#f7f9fb]">
+      <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-deep-indigo border-t-transparent" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-violet-500 border-r-pink-500 border-b-orange-400 border-t-transparent" />
           <p className="font-inter text-sm text-slate-500 font-medium">Loading your papers...</p>
         </div>
       </div>
@@ -175,9 +175,9 @@ export default function TalkToPaper() {
   // ── Render Library Selection View ────────────────────────
   if (!selectedPaper) {
     return (
-      <div className="p-6 md:p-8 max-w-[1440px] space-y-6 mx-auto h-[calc(100vh-3.5rem)] overflow-y-auto">
+      <div className="p-6 md:p-8 max-w-[1440px] space-y-6 mx-auto h-full overflow-y-auto">
         <div>
-          <h1 className="font-hanken font-bold text-2xl md:text-3xl text-slate-900 leading-none">
+          <h1 className="font-hanken font-extrabold text-2xl md:text-3xl tracking-tight bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent leading-none">
             Talk to Paper
           </h1>
           <p className="font-inter text-sm text-slate-500 mt-2 max-w-xl">
@@ -191,7 +191,7 @@ export default function TalkToPaper() {
               <div
                 key={paper.id}
                 onClick={() => handleSelectPaper(paper)}
-                className="bg-white border border-slate-100 rounded-xl p-5 hover:border-indigo-200 hover:shadow-[0_4px_20px_-4px_rgba(79,70,229,0.08)] cursor-pointer transition-all flex flex-col justify-between group"
+                className="bg-white/90 border border-white rounded-3xl p-5 hover:border-indigo-200 hover:shadow-[0_4px_20px_-4px_rgba(79,70,229,0.08)] cursor-pointer transition-all flex flex-col justify-between group"
               >
                 <div className="space-y-3">
                   <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-primary group-hover:bg-deep-indigo group-hover:text-white transition-colors">
@@ -239,9 +239,9 @@ export default function TalkToPaper() {
 
   // ── Render Chat & Paper Split View ─────────────────────
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-slate-100/50">
+    <div className="flex h-full overflow-hidden bg-slate-100/50">
       {/* ── Left Column: Paper overview ───────────────── */}
-      <div className="flex-1 flex flex-col h-full bg-[#f8fafc] border-r border-slate-200">
+      <div className="flex-1 flex flex-col h-full bg-transparent border-r border-slate-200">
         {/* Toolbar */}
         <div className="h-11 bg-white border-b border-slate-200 px-4 flex items-center justify-between flex-shrink-0 select-none">
           <button

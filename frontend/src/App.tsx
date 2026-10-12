@@ -41,9 +41,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
         <UploadProvider>
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col h-screen">
           <DemoNoticeBanner />
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
@@ -63,8 +63,6 @@ function App() {
                   <Route path="/compare" element={<ComparePapers />} />
                   <Route path="/literature-reviews" element={<LiteratureReview />} />
                   <Route path="/research-roadmaps" element={<ResearchRoadmaps />} />
-                  <Route path="/settings" element={<Dashboard />} />
-                  <Route path="/support" element={<Dashboard />} />
                 </Route>
               </Route>
 

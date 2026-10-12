@@ -113,50 +113,57 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f7f9fb] p-4 md:p-8 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-50/40 via-[#f7f9fb] to-indigo-50/30">
+    <div className="min-h-screen flex items-center justify-center bg-aurora p-4 md:p-8 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -left-24 w-[30rem] h-[30rem] rounded-full bg-violet-400/35 blur-[100px] animate-float-slow" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 w-[30rem] h-[30rem] rounded-full bg-pink-400/35 blur-[100px] animate-float" />
+      <div className="pointer-events-none absolute top-1/3 right-1/4 w-72 h-72 rounded-full bg-orange-300/30 blur-[90px] animate-float-slow" />
       {/* Outer Card Container */}
-      <div className="w-full max-w-[1000px] bg-white rounded-xl shadow-[0_12px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[580px]">
+      <div className="relative w-full max-w-[1000px] bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-[0_40px_80px_-40px_rgba(124,58,237,0.55)] border border-white overflow-hidden flex flex-col md:flex-row min-h-[580px]">
 
         {/* Left Side: Brand Panel */}
-        <div className="w-full md:w-[42%] bg-deep-indigo relative p-8 md:p-10 flex flex-col justify-between overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-container via-deep-indigo to-deep-indigo text-white">
+        <div className="w-full md:w-[42%] bg-[#141433] relative p-8 md:p-10 flex flex-col justify-between overflow-hidden text-white">
           {/* Subtle background overlay elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-20 -right-16 w-72 h-72 bg-indigo-600/45 rounded-full blur-3xl pointer-events-none animate-float-slow" />
+          <div className="absolute bottom-0 -left-20 w-72 h-72 bg-violet-600/30 rounded-full blur-3xl pointer-events-none animate-float" />
+          <div className="absolute top-1/2 right-0 w-48 h-48 bg-sky-500/20 rounded-full blur-3xl pointer-events-none animate-float-slow" />
+          <div className="absolute inset-0 opacity-25 pointer-events-none [background-image:radial-gradient(rgba(255,255,255,0.3)_1px,transparent_1px)] [background-size:22px_22px]" />
 
           {/* Top: Logo & Title */}
           <div className="flex items-center space-x-3 z-10">
             <img
               src={logo}
               alt="Anveshak Logo"
-              className="w-7 h-7 rounded-md object-cover shadow-sm "
+              className="w-10 h-10 p-2 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 object-contain -rotate-6 shadow-[0_8px_24px_-6px_rgba(99,102,241,0.8)]"
             />
             <span className="font-hanken font-bold text-lg tracking-wide">Anveshak</span>
           </div>
 
           {/* Middle: Content */}
           <div className="my-10 md:my-auto z-10 flex flex-col justify-center space-y-4">
-            <h2 className="font-hanken font-semibold text-2xl md:text-3xl leading-snug text-left text-white">
-              Empowering researchers with AI precision.
+            <h2 className="font-hanken font-extrabold text-3xl md:text-4xl leading-[1.08] tracking-tight text-left text-white">
+              Empowering researchers with{' '}
+              <span className="bg-gradient-to-r from-indigo-200 via-violet-200 to-sky-200 bg-clip-text text-transparent">AI precision.</span>
             </h2>
-            <p className="font-inter text-slate-300 text-sm leading-relaxed text-left max-w-sm">
+            <p className="font-inter text-white/70 text-sm leading-relaxed text-left max-w-sm">
               Access your second brain and navigate complex academic landscapes with ease.
             </p>
 
-            <hr className="border-white/10 w-full my-6" />
+            <hr className="border-0 h-px bg-gradient-to-r from-violet-400/60 via-pink-400/60 to-transparent w-full my-6" />
 
             {/* Joined by researchers */}
             <div className="flex items-center space-x-3 pt-2">
               <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full border-2 border-deep-indigo bg-white flex items-center justify-center text-[10px] text-slate-500 font-semibold shadow-sm">
+                <div className="w-8 h-8 rounded-full border-2 border-[#141433] bg-gradient-to-tr from-violet-500 to-fuchsia-400 flex items-center justify-center text-[10px] text-white font-semibold shadow-sm">
                   JD
                 </div>
-                <div className="w-8 h-8 rounded-full border-2 border-deep-indigo bg-gradient-to-tr from-slate-500 to-slate-300 flex items-center justify-center text-[10px] text-white font-semibold shadow-sm">
+                <div className="w-8 h-8 rounded-full border-2 border-[#141433] bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-[10px] text-white font-semibold shadow-sm">
                   AI
                 </div>
-                <div className="w-8 h-8 rounded-full border-2 border-deep-indigo bg-gradient-to-tr from-amber-700 to-amber-500 flex items-center justify-center text-[10px] text-white font-semibold shadow-sm">
+                <div className="w-8 h-8 rounded-full border-2 border-[#141433] bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-[10px] text-white font-semibold shadow-sm">
                   RE
                 </div>
               </div>
-              <span className="font-mono text-xs text-slate-300 tracking-wide">
+              <span className="font-mono text-xs text-white/75 tracking-wide">
                 Joined by 10k+ researchers
               </span>
             </div>
@@ -188,12 +195,12 @@ export default function Login() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
                   <input
                     type="email"
                     placeholder="name@university.edu"
-                    className={`w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border ${errors.email ? 'border-error-red focus:ring-error-red/20' : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                      } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                    className={`w-full pl-10 pr-4 py-3 bg-violet-50/40 border-2 ${errors.email ? 'border-error-red focus:ring-error-red/20' : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                      } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                     {...register('email')}
                   />
                 </div>
@@ -208,24 +215,14 @@ export default function Login() {
                   <label className="block font-inter text-xs md:text-sm font-medium text-slate-700">
                     Password
                   </label>
-                  <a
-                    href="#forgot-password"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toast.info('Password recovery link sent if email matches.');
-                    }}
-                    className="font-mono text-xs text-vibrant-blue hover:text-primary transition-colors cursor-pointer"
-                  >
-                    Forgot password?
-                  </a>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-violet-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className={`w-full pl-10 pr-10 py-2.5 bg-slate-50/70 border ${errors.password ? 'border-error-red focus:ring-error-red/20' : 'border-slate-200 focus:border-vibrant-blue focus:ring-vibrant-blue/20'
-                      } rounded-md text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-2`}
+                    className={`w-full pl-10 pr-10 py-3 bg-violet-50/40 border-2 ${errors.password ? 'border-error-red focus:ring-error-red/20' : 'border-violet-100 focus:border-pink-400 focus:ring-pink-500/15 focus:bg-white'
+                      } rounded-2xl text-slate-900 placeholder:text-slate-400 font-inter text-sm transition-all focus:outline-none focus:ring-4`}
                     {...register('password')}
                   />
                   <button
@@ -261,7 +258,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-deep-indigo hover:bg-primary text-white py-2.5 px-4 rounded-md font-inter font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none"
+                className="w-full bg-deep-indigo hover:bg-primary text-white py-3.5 px-4 rounded-full font-inter font-bold text-sm transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75 disabled:pointer-events-none"
               >
                 <span>{isLoading ? 'Signing In...' : 'Sign In'}</span>
                 {!isLoading && <ArrowRight className="w-4 h-4" />}
@@ -282,7 +279,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => googleOAuthLogin()}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 border border-slate-200 rounded-md bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+                className="w-full flex items-center justify-center space-x-2 py-3 px-4 border-2 border-violet-100 hover:border-pink-200 rounded-full bg-white hover:bg-pink-50/40 active:bg-slate-100 transition-colors shadow-sm cursor-pointer"
               >
                 {/* Google Icon SVG */}
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
