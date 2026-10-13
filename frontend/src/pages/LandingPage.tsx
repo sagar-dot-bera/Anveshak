@@ -179,19 +179,6 @@ export default function LandingPage() {
                 {demo.state === 'waking' ? 'Waking the server…' : demo.busy ? 'Opening demo…' : 'View Demo'}
               </button>
             </div>
-
-            <div className="flex items-center justify-center lg:justify-start gap-3 mt-8">
-              <div className="flex -space-x-2.5">
-                {['from-violet-500 to-fuchsia-500', 'from-pink-500 to-rose-400', 'from-orange-500 to-amber-400', 'from-teal-400 to-cyan-500'].map((g, i) => (
-                  <span key={g} className={`w-9 h-9 rounded-full border-[3px] border-white bg-gradient-to-br ${g} flex items-center justify-center font-hanken text-[11px] font-bold text-white`}>
-                    {['JD', 'AK', 'RS', 'MP'][i]}
-                  </span>
-                ))}
-              </div>
-              <p className="font-inter text-sm text-slate-600">
-                Loved by <span className="font-bold text-slate-900">10k+ researchers</span>
-              </p>
-            </div>
           </div>
 
           {/* Hero collage */}
