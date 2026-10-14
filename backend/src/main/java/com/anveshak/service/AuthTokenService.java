@@ -55,12 +55,12 @@ public class AuthTokenService {
         AuthToken authToken = authTokenRepository.findByTokenHash(hashedToken);
 
         if (authToken == null) {
-            log.warn("Auth token not found for token: {} and type: {}", token, tokenType);
+            log.warn("Auth token not found for type: {}", tokenType);
             return false;
         }
 
         if (authToken.getExpiresAt().isBefore(java.time.Instant.now())) {
-            log.warn("Auth token expired for token: {} and type: {}", token, tokenType);
+            log.warn("Auth token expired for type: {}", tokenType);
             return false;
         }
 
@@ -77,9 +77,9 @@ public class AuthTokenService {
 
         if (authToken != null) {
             authTokenRepository.delete(authToken);
-            log.info("Auth token deleted for token: {}", token);
+            log.info("Auth token {} deleted", authToken.getId());
         } else {
-            log.warn("Auth token not found for deletion for token: {}", token);
+            log.warn("Auth token not found for deletion");
         }
     }
 
@@ -93,7 +93,7 @@ public class AuthTokenService {
 
         if (authToken != null) {
             authTokenRepository.delete(authToken);
-            log.info("Auth token deleted for token: {} and type: {}", token, tokenType);
+            log.info("Auth token {} of type {} deleted", authToken.getId(), tokenType);
         }
     }
 
@@ -106,7 +106,7 @@ public class AuthTokenService {
         AuthToken authToken = authTokenRepository.findByTokenHash(hashedToken);
 
         if (authToken == null) {
-            log.warn("Auth token not found for token: {}", token);
+            log.warn("Auth token not found");
             return null;
         }
 
@@ -119,7 +119,14 @@ public class AuthTokenService {
         }
 
         String hashedToken = HashUtil.hash(token);
-        return authTokenRepository.findByTokenHashAndType(hashedToken, tokenType);
+        AuthToken authToken = authTokenRepository.findByTokenHashAndType(hashedToken, tokenType);
+
+        if (authToken != null && authToken.getExpiresAt().isBefore(java.time.Instant.now())) {
+            log.warn("Auth token expired for type: {}", tokenType);
+            return null;
+        }
+
+        return authToken;
     }
 
 }

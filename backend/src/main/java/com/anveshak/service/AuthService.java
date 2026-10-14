@@ -33,6 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AuthService {
+    // JwtService.generateToken and AuthTokenService.saveToken take their expiration in seconds.
+    private static final long ACCESS_TOKEN_TTL_SECONDS = 60L * 60;
+    private static final long REFRESH_TOKEN_TTL_SECONDS = 7L * 24 * 60 * 60;
+    private static final long EMAIL_TOKEN_TTL_SECONDS = 60L * 60;
+
     UserService userService;
     JwtService jwtService;
     AuthTokenService authTokenService;
@@ -67,12 +72,12 @@ public class AuthService {
                 newUser.getId().toString(),
                 newUser.getEmail(),
                 newUser.getUsername(),
-                3600000L);
+                EMAIL_TOKEN_TTL_SECONDS);
 
         authTokenService.saveToken(
                 newUser,
                 token,
-                3600000L,
+                EMAIL_TOKEN_TTL_SECONDS,
                 AuthTokenTypes.EMAIL_VERIFICATION);
 
         userIdentityService.createLocalIdentity(newUser, registerRequest.password());
@@ -126,10 +131,7 @@ public class AuthService {
     }
 
     public AuthResponse handleGoogleCallback(String code, String redirectUri, InetAddress ipAddress, String userAgent) throws Exception {
-        String secret = googleProperties.clientSecret();
-        String maskedSecret = (secret != null && secret.length() > 6) ? secret.substring(0, 6) + "...(len=" + secret.length() + ")" : String.valueOf(secret);
-        log.info("handleGoogleCallback start: raw code length={}, redirectUri={}, clientId={}, clientSecret={}", 
-                code != null ? code.length() : 0, redirectUri, googleProperties.clientId(), maskedSecret);
+        log.info("handleGoogleCallback start: redirectUri={}", redirectUri);
 
         if (code == null || code.isBlank()) {
             log.error("handleGoogleCallback failed: Authorization code is null or empty");
@@ -171,12 +173,12 @@ public class AuthService {
                         Map.class
                 );
 
-                log.info("Google userinfo HTTP status: {}, body: {}", userInfoResp.getStatusCode(), userInfoResp.getBody());
+                log.info("Google userinfo HTTP status: {}", userInfoResp.getStatusCode());
                 if (userInfoResp.getStatusCode().is2xxSuccessful() && userInfoResp.getBody() != null) {
                     Map<String, Object> userInfo = userInfoResp.getBody();
                     String googleSub = (String) userInfo.get("sub");
                     String email = (String) userInfo.get("email");
-                    log.info("Google userinfo fetched for sub={}, email={}", googleSub, email);
+                    log.info("Google userinfo fetched");
 
                     if (!userIdentityService.doesGoogleIdentityExist(googleSub)) {
                         User user;
@@ -238,12 +240,12 @@ public class AuthService {
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUsername(),
-                3600000L);
+                EMAIL_TOKEN_TTL_SECONDS);
 
         authTokenService.saveToken(
                 user,
                 token,
-                3600000L,
+                EMAIL_TOKEN_TTL_SECONDS,
                 AuthTokenTypes.EMAIL_VERIFICATION);
 
         authMailService.sendEmailVerificationToken(user.getEmail(), token);
@@ -256,9 +258,9 @@ public class AuthService {
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUsername(),
-                3600000L);
+                EMAIL_TOKEN_TTL_SECONDS);
 
-        authTokenService.saveToken(user, token, 3600000L, AuthTokenTypes.PASSWORD_RESET);
+        authTokenService.saveToken(user, token, EMAIL_TOKEN_TTL_SECONDS, AuthTokenTypes.PASSWORD_RESET);
         authMailService.sendEmailResetPasswordToken(user.getEmail(), token);
     }
 
@@ -294,15 +296,15 @@ public class AuthService {
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUsername(),
-                3600000L);
+                ACCESS_TOKEN_TTL_SECONDS);
 
         String refreshToken = jwtService.generateToken(
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUsername(),
-                604800000L);
+                REFRESH_TOKEN_TTL_SECONDS);
 
-        refreshTokenService.createRefreshToken(refreshToken, user, ipAddress, userAgent);
+        refreshTokenService.createRefreshToken(refreshToken, user, ipAddress, userAgent, REFRESH_TOKEN_TTL_SECONDS);
 
         return new AuthResponse(accessToken, refreshToken);
     }

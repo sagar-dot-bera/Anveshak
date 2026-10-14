@@ -55,8 +55,8 @@ public class PaperChatController {
     @DeleteMapping("/{sessionId}")
     public ResponseEntity<Void> deleteChatSession(@RequestHeader("Authorization") String authorizationHeader,
             @PathVariable UUID sessionId) {
-        currentUserResolver.resolveUser(authorizationHeader);
-        paperChatService.deleteChatSession(sessionId);
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        paperChatService.deleteChatSession(sessionId, user);
         return ResponseEntity.noContent().build();
     }
 
@@ -65,8 +65,8 @@ public class PaperChatController {
     public ResponseEntity<List<ChatMessageResponse>> listChatMessages(
             @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable UUID sessionId) {
-        currentUserResolver.resolveUser(authorizationHeader);
-        return ResponseEntity.ok(paperChatService.getMessagesBySessionId(sessionId.toString()));
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        return ResponseEntity.ok(paperChatService.getMessagesBySessionId(sessionId, user));
     }
 
     @Tag(name = "Paper Chat", description = "Endpoints for managing chat sessions and messages related to research papers")
@@ -74,9 +74,9 @@ public class PaperChatController {
     public ResponseEntity<ChatMessageResponse> sendMessage(@RequestHeader("Authorization") String authorizationHeader,
             @PathVariable UUID sessionId,
             @Valid @RequestBody ChatMessageRequest request) {
-        currentUserResolver.resolveUser(authorizationHeader);
+        User user = currentUserResolver.resolveUser(authorizationHeader);
         ChatMessageRequest sessionRequest = new ChatMessageRequest(request.message(), sessionId.toString(),
                 request.role(), request.embedding());
-        return ResponseEntity.ok(paperChatService.sendMessage(sessionRequest));
+        return ResponseEntity.ok(paperChatService.sendMessage(sessionRequest, user));
     }
 }

@@ -70,7 +70,7 @@ public class DemoAuthServiceTest {
         assertEquals("refresh", response.refreshToken());
         verify(jwtService, org.mockito.Mockito.times(2)).generateToken(eq(user.getId().toString()),
                 eq(user.getEmail()), eq(user.getUsername()), anyLong(), eq(Map.of(JwtService.DEMO_CLAIM, true)));
-        verify(refreshTokenService).createRefreshToken("refresh", user, CLIENT, "chrome");
+        verify(refreshTokenService).createRefreshToken("refresh", user, CLIENT, "chrome", 6L * 60 * 60);
     }
 
     @Test

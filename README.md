@@ -230,7 +230,7 @@ Anveshak exposes clean REST APIs documented interactively via **Scalar UI**.
 | **Roadmaps**| `POST` | `/roadmaps/generate` | Generate AI-driven research roadmap for a topic |
 | **Roadmaps**| `GET` | `/roadmaps` | List user roadmaps |
 | **Collections**| `GET/POST`| `/collections` | List or create personal paper collections |
-| **Admin** | `POST` | `/api/admin/harvest/arxiv` | Trigger OAI-PMH arXiv harvester job |
+| **Admin** | `POST` | `/api/admin/harvest/arxiv` | Start the OAI-PMH arXiv harvest in the background (needs `X-Admin-Token: $ADMIN_HARVEST_TOKEN`; disabled when unset) |
 
 *Full API Interactive Playground:* `http://localhost:8080/scalar/index.html`
 

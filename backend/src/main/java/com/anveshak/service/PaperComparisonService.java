@@ -45,7 +45,7 @@ public class PaperComparisonService {
         ObjectMapper objectMapper = new ObjectMapper();
         PaperComparisonResponse paperComparisonResponse = objectMapper.readValue(response,
                 PaperComparisonResponse.class);
-        log.info("Paper comparison response: {}", paperComparisonResponse);
+        log.debug("Paper comparison response: {}", paperComparisonResponse);
 
         return paperComparisonResponse;
     }

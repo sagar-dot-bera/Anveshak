@@ -92,7 +92,8 @@ public class DemoAuthService {
                 DEMO_REFRESH_TOKEN_TTL_SECONDS,
                 demoClaim);
 
-        refreshTokenService.createRefreshToken(refreshToken, user, ipAddress, userAgent);
+        refreshTokenService.createRefreshToken(refreshToken, user, ipAddress, userAgent,
+                DEMO_REFRESH_TOKEN_TTL_SECONDS);
 
         return new AuthResponse(accessToken, refreshToken);
     }

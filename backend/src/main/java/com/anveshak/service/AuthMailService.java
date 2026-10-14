@@ -23,9 +23,6 @@ public class AuthMailService {
     @Value("${app.mail.from}")
     String from;
 
-    @Value("${MAIL_PASSWORD:NOT_FOUND}")
-    private String password;
-
     public AuthMailService(EmailSenderService emailSenderService, RefreshTokenRepository refreshTokenRepository,
             UserService userService) {
         this.emailSenderService = emailSenderService;
@@ -46,8 +43,6 @@ public class AuthMailService {
         }
 
         String verifyUrl = frontendUrl + "/auth/verify-email?token=" + token;
-
-        log.info("password: {}", password);
 
         emailSenderService.sendPlainText(email, "Verify your email",
                 "Welcome to Anveshak Please verify your email by clicking: " + verifyUrl

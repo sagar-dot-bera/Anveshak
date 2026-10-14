@@ -234,7 +234,7 @@ public class ResearchRoadmapService {
 
         String response = geminiService.generateAnwerInJSON(prompt, geminiService.roadmapSchema());
 
-        log.info("roadmap response: {}", response);
+        log.debug("roadmap response: {}", response);
 
         ObjectMapper objectMapper = new ObjectMapper();
         RoadmapResponse roadmapResponse = objectMapper.readValue(response,

@@ -25,4 +25,6 @@ public interface GlobalPaperRepository extends JpaRepository<GlobalPaper, UUID> 
             @Param("threshold") double threshold);
 
     java.util.Optional<GlobalPaper> findByExternalId(String externalId);
+
+    boolean existsBySourceAndExternalId(String source, String externalId);
 }

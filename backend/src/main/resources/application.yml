@@ -11,7 +11,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    # SQL and bound parameters (which include token hashes and user content) are
+    # off by default; set JPA_SHOW_SQL / SQL_LOG_LEVEL / SQL_BIND_LOG_LEVEL locally to debug.
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       dialect: org.hibernate.dialect.PostgreSQLDialect
   
@@ -34,9 +36,9 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    com.anveshak: DEBUG
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:INFO}
+    org.hibernate.orm.jdbc.bind: ${SQL_BIND_LOG_LEVEL:INFO}
+    com.anveshak: ${APP_LOG_LEVEL:INFO}
 
 google:
   client-id: ${GOOGLE_CLIENT_ID}
@@ -76,6 +78,9 @@ arXiv:
   base-url: ${ARXIV_BASE_URL:https://oaipmh.arxiv.org/oai}
   paper-base-url: ${ARXIV_PAPER_BASE_URL:https://arxiv.org/abs}
   paper-pdf-base-url: ${ARXIV_PAPER_PDF_BASE_URL:https://arxiv.org/pdf}
+admin:
+  # Shared secret for POST /api/admin/harvest/arxiv (X-Admin-Token header). Blank disables the endpoint.
+  harvest-token: ${ADMIN_HARVEST_TOKEN:}
 demo:
   enabled: ${DEMO_ENABLED:false}
   email: ${DEMO_EMAIL:}

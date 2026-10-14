@@ -43,7 +43,7 @@ public class PaperChatService {
     }
 
     public ChatSessionResponse createChatSession(NewChatSessionRequest request, User user) {
-        ResearchPaper paper = researchPaperService.findPaperById(UUID.fromString(request.paperId()));
+        ResearchPaper paper = researchPaperService.findOwnedPaper(UUID.fromString(request.paperId()), user);
 
         ChatSession newSession = new ChatSession();
 
@@ -55,28 +55,25 @@ public class PaperChatService {
         return new ChatSessionResponse(newSession.getId().toString(), paper.getId().toString(), newSession.getCreatedAt());
     }
 
-    public ChatSession getChatSessionById(UUID sessionId) {
-        return chatSessionRepository.findById(sessionId)
+    /**
+     * The session with this id, if it belongs to {@code user}. Someone else's
+     * session is reported as not found, so session ids can't be probed.
+     */
+    public ChatSession getOwnedChatSession(UUID sessionId, User user) {
+        return chatSessionRepository.findByIdAndUser(sessionId, user)
                 .orElseThrow(() -> new ChatSessionNotFoundException(sessionId.toString()));
-
     }
 
-    public void deleteChatSession(UUID sessionId) {
-        ChatSession session = getChatSessionById(sessionId);
+    public void deleteChatSession(UUID sessionId, User user) {
+        ChatSession session = getOwnedChatSession(sessionId, user);
         chatSessionRepository.delete(session);
     }
 
-    public ChatMessageResponse sendMessage(ChatMessageRequest request) {
-        ChatSession session = getChatSessionById(UUID.fromString(request.sessionId()));
+    public ChatMessageResponse sendMessage(ChatMessageRequest request, User user) {
+        ChatSession session = getOwnedChatSession(UUID.fromString(request.sessionId()), user);
         ResearchPaper paper = session.getPaper();
         log.info("Sending message for paper: {}", paper.getId());
-        float[] embedding = request.embeddingFloatArray();
-        PGvector pgVectorEmbedding = new PGvector(embedding);
-
-        log.info("Embedding: {}", pgVectorEmbedding.toString());
-        log.info("Type: {}", pgVectorEmbedding.getClass());
-        log.info("Vector: {}", pgVectorEmbedding.toString());
-        log.info("Embedding retrieved for message: {}", embedding.length);
+        PGvector pgVectorEmbedding = new PGvector(request.embeddingFloatArray());
         List<PaperChunk> chunks = paperChunkService.semanticSearch(pgVectorEmbedding.toString(), 5, paper.getId());
 
         log.info("Chunks retrieved for semantic search: {}", chunks.size());
@@ -85,17 +82,15 @@ public class PaperChatService {
                 .orElse("");
         String message = geminiService.generateAnswer(prompt, null);
 
-        log.info("Generated answer: {}", message);
         // Store user question under "user" role
-        storeMessage(request.message(), request.sessionId(), "user");
+        storeMessage(request.message(), session, "user");
         // Store assistant answer under "assistant" role
-        storeMessage(message, request.sessionId(), "assistant");
+        storeMessage(message, session, "assistant");
 
         return new ChatMessageResponse(message, session.getId().toString(), "assistant");
     }
 
-    public ChatMessage storeMessage(String msg, String sessionId, String role) {
-        ChatSession session = getChatSessionById(UUID.fromString(sessionId));
+    private ChatMessage storeMessage(String msg, ChatSession session, String role) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(msg);
         chatMessage.setSession(session);
@@ -104,8 +99,8 @@ public class PaperChatService {
         return chatMessageRepository.save(chatMessage);
     }
 
-    public List<ChatMessageResponse> getMessagesBySessionId(String sessionId) {
-        ChatSession session = getChatSessionById(UUID.fromString(sessionId));
+    public List<ChatMessageResponse> getMessagesBySessionId(UUID sessionId, User user) {
+        ChatSession session = getOwnedChatSession(sessionId, user);
         List<ChatMessage> messages = chatMessageRepository.findBySessionOrderByCreatedAtDesc(session);
         return messages.stream()
                 .map(msg -> new ChatMessageResponse(msg.getContent(), session.getId().toString(), msg.getRole()))

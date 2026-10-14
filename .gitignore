@@ -1,5 +1,6 @@
 HELP.md
 target/
+docs/
 **/wheels/
 **/design/
 **/docker-data/

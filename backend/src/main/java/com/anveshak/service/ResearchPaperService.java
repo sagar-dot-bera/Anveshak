@@ -548,6 +548,12 @@ public class ResearchPaperService {
                 paper.getUpdatedAt());
     }
 
+    /** The paper with this id, if it belongs to {@code owner}; otherwise not found. */
+    public ResearchPaper findOwnedPaper(UUID paperId, User owner) {
+        validateOwner(owner);
+        return loadOwnedPaper(new PaperLookupRequest(paperId), owner);
+    }
+
     private ResearchPaper loadOwnedPaper(PaperLookupRequest request, User owner) {
         if (request == null || request.paperId() == null) {
             throw new IllegalArgumentException("Paper id cannot be null");

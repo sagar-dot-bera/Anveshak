@@ -35,15 +35,15 @@ public class GeminiService {
         }
 
         public String generateAnswer(String prompt, @Nullable GenerateContentConfig config) {
-                log.info("Generating answer for prompt: {}", prompt);
+                // Prompts and answers contain paper text and user questions - sizes only.
+                log.info("Generating answer, prompt length: {} chars", prompt.length());
                 GenerateContentResponse response = geminiClient.models.generateContent(
                                 "gemini-3.5-flash",
                                 prompt,
                                 config);
-                log.info("=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
-                log.info("Generated answer: {}", response.text());
-                log.info("=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*");
-                return response.text();
+                String answer = response.text();
+                log.info("Generated answer, length: {} chars", answer == null ? 0 : answer.length());
+                return answer;
         }
 
         public String generateComparisonPrompt(List<PaperSummary> paperSummaries) {
@@ -52,7 +52,6 @@ public class GeminiService {
         }
 
         public String generateAnwerInJSON(String prompt, Schema responseSchema) {
-                log.info("Generating answer in JSON for prompt: {}", prompt);
 
                 GenerateContentConfig summaryConfig = GenerateContentConfig.builder()
                                 .responseMimeType("application/json")

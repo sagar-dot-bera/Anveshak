@@ -1,6 +1,7 @@
 package com.anveshak.service;
 
 import java.net.InetAddress;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +28,8 @@ public class RefreshTokenService {
         this.userService = userService;
     }
 
-    public RefreshToken createRefreshToken(String refreshToken, User user, InetAddress ipAddress, String userAgent) {
+    public RefreshToken createRefreshToken(String refreshToken, User user, InetAddress ipAddress, String userAgent,
+            long ttlSeconds) {
         if (refreshToken == null) {
             log.warn("Attempted to create refresh token with null refreshToken");
             throw new IllegalArgumentException("refreshToken cannot be null");
@@ -53,8 +55,8 @@ public class RefreshTokenService {
         newRefreshToken.setUser(user);
         newRefreshToken.setRevoked(false);
         newRefreshToken.setCreatedAt(java.time.Instant.now());
-        newRefreshToken.setExpiresAt(java.time.Instant.now().plusSeconds(60 * 60 * 24 * 30)); // Set expiration to 7
-                                                                                              // days from now
+        // Matches the JWT's own expiry, so the row stops being usable when the token does.
+        newRefreshToken.setExpiresAt(java.time.Instant.now().plusSeconds(ttlSeconds));
         newRefreshToken.setIpAddress(ipAddress);
         newRefreshToken.setDeviceName(userAgent);
         return refreshTokenRepository.save(newRefreshToken);
@@ -88,7 +90,9 @@ public class RefreshTokenService {
             log.warn("Attempted to validate refresh token with null request");
             throw new IllegalArgumentException("refreshTokenRequest cannot be null");
         }
-        return refreshTokenRepository.existsByTokenAndRevokedFalse(refreshTokenRequest.token());
+        return refreshTokenRepository.findByTokenAndRevokedFalse(HashUtil.hash(refreshTokenRequest.token()))
+                .filter(token -> token.getExpiresAt().isAfter(Instant.now()))
+                .isPresent();
     }
 
     public RefreshToken getRefreshToken(String refreshTokenId) {
@@ -101,8 +105,15 @@ public class RefreshTokenService {
             throw new IllegalArgumentException("refreshToken cannot be null");
         }
 
-        return refreshTokenRepository.findByTokenAndRevokedFalse(refreshToken)
-                .orElseThrow(() -> new RefreshTokenNotFoundException(refreshToken, refreshToken));
+        // Tokens are stored hashed (see createRefreshToken), so look them up the same way.
+        RefreshToken storedRefreshToken = refreshTokenRepository.findByTokenAndRevokedFalse(HashUtil.hash(refreshToken))
+                .orElseThrow(() -> new RefreshTokenNotFoundException("[redacted]", "[redacted]"));
+
+        if (storedRefreshToken.getExpiresAt().isBefore(Instant.now())) {
+            throw new RefreshTokenNotFoundException("[redacted]", storedRefreshToken.getId().toString());
+        }
+
+        return storedRefreshToken;
     }
 
     public RefreshToken revokeRefreshToken(String refreshToken) {
