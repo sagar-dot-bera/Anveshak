@@ -241,7 +241,7 @@ public class GlobalPaperService {
     }
 
     public List<GlobalPaper> semanticSearchGlobalPapers(String query, int limit) {
-        float[] queryEmbedding = embeddingServiceClient.getEmbedding(query);
+        float[] queryEmbedding = embeddingServiceClient.getQueryEmbedding(query);
         PGvector queryVector = new PGvector(queryEmbedding);
         // Use threshold 0.0 to return all results ordered by relevance
         List<GlobalPaper> papers = globalPaperRepository.semanticSearch(queryVector.toString(), limit, 0.0);

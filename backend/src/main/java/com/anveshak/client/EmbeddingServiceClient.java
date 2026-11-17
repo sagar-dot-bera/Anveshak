@@ -3,8 +3,10 @@ package com.anveshak.client;
 import com.anveshak.DTOs.EmbedRequest;
 import com.anveshak.DTOs.EmbedResponse;
 import com.anveshak.Exception.EmbeddingServiceException;
+import com.anveshak.config.CacheConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -36,6 +38,16 @@ public class EmbeddingServiceClient {
                 log.error("Embedding service error: {}", response.getStatusCode());
             }
         });
+    }
+
+    /**
+     * Cached variant of {@link #getEmbedding} for short, repeatable search
+     * queries. Don't use it for document text (chunks, abstracts) - those are
+     * embedded once and would only evict useful entries.
+     */
+    @Cacheable(cacheNames = CacheConfiguration.QUERY_EMBEDDINGS, sync = true)
+    public float[] getQueryEmbedding(String query) {
+        return getEmbedding(query);
     }
 
     /**

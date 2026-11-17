@@ -2,6 +2,8 @@
 // Centralises all token read/write/clear logic so every module
 // goes through a single source of truth.
 
+import { queryClient } from '@/lib/queryClient';
+
 const ACCESS_TOKEN_KEY = 'anveshak_access_token';
 const REFRESH_TOKEN_KEY = 'anveshak_refresh_token';
 
@@ -21,6 +23,9 @@ export function setTokens(accessToken: string, refreshToken: string): void {
 export function clearTokens(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  // Drop the signed-out user's cached data so the next login on this
+  // browser can't see it while staleTime keeps it "fresh".
+  queryClient.clear();
 }
 
 export function isAuthenticated(): boolean {

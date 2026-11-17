@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -95,6 +96,7 @@ export default function UploadPaper() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { register, handleSubmit, reset, watch } = useForm<MetadataFormValues>({
     resolver: zodResolver(metadataSchema),
@@ -274,6 +276,7 @@ export default function UploadPaper() {
       };
 
       await runClientSidePaperUpload(paperPayload, selectedFile, handlePipelineProgress);
+      queryClient.invalidateQueries({ queryKey: ['papers'] });
 
       setUploadProgress(100);
       setAnalysisSteps((prev) => [

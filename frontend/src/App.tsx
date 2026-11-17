@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from '@/pages/LandingPage';
 import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
@@ -17,6 +17,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import DemoNoticeBanner from '@/components/common/DemoNoticeBanner';
 import { UploadProvider } from '@/lib/uploadContext';
+import { queryClient } from '@/lib/queryClient';
 import './App.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -24,16 +25,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 const GOOGLE_CLIENT_ID =
   import.meta.env.APP_GOOGLE_CLIENT_ID ||
   '999262474988-r0thqdtq1nbp3sdhvkktek8pds9pfaoa.apps.googleusercontent.com';
-
-// Initialize React Query client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
 
 function App() {
   return (

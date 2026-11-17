@@ -198,8 +198,8 @@ public class PapersController {
     public ResponseEntity<PaperComparisonResponse> comparePapers(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody PaperComparisonRequest request) throws JsonMappingException, JsonProcessingException {
-        currentUserResolver.resolveUser(authorizationHeader);
-        PaperComparisonResponse entity = paperComparisonService.comparePapers(request);
+        User user = currentUserResolver.resolveUser(authorizationHeader);
+        PaperComparisonResponse entity = paperComparisonService.comparePapers(request, user);
 
         return ResponseEntity.ok(entity);
     }
